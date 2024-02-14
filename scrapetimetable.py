@@ -50,6 +50,7 @@ def scrape_timetable(driver, url):
     # Write code to scrape timetable data using Selenium
     table_rows = driver.find_elements(By.TAG_NAME, 'table')[1].find_elements(By.TAG_NAME, 'tr')
     counter = 0 # Idk why I cant just do "for rownum, row in tablerows:" but it doesnt work
+    labels = []
     for row in table_rows:
         counter = counter + 1 # Gotta use this counter to skip second row and get the labels from first row -> look comment above
         if counter == 2:
@@ -61,36 +62,69 @@ def scrape_timetable(driver, url):
             label_wed = row.find_element(By.CSS_SELECTOR, 'th:nth-child(4)').text
             label_thu = row.find_element(By.CSS_SELECTOR, 'th:nth-child(5)').text
             label_fri = row.find_element(By.CSS_SELECTOR, 'th:nth-child(6)').text
+            labels.append((label_hour, label_mon, label_tue, label_wed, label_thu, label_fri))
             print("-----------------")
             print(label_hour, label_mon, label_tue, label_wed, label_thu, label_fri)
             continue
+        
         columns = row.find_elements(By.CSS_SELECTOR, 'td:nth-child(n)')
+
         for num, column in enumerate(columns, start=1):
             try:
+                col_num = driver.execute_script("return arguments[0].cellIndex", column)
+                class_day = labels[0][col_num + 1]
                 class_num = row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[0]
                 class_time = row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[1]
-                class_mon_name = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split()[0]
-                class_mon_loc = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split()[1]
-                class_mon_tea = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split("\n")[1]
+                class_name = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split()[0]
+                class_loc = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split()[1]
+                class_tea = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split("\n")[1]
+
+                # Check if the class has rowspan="2"
+                if row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').get_attribute("rowspan") == "2":
+                    next_row = table_rows[counter]
+                    next_class_day = labels[0][col_num + 1]
+                    next_class_num = next_row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[0]
+                    next_class_time = next_row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[1]
+                    next_class_name = class_name
+                    next_class_loc = class_loc
+                    next_class_tea = class_tea
+
+                    # Append the next hour with the same name, location, and teacher
+                    timetable_data.append((class_day, class_num, class_time, class_name, class_loc, class_tea))
+                    timetable_data.append((next_class_day, next_class_num, next_class_time, next_class_name, next_class_loc, next_class_tea))
+                else:
+                    timetable_data.append((class_day, class_num, class_time, class_name, class_loc, class_tea))
+                print("-----------------")
+                print("Class Day: ", class_day)
+                print("Class Number: ", class_num)
+                print("Class Time: ", class_time)
+                print("Class Name: ", class_name)
+                print("Class Location: ", class_loc)
+                print("Class Teacher: ", class_tea)
             except:
                 continue
-        print("-----------------")
-        print("Class Number: ", class_num)
-        print("Class Time: ", class_time)
-        print("Class Name: ", class_mon_name)
-        print("Class Location: ", class_mon_loc)
-        print("Class Teacher: ", class_mon_tea)
-        #timetable_data.append((class_num, class_time, class_location))
+    return timetable_data
 # Function to store timetable data in SQLite database
 def store_timetable_data(timetable_data):
     conn = sqlite3.connect('timetable.db')
     c = conn.cursor()
+    c.execute('''DROP TABLE IF EXISTS timetable''')
     c.execute('''CREATE TABLE IF NOT EXISTS timetable 
-                 (class_name TEXT, class_time TEXT, class_location TEXT, date TEXT)''')
+                 (class_day TEXT, class_num INTEGER, class_time TEXT, class_name TEXT, class_loc TEXT, class_tea TEXT, date TEXT)''')
 
     today = date.today()
-    for class_name, class_time, class_location in timetable_data:
-        c.execute("INSERT INTO timetable VALUES (?, ?, ?, ?)", (class_name, class_time, class_location, today))
+    if timetable_data is not None:
+        for class_day, class_num, class_time, class_name, class_loc, class_tea in timetable_data:
+            print("-----------------")
+            print("Class Day: ", class_day)
+            print("Class Number: ", class_num)
+            print("Class Time: ", class_time)
+            print("Class Name: ", class_name)
+            print("Class Location: ", class_loc)
+            print("Class Teacher: ", class_tea)
+            c.execute("INSERT INTO timetable VALUES (?, ?, ?, ?, ?, ?, ?)", (class_day, class_num, class_time, class_name, class_loc, class_tea, today))
+    else:
+        print("No timetable data available to store in database.")
 
     conn.commit()
     conn.close()
@@ -105,7 +139,6 @@ def main():
 
     # Store timetable data in database
     store_timetable_data(timetable_data)
-    print(timetable_data)
 
     print("Timetable data has been scraped and stored successfully.")
 
