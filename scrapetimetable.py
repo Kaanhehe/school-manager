@@ -72,7 +72,7 @@ def scrape_timetable(driver, url):
         for num, column in enumerate(columns, start=1):
             try:
                 col_num = driver.execute_script("return arguments[0].cellIndex", column)
-                class_day = labels[0][col_num + 1]
+                class_day = labels[0][col_num + 1] ## ERROR HERE Day is not correct cuz of rowspan="2" it gets the wrong day
                 class_num = row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[0]
                 class_time = row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[1]
                 class_name = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split()[0]
@@ -82,7 +82,7 @@ def scrape_timetable(driver, url):
                 # Check if the class has rowspan="2"
                 if row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').get_attribute("rowspan") == "2":
                     next_row = table_rows[counter]
-                    next_class_day = labels[0][col_num + 1]
+                    next_class_day = labels[0][col_num + 1] ## ERROR HERE Day is not correct cuz of rowspan="2" it gets the wrong day
                     next_class_num = next_row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[0]
                     next_class_time = next_row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[1]
                     next_class_name = class_name
