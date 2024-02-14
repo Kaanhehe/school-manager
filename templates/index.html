@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable</title>
+</head>
+<body>
+    <h1>My Timetable</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Class Name</th>
+                <th>Time</th>
+                <th>Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for class_name, class_time, class_location, _ in timetable_data %}
+            <tr>
+                <td>{{ class_name }}</td>
+                <td>{{ class_time }}</td>
+                <td>{{ class_location }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
