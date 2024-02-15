@@ -4,25 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timetable</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .special-font {
+            font-family: Arial, sans-serif; /* Replace with your desired font */
+        }
+    </style>
+    <script>
+        function sortTable() {
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("timetable");
+            switching = true;
+            while (switching) {
+                switching = false;
+                rows = table.getElementsByTagName("tr");
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("td")[0];
+                    y = rows[i + 1].getElementsByTagName("td")[0];
+                    if (parseInt(x.innerHTML) > parseInt(y.innerHTML)) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <h1>My Timetable</h1>
-    <table border="1">
+<body onload="sortTable()">
+    <h1>Stundenplan</h1>
+    <table id="timetable">
         <thead>
             <tr>
-                <th>Class Name</th>
-                <th>Time</th>
-                <th>Location</th>
+                <th>Nummer</th>
+                <th>Zeit</th>
+                <th>Montag</th>
+                <th>Dienstag</th>
+                <th>Mittwoch</th>
+                <th>Donnerstag</th>
+                <th>Freitag</th>
             </tr>
         </thead>
         <tbody>
-            {% for class_name, class_time, class_location, _ in timetable_data %}
-            <tr>
-                <td>{{ class_name }}</td>
-                <td>{{ class_time }}</td>
-                <td>{{ class_location }}</td>
-            </tr>
+            {% for group in timetable_data %}
+                <tr>
+                    {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
+                    <td>{{ class_num }}</td>
+                    <td>{{ class_time }}</td>
+                    {% for class_data in group %}
+                        {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
+                        {% set day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6} %}
+                        {% if class_day in day_columns %}
+                            <td>{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
             {% endfor %}
+            <tr>
+                <td>7</td>
+                <td colspan="7" style="text-align: center; font-size: 20px; font-weight: bold;" class="special-font">Mittagspause</td>
+            </tr>
         </tbody>
     </table>
 </body>
