@@ -71,18 +71,25 @@ def scrape_timetable(driver, url):
 
         for num, column in enumerate(columns, start=1):
             try:
-                col_num = driver.execute_script("return arguments[0].cellIndex", column)
-                class_day = labels[0][col_num + 1] ## ERROR HERE Day is not correct cuz of rowspan="2" it gets the wrong day
+                class_day = labels[0][num] # class_day gets changed in the while loop if there is already a class with the same day num and time in the timetable_data below
                 class_num = row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[0]
                 class_time = row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[1]
                 class_name = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split()[0]
                 class_loc = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split()[1]
                 class_tea = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split("\n")[1]
+                # Check if there is already a class with the same day num and time in the timetable_data
+                existing_classes = [class_data for class_data in timetable_data if class_data[0] == class_day and class_data[1] == class_num]
+                # If there is an existing class, keep adding one to class_day until the class does not already exist anymore
+                counterexisting = 0
+                while existing_classes:
+                    counterexisting = counterexisting + 1
+                    class_day = labels[0][num + counterexisting]
+                    existing_classes = [class_data for class_data in timetable_data if class_data[0] == class_day and class_data[1] == class_num]
 
                 # Check if the class has rowspan="2"
                 if row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').get_attribute("rowspan") == "2":
                     next_row = table_rows[counter]
-                    next_class_day = labels[0][col_num + 1] ## ERROR HERE Day is not correct cuz of rowspan="2" it gets the wrong day
+                    next_class_day = class_day
                     next_class_num = next_row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[0]
                     next_class_time = next_row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[1]
                     next_class_name = class_name
