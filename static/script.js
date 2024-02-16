@@ -1,3 +1,5 @@
+// Author: Kaanhehe
+// used to toggle the darkmode with the nice slider in the top right
 var mode = "bright";
 function toggleMode() {
     var body = document.getElementsByTagName('body')[0];
@@ -15,9 +17,10 @@ function toggleMode() {
     }
 }
 
-function sortTable() {
+// Used to add the Mittagspause in the timetable at 7th period
+function sortTable(tableId) {
     var table, rows, switching, i, x, y, shouldSwitch;
-    table = document.getElementById("timetable");
+    table = document.getElementById(tableId);
     switching = true;
     while (switching) {
         switching = false;
@@ -37,6 +40,8 @@ function sortTable() {
         }
     }
 }
+
+// Change the active class in the navbar to the clicked one
 function changeActiveClass(event) {
     var navbar = document.getElementsByClassName("navbar")[0];
     var current = navbar.getElementsByClassName("active");
@@ -55,21 +60,31 @@ function changeActiveClass(event) {
     }
 }
 
+// Opens the form to add a new homework
 function displayhwform() {
-    var form = document.getElementsByClassName("newhwform")[0];
+    var form = document.getElementsByClassName("newhwwin")[0];
     if (form.style.display === "none" || form.style.display === "") {
         form.style.display = "block";
+        form.style.opacity = "1";
         sortClassesByColor();
     } else {
-        form.style.display = "none";
+        form.style.opacity = "0";
+        setTimeout(function() {
+            form.style.display = "none";
+        }, 500);
     }
 }
 
+// Closes the form to add a new homework with the close button in the top right
 function closehwform() {
-    var form = document.getElementsByClassName("newhwform")[0];
-    form.style.display = "none";
+    var form = document.getElementsByClassName("newhwwin")[0];
+    form.style.opacity = "0";
+    setTimeout(function() {
+        form.style.display = "none";
+    }, 500);
 }
 
+// Color the classes in the homework form -> select class !!! NOT USED FOR SORTING ANYMORE !!!
 function get_class_color (class_name) {
     var colors = {
             'Mathematik': '#6495ED',
@@ -87,10 +102,12 @@ function get_class_color (class_name) {
             'Ethik': '#A9A9A9',
             'Religion': '#FBF9F1',
             'PoWi': '#FF90BC',
+            'Spanisch': '#9BCF53',
         };
     return colors[class_name];
 }
 
+// Order of the classes in the homework form
 function get_class_order (class_name) {
     var order = {
             'Mathematik': 12,
@@ -108,10 +125,12 @@ function get_class_order (class_name) {
             'Ethik': 2,
             'Religion': 1,
             'PoWi': 15,
+            'Spanisch': 8.5,
         };
     return order[class_name];
 }
 
+// Convert RGB to HSL for sorting the classes in the homework form !!! NOT USED ANYMORE !!!
 function rgbToHsl(rgb) {
     var r = parseInt(rgb.slice(1, 3), 16) / 255;
     var g = parseInt(rgb.slice(3, 5), 16) / 255;
@@ -136,6 +155,7 @@ function rgbToHsl(rgb) {
     return [h, s, l];
 }
 
+// Sort the classes in the homework form by color so it looks nice :)
 function sortClassesByColor() {
     var selectElement = document.getElementById('class');
     var classes = Array.from(selectElement.options);
@@ -155,6 +175,7 @@ function sortClassesByColor() {
     });
 }
 
+// Color the classes in the homework overview
 function color_classes(){
     var elements = document.getElementsByClassName('class-option');
     for (var i = 0; i < elements.length; i++) {
@@ -163,3 +184,112 @@ function color_classes(){
         classElement.style.backgroundColor = get_class_color(className);
     }
 };
+
+// Show the timetable in the homework form for better orientation
+var showingtimetable = false;
+function showtimetableinform() {
+    var form = document.getElementsByClassName("newhwwin-content")[0];
+    var timetable = document.getElementsByClassName("mini-timetable")[0];
+    if (showingtimetable) {
+        timetable.classList.remove("visible");
+        setTimeout(function() {
+            form.style.width = "24%";
+            form.style.height = "57%";
+        }, 250);
+        showingtimetable = false;
+    } else {
+        form.style.width = "81.3%";
+        form.style.height = "59%";
+        setTimeout(function() {
+            timetable.classList.add("visible");
+        }, 100);
+        showingtimetable = true;
+    }
+}
+
+function classLabels(subject) {
+    labels = {
+        'Englisch' : 'E1',
+        'Deutsch' : 'D',
+        'Mathe' : 'M',
+        'Biologie' : 'BIO',
+        'Geographie' : 'GEO',
+        'Geschichte' : 'G',
+        'Physik' : 'PH',
+        'Chemie' : 'CH',
+        'Informatik' : 'WU-INFO01',
+        'Sport' : 'SPO',
+        'Musik' : 'MU',
+        'Kunst' : 'KU',
+        'Ethik' : 'ETHI01',
+        'Religion' : 'REL',
+        'PoWi' : 'POWI',
+        'Spanisch' : 'SP2-02',
+    }
+    return labels[subject];
+}
+
+function cleanMarkedCells() {
+    var timetable = document.getElementsByClassName("mini-timetable")[0];
+    var cells = timetable.getElementsByClassName("marked");
+    while (cells.length > 0) {
+        cells[0].classList.remove("marked");
+    }
+}
+
+function checkColumnsMatch(timetable, subject, day) {
+    var rows = timetable.rows;
+    for (var i = 0; i < rows.length; i++) {
+       var cell = rows[i].cells[day + 1];
+       if (!cell) {
+          continue;
+       }
+       if (cell.innerText.split(' ')[0] === subject) {
+          return cell;
+       }
+    }
+    return false;
+ }
+
+ function ColorAllColumns(day) {
+    var timetable = document.getElementsByClassName("mini-timetable")[0];
+    var rows = timetable.rows;
+    for (var i = 0; i < rows.length; i++) {
+       var cell = rows[i].cells[day + 1];
+    if (!cell || cell.colSpan > 2) { // Skip the first cell and the cells with colspan > 2 (Mittagspause)
+          continue;
+       }
+       cell.classList.add("marked");
+    }
+ }
+
+function markintimetable() {
+    // Clean up the timetable from previous marks
+    cleanMarkedCells();
+    var timetable = document.getElementsByClassName("mini-timetable")[0];
+    var date = document.getElementById("due_date").value;
+    if (date === "") {
+        return;
+    }
+    var day = new Date(date).getDay();
+    // If the day is Saturday or Sunday, do not mark anything
+    if (day === 6 || day === 0) {
+        return;
+    }
+    var subject = document.getElementById("class").value;
+    // If no subject is selected, mark all cells of the day
+    if (subject === "") {
+        ColorAllColumns(day);
+        return;
+    }
+    // Convert subject from "Fach" to the label used in the timetable
+    var subject = classLabels(subject);
+    var cell = checkColumnsMatch(timetable, subject, day);
+    // If no cell on that day has the subject, mark all cells of the day
+    if (!cell) {
+        ColorAllColumns(day);
+        return;
+    }
+    // Mark the cell with the subject
+    cell.classList.add("marked");
+}

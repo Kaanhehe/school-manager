@@ -70,7 +70,8 @@ def index():
             "Kunst",
             "Ethik",
             "Religion",
-            "PoWi"
+            "PoWi",
+            "Spanisch",
         }
     
     # Render the index.html template -> templates/index.html; with the grouped_data

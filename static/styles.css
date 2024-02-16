@@ -1,29 +1,23 @@
 /* Colors:
     #2B2636 - Background
-    #333 - Navbar
-    #4F396F - Active Navbar
-    #3D3053 - Navbar Hover
-    #424242 - Table Border
-    #181818 - Table Odd
-    #888 - Text
-    #6495ED - Mathematik
-    #FF8080 - Deutsch
-    #EEC759 - Englisch
-    #99BC85 - Biologie
-    #F57D1F - Geschichte
-    #808080 - Geographie
-    #7BD3EA - Physik
-    #FF00FF - Chemie
-    #A52A2A - Informatik
-    #AAD7D9 - Sport
-    #00FFFF - Musik
-    #E493B3 - Kunst
-    #E5E1DA - Ethik
-    #FBF9F1 - Religion
-    #FF90BC - PoWi
+    #9e9e9e - Text color
+    #4F396F - Navbar
+    #3D3053 - Navbar hover
+    #181818 - Content
+    #333 - Content secondary
+    #424242 - Border
+    #ffcc89 - Sun gradient start
+    #d8860b - Sun gradient end
+    #777 - Moon gradient start
+    #3a3a3a - Moon gradient end
+    #242424 - Darkmode toggle background
+    #ebebeb - Darkmode label background
+    #fff - Sun color
+    #7e7e7e - Moon color
 */
 
 body {
+    font-family: Calibri, sans-serif;   
     color : white;
     background-color: #2B2636;
 }
@@ -52,21 +46,48 @@ body {
 
 .content {
     padding: 16px;
+    margin-left: 13%;
+    margin-right: 13%;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    background-color: #2B2636;
+    border-radius: 20px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px -5px 15px rgba(255, 255, 255, 0.11);
 }
 
-.timetable, .homework{
+input[type=text], input[type=password], input[type=date], select {
+    width: 100%;
+    margin: 8px 0;
+    display: inline-block;
+    padding: 6px;
+    border: 1px solid #424242;
+    border-radius: 20px;
+    box-sizing: border-box;
+    background-color: #333;
+    color: #9e9e9e;
+    width: 400px;
+    height: 35px;
+    font-size: 20px;
+    background:rgba(255,255,255,.1);
+}
+
+select {
+    -webkit-appearance: none;
+    appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+  }
+
+.timetable, .homework-table{
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     margin: 15px 0;
 }
 
-.special-font {
-    font-family: Arial, sans-serif;
-}
-
 .navbar {
-    background-color: #333;
+    background-color: #181818;
     overflow: hidden;
 }
 
@@ -129,7 +150,7 @@ body {
     height: 25px;
     position: absolute;
     top:2px;
-    left:4px;
+    left:5px;
     background: linear-gradient(180deg,#ffcc89,#d8860b);
     border-radius: 18px;
     box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
@@ -158,19 +179,19 @@ body {
 
 .dm-label .dm-svg {
     position: absolute;
-    width: 18px;
-    top:5px;
+    width: 17px;
+    top:6px;
     z-index: 100;
 }
 
 .dm-label .dm-svg.sun {
-    left:7px;
+    left:8px;
     fill:#fff;
     transition: 0.3s;
 }
 
 .dm-label .dm-svg.moon {
-    left:44px;
+    left:43.5px;
     fill:#7e7e7e;
     transition: 0.3s;
 }
@@ -217,46 +238,61 @@ tr:nth-child(odd) {
     margin: 4px 2px;
     cursor: pointer;
     border: none;
+    border-radius: 20px;
 }
 
 #newhw:hover {
     background-color: #3D3053;
 }
 
-.newhwform {
-display: none;
-position: fixed;
-z-index: 1;
-left: 0;
-top: 0;
-width: 100%;
-height: 100%;
-overflow: auto;
-background-color: rgba(0,0,0,0.4);
+.newhwwin {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    overflow: hidden;
 }
 
-.newhwform-content {
-color: #888;
-background-color: #121212;
-margin: 15% auto;
-padding: 20px;
-border: 1px solid #888;
-width: 25%;
-height: 40%;
+.newhwwin.visible {
+    opacity: 1;
 }
 
-.closehwform {  
-color: #aaa;
-float: right;
-font-size: 28px;
-font-weight: bold;
+.newhwwin-content {
+    display: flex;
+    position: relative;
+    transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
+    flex-direction: row;
+    background-color: #181818;
+    margin: 15% auto;
+    padding: 20px;
+    padding-right: 0;
+    width: 24%;
+    height: 57%;
+    border-radius: 20px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px -5px 15px rgba(255, 255, 255, 0.11);
 }
 
-.closehwform:hover,
-.closehwform:focus {
-color: black;
-text-decoration: none;
-cursor: pointer;
+.closehwwin {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.closehwwin:hover, .closehwwin:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .hwform {
@@ -281,15 +317,43 @@ cursor: pointer;
     margin: 10px;
 }
 
-#class, #homework_name, #work_amount{
-    color: #888;
-    width: 400px;
-    height: 40px;
-    padding: 5px;
-    font-size: 20px;
-    border-radius: 25px;
-    background-color: #333;
-    background:rgba(255,255,255,.1);
+.hwformgroup label {
+    font-size: 18px;
+    margin: 3px 10px;
+}
+
+.showtimetablecb {
+    display: flex;
+    flex-direction: row;
+    margin: 10px;
+}
+
+.showtimetablecb:hover .mini-timetable {
+    display: block;
+    opacity: 1;
+}
+
+.mini-timetable {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px;
+}
+
+.mini-timetable.visible {
+    display: block;
+    opacity: 1;
+}
+
+.mini-timetable th, .mini-timetable td {
+    color: white;
+    padding: 13px;
+}
+
+.marked {
+    background-color: #4F396F;
 }
 
 .submit {
@@ -303,6 +367,7 @@ cursor: pointer;
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
+    border-radius: 20px;
 }
 
 .submit:hover {

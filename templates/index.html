@@ -1,3 +1,4 @@
+<!-- Author: Kaanhehe -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,10 +8,11 @@
     <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
     <script src="{{url_for('static', filename='script.js')}}"></script>
 </head>
-<body onload="sortTable()">
+<!-- Using not the direct id for timetable but for mini-timetable using the direct id, idk no more -->
+<body onload="sortTable('timetable'); sortTable('mini-timetable');"> 
     <div class="navbar">
-        <a id="timetable-link" class="active" onclick="changeActiveClass(event)" href="#">Timetable</a>
-        <a id="homework-link" onclick="changeActiveClass(event)" href="#">Homework</a>
+        <a id="timetable-link" class="active" onclick="changeActiveClass(event)" href="#">Stundenplan</a>
+        <a id="homework-link" onclick="changeActiveClass(event)" href="#">Hausaufgaben</a>
         <a href="/logout">Logout</a>
         <input class="darkmode-toggle" type="checkbox" id="darkmode-toggle" onclick="toggleMode()"/>
 		<label class="dm-label" for="darkmode-toggle">
@@ -49,7 +51,7 @@
     </div>
     <div id="bgimg">
         <div style="background-image: url(https://startcache.schulportal.hessen.de/exporteur.php?a=schoolbg&i=5202&s=lg); " class="schoolbg brightbg"></div>
-        <img class="schoolbg darkbg" src="{{url_for('static', filename='images/3101702.jpg')}}" alt="background-image">
+        <img class="schoolbg darkbg" src="{{url_for('static', filename='images/3101702.jpg')}}" alt="background-image" style="user-select: none;">
     </div>
     <div class="content">
         <div id="timetable">
@@ -65,7 +67,7 @@
                             <th>Donnerstag</th>
                             <th>Freitag</th>
                         </tr>
-                    </thead>
+                    </thead> 
                     <tbody>
                         {% for group in timetable_data %}
                             <tr>
@@ -94,14 +96,13 @@
 
                 <button id="newhw" onclick="displayhwform()">Neue Hausaufgabe</button>
 
-                <div id="newhwform" class="newhwform">
-                    <div class="newhwform-content">
-                        <span id="closehwformButton" class="closehwform" onclick="closehwform()">&times;</span>
+                <div id="newhwwin" class="newhwwin">
+                    <div class="newhwwin-content">
                         
                         <form class="hwform" action="/homework" method="post">
                             <h1>Neue Hausaufgabe</h1>
                             <div class="hwformgroup">
-                                <label for="class">Fach</label>
+                                <label for="class">Fach *</label>
                                 <select required id="class" name="class">
                                     <option value="">Wähle ein Fach</option>
                                     {% for class in classes_data %}
@@ -111,22 +112,66 @@
                             </div>
                             
                             <div class="hwformgroup">
-                                <label for="homework_name">Aufgabe</label>
-                                <input required type="text" id="homework_name" name="homework_name" placeholder="S.13/5a">
+                                <label for="homework_name">Aufgabe *</label>
+                                <input required type="text" id="homework_name" name="homework_name" placeholder="z.B.: S.13/5a">
                             </div>
 
                             <div class="hwformgroup">
-                                <label for="work_amount">Arbeitsaufwand</label>
+                                <label for="work_amount">Arbeitsaufwand *</label>
                                 <select required id="work_amount" name="work_amount">
                                     <option value="">Wähle den Arbeitsaufwand</option>
-                                    <option value="easy">Easy</option>
-                                    <option value="normal">Normal</option>
-                                    <option value="hard">Hard</option>
+                                    <option value="easy">Einfach😀</option>
+                                    <option value="normal">Normal🙂</option>
+                                    <option value="hard">Schwer🥵</option>
                                 </select>
                             </div>
 
-                            <input class="submit" id="homeworksub" type="submit" value="Submit">
+                            <div class="hwformgroup">
+                                <label for="due_date">Abgabedatum</label>
+                                <input type="date" id="due_date" name="due_date" onchange="markintimetable()" onclick="markintimetable()">
+                                <div class="showtimetablecb">
+                                    <input type="checkbox" name="showtimetable" id="showtimetable" onclick="showtimetableinform()">
+                                    <label for="showtimetable">Zeig meinen Stundenplan</label>
+                                </div>
+                            </div>
+
+                            <input class="submit" id="homeworksub" type="submit" value="Hinzufügen">
                         </form>
+                        <span id="closehwwinButton" class="closehwwin" onclick="closehwform()">&times;</span>
+                        <table id="mini-timetable" class="mini-timetable">
+                            <thead>
+                                <tr>
+                                    <th>Nummer</th>
+                                    <th>Zeit</th>
+                                    <th>Montag</th>
+                                    <th>Dienstag</th>
+                                    <th>Mittwoch</th>
+                                    <th>Donnerstag</th>
+                                    <th>Freitag</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for group in timetable_data %}
+                                    <tr>
+                                        {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
+                                        <td>{{ class_num }}</td>
+                                        <td>{{ class_time }}</td>
+                                        {% for class_data in group %}
+                                            {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
+                                            {% set day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6} %}
+                                            {% if class_day in day_columns %}
+                                                <td>{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td>7</td>
+                                    <td>13:00 - 13:45</td>
+                                    <td colspan="6" style="text-align: center; font-size: 20px; font-weight: bold;" class="lunchbreak">Mittagspause</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
