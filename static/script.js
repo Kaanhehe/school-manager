@@ -73,7 +73,7 @@ function closehwform() {
 function get_class_color (class_name) {
     var colors = {
             'Mathematik': '#6495ED',
-            'Deutsch': '#FF8080',
+            'Deutsch': '#D04848',
             'Englisch': '#EEC759',
             'Biologie': '#99BC85',
             'Geschichte': '#F57D1F',
@@ -83,12 +83,33 @@ function get_class_color (class_name) {
             'Informatik': '#A52A2A',
             'Sport': '#AAD7D9',
             'Musik': '#00FFFF',
-            'Kunst': '#E493B3',
-            'Ethik': '#E5E1DA',
+            'Kunst': '#C23373',
+            'Ethik': '#A9A9A9',
             'Religion': '#FBF9F1',
             'PoWi': '#FF90BC',
         };
     return colors[class_name];
+}
+
+function get_class_order (class_name) {
+    var order = {
+            'Mathematik': 12,
+            'Deutsch': 5,
+            'Englisch': 7,
+            'Biologie': 8,
+            'Geschichte': 6,
+            'Geographie': 3,
+            'Physik': 11,
+            'Chemie': 13,
+            'Informatik': 4,
+            'Sport': 10,
+            'Musik': 9,
+            'Kunst': 14,
+            'Ethik': 2,
+            'Religion': 1,
+            'PoWi': 15,
+        };
+    return order[class_name];
 }
 
 function rgbToHsl(rgb) {
@@ -120,9 +141,13 @@ function sortClassesByColor() {
     var classes = Array.from(selectElement.options);
 
     classes.sort(function(a, b) {
-        var hslA = rgbToHsl(get_class_color(a.text));
-        var hslB = rgbToHsl(get_class_color(b.text));
-        return hslA[0] - hslB[0];
+        if (a.text === 'Wähle ein Fach' || b.text === 'Wähle ein Fach') {
+            return 999;
+        }
+        //var hslA = rgbToHsl(get_class_color(a.text)); Didnt work so well so using manual order for now
+        //var hslB = rgbToHsl(get_class_color(b.text));
+        //return hslA[0] - hslB[0];
+        return get_class_order(a.text) - get_class_order(b.text);
     });
 
     classes.forEach(function(option) {

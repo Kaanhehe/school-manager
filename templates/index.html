@@ -94,16 +94,16 @@
 
                 <button id="newhw" onclick="displayhwform()">Neue Hausaufgabe</button>
 
-                <div id="popup-newhw" class="newhwform">
+                <div id="newhwform" class="newhwform">
                     <div class="newhwform-content">
                         <span id="closehwformButton" class="closehwform" onclick="closehwform()">&times;</span>
                         
-                        <form action="/homework" method="post" class="hwform">
+                        <form class="hwform" action="/homework" method="post">
                             <h1>Neue Hausaufgabe</h1>
                             <div class="hwformgroup">
                                 <label for="class">Fach</label>
                                 <select required id="class" name="class">
-                                    <option value="">Wähle eine Klasse</option>
+                                    <option value="">Wähle ein Fach</option>
                                     {% for class in classes_data %}
                                         <option value="{{ class }}" class="class-option">{{ class }}</option>
                                     {% endfor %}
@@ -130,7 +130,7 @@
                     </div>
                 </div>
 
-                <table class="homework">
+                <table class="homework-table">
                     <thead>
                         <tr>
                             <th>Fach</th>
