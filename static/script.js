@@ -39,24 +39,59 @@ function sortTable(tableId) {
             switching = true;
         }
     }
+    var content = document.getElementsByClassName("content")[0];
+    var height = document.getElementById("timetable").offsetHeight;
+    height = height + 40;
+    content.style.height = height + "px";
 }
 
 // Change the active class in the navbar to the clicked one
 function changeActiveClass(event) {
     var navbar = document.getElementsByClassName("navbar")[0];
     var current = navbar.getElementsByClassName("active");
+    var content = document.getElementsByClassName("content")[0];
     current[0].classList.remove("active");
     event.target.className += " active";
     if (event.target.id === "timetable-link") {
-        document.getElementById("timetable").style.display = "block";
+        content.style.height = "500px";
+        setTimeout(function() {
+            content.style.height = "auto";
+            setTimeout(function() {
+                var height = document.getElementById("timetable").offsetHeight;
+                height = height + 40;
+                content.style.height = height + "px";
+            }, 10);
+        }, 300);
+        setTimeout(function() {
+            document.getElementById("timetable").style.display = "block";
+            setTimeout(function() {
+                document.getElementById("timetable").classList.add("visible");
+            }, 10);
+        }, 200);
     } else {
         document.getElementById("timetable").style.display = "none";
+            document.getElementById("timetable").classList.remove("visible");
     }
     if (event.target.id === "homework-link") {
-        document.getElementById("homework").style.display = "block";
-        color_classes();
+        content.style.height = "200px";
+        setTimeout(function() {
+            content.style.height = "auto";
+            setTimeout(function() {
+                var height = document.getElementById("homework").offsetHeight;
+                height = height + 40;
+                content.style.height = height + "px";
+            }, 10);
+        }, 300);
+        setTimeout(function() {
+            document.getElementById("homework").style.display = "block";
+            setTimeout(function() {
+                document.getElementById("homework").classList.add("visible");
+                color_classes();
+            }, 10);
+        }, 100);
     } else {
         document.getElementById("homework").style.display = "none";
+        document.getElementById("homework").classList.remove("visible");
     }
 }
 
