@@ -55,9 +55,26 @@ def index():
             group[i][0] = list(weekday_mapping.keys())[list(weekday_mapping.values()).index(group[i][0])]
             group[i] = tuple(group[i])
         grouped_data.append(group)
+        classes_data = {
+            "Mathematik",
+            "Deutsch",
+            "Englisch",
+            "Biologie",
+            "Geschichte",
+            "Geographie",
+            "Physik",
+            "Chemie",
+            "Informatik",
+            "Sport",
+            "Musik",
+            "Kunst",
+            "Ethik",
+            "Religion",
+            "PoWi"
+        }
     
     # Render the index.html template -> templates/index.html; with the grouped_data
-    return render_template('index.html', timetable_data=grouped_data)
+    return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
