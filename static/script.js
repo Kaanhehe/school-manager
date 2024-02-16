@@ -194,12 +194,12 @@ function showtimetableinform() {
         timetable.classList.remove("visible");
         setTimeout(function() {
             form.style.width = "24%";
-            form.style.height = "57%";
+            form.style.height = "60%";
         }, 250);
         showingtimetable = false;
     } else {
         form.style.width = "81.3%";
-        form.style.height = "59%";
+        form.style.height = "61%";
         setTimeout(function() {
             timetable.classList.add("visible");
         }, 100);
