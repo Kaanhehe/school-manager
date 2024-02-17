@@ -1,21 +1,81 @@
 // Author: Kaanhehe
 // used to toggle the darkmode with the nice slider in the top right
-var mode = "bright";
-function toggleMode() {
-    var body = document.getElementsByTagName('body')[0];
+var mode = getModeFromCookies() || "bright";
+
+$(document).ready(function(){
+    $(".hwform").submit(function(event){
+        event.preventDefault();
+
+        $.ajax({
+            type: "POST",
+            url: "/homework",
+            data: $(this).serialize(),
+            error: function(jqXHR, textStatus, errorThrown) {
+                // Handle the error
+                console.error(textStatus, errorThrown);
+            }
+        });
+    });
+    setMode(mode);
+    sortTable('timetable'); 
+    sortTable('mini-timetable');
+});
+
+function setMode(mode) {
     var modeToggle = document.getElementById("darkmode-toggle");
     var brightbg = document.getElementsByClassName("brightbg")[0];
     var darkbg = document.getElementsByClassName("darkbg")[0];
+    var navbar = document.getElementsByClassName("navbar")[0];
+    
     if (mode === "bright") {
-        mode = "dark";
-        darkbg.style.display = "block";
-        brightbg.style.display = "none";
+        brightbg.classList.add("visible");
+        navbar.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
+        modeToggle.checked = false;
     } else {
-        mode = "bright";
-        darkbg.style.display = "none";
-        brightbg.style.display = "block";
+        darkbg.classList.add("visible");
+        navbar.style.backgroundColor = "rgba(24, 24, 24, 0.7)";
+        modeToggle.checked = true;
     }
 }
+
+function toggleMode() {
+    var brightbg = document.getElementsByClassName("brightbg")[0];
+    var darkbg = document.getElementsByClassName("darkbg")[0];
+    var navbar = document.getElementsByClassName("navbar")[0];
+    if (mode === "bright") {
+        mode = "dark";
+        darkbg.classList.add("visible");
+        brightbg.classList.remove("visible");
+        navbar.style.backgroundColor = "rgba(24, 24, 24, 0.8)";
+    } else {
+        mode = "bright";
+        brightbg.classList.add("visible");
+        darkbg.classList.remove("visible");
+        navbar.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
+    }
+    saveModeToCookies(mode);
+}
+
+function saveModeToCookies(mode) {
+    document.cookie = "mode=" + mode + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+}
+
+function getModeFromCookies() {
+    var name = "mode=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var cookies = decodedCookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        while (cookie.charAt(0) === ' ') {
+            cookie = cookie.substring(1);
+        }
+        if (cookie.indexOf(name) === 0) {
+            return cookie.substring(name.length, cookie.length);
+        }
+    }
+    return null;
+}
+
 
 // Used to add the Mittagspause in the timetable at 7th period
 function sortTable(tableId) {
@@ -53,7 +113,7 @@ function changeActiveClass(event) {
     current[0].classList.remove("active");
     event.target.className += " active";
     if (event.target.id === "timetable-link") {
-        content.style.height = "500px";
+        content.style.height = "550px";
         setTimeout(function() {
             content.style.height = "auto";
             setTimeout(function() {
@@ -95,19 +155,47 @@ function changeActiveClass(event) {
     }
 }
 
+function resetForm() {
+    var form = document.getElementsByClassName("newhwwin")[0];
+    var values = form.getElementsByTagName("input");
+    var selects = form.getElementsByTagName("select");
+    for (var i = 0; i < values.length; i++) {
+        if (values[i].type != "submit" && values[i].type != "checkbox") {
+            values[i].value = "";
+        }
+    }
+    for (var i = 0; i < selects.length; i++) {
+        selects[i].selectedIndex = 0;
+    }
+}
+
 // Opens the form to add a new homework
 function displayhwform() {
     var form = document.getElementsByClassName("newhwwin")[0];
-    if (form.style.display === "none" || form.style.display === "") {
-        form.style.display = "block";
+    setTimeout(function() {
         form.style.opacity = "1";
-        sortClassesByColor();
-    } else {
-        form.style.opacity = "0";
-        setTimeout(function() {
-            form.style.display = "none";
-        }, 500);
+    }, 10);
+    form.style.display = "block";
+    sortClassesByColor();
+}
+
+function tryclosehwform() {
+    var form = document.getElementsByClassName("newhwwin")[0];
+    var values = form.getElementsByTagName("input");
+    var cancelwin = form.getElementsByClassName("cancel_popup")[0];
+    for (var i = 0; i < values.length; i++) {
+        if (values[i].value != "" && (values[i].type != "submit" && values[i].type != "checkbox" && values[i].type != "date")) {
+            setTimeout(function() {
+                cancelwin.style.opacity = "1";
+            }, 10);
+            cancelwin.style.display = "block";
+            return;
+        }
     }
+    form.style.opacity = "0";
+    setTimeout(function() {
+        form.style.display = "none";
+    }, 500);
 }
 
 // Closes the form to add a new homework with the close button in the top right
@@ -116,6 +204,15 @@ function closehwform() {
     form.style.opacity = "0";
     setTimeout(function() {
         form.style.display = "none";
+    }, 500);
+    resetForm();
+}
+
+function closecancelwin() {
+    var cancelwin = document.getElementsByClassName("cancel_popup")[0];
+    cancelwin.style.opacity = "0";
+    setTimeout(function() {
+        cancelwin.style.display = "none";
     }, 500);
 }
 
@@ -228,16 +325,16 @@ function showtimetableinform() {
     if (showingtimetable) {
         timetable.classList.remove("visible");
         setTimeout(function() {
-            form.style.width = "24%";
-            form.style.height = "60%";
+            timetable.style.display = "none";
+            form.classList.remove("expanded");
         }, 250);
         showingtimetable = false;
     } else {
-        form.style.width = "81.3%";
-        form.style.height = "61%";
+        form.classList.add("expanded");
+        timetable.style.display = "block";
         setTimeout(function() {
             timetable.classList.add("visible");
-        }, 100);
+        }, 250);
         showingtimetable = true;
     }
 }

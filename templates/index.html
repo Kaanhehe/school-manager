@@ -5,11 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>School Manager</title>
+    <link rel="icon" href="{{url_for('static', filename='images/SchulHub_trans (500 x 200 px).svg')}}" type="image/x-icon">
     <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
-    <script src="{{url_for('static', filename='script.js')}}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <!-- Using not the direct id for timetable but for mini-timetable using the direct id, idk no more -->
-<body onload="sortTable('timetable'); sortTable('mini-timetable');"> 
+<body>
+    <div class="siteerror" style="display:none">
+        <h1 class="error">{{ error }}</h1>
+    </div>
+    <div class="schoolhub">
+        <img src="{{url_for('static', filename='images/SchulHub (500 x 200 px).svg')}}" alt="logo">
+    </div>
+    <div class="welcome">
+        <h1 class="welcome">Willkommen, {{ username }}!</h1>
+    </div>
     <div class="navbar">
         <a id="timetable-link" class="active" onclick="changeActiveClass(event)" href="#">Stundenplan</a>
         <a id="homework-link" onclick="changeActiveClass(event)" href="#">Hausaufgaben</a>
@@ -50,8 +60,8 @@
 		</label>
     </div>
     <div id="bgimg">
-        <div style="background-image: url(https://startcache.schulportal.hessen.de/exporteur.php?a=schoolbg&i=5202&s=lg); " class="schoolbg brightbg"></div>
-        <img class="schoolbg darkbg" src="{{url_for('static', filename='images/3101702.jpg')}}" alt="background-image" style="user-select: none;">
+        <div class="schoolbg brightbg" style="background-image: url(https://startcache.schulportal.hessen.de/exporteur.php?a=schoolbg&i=5202&s=lg);"></div>
+        <img class="schoolbg darkbg" src="{{url_for('static', filename='images/3101702.jpg')}}" alt="background-image">
     </div>
     <div class="content">
         <div id="timetable" class="visible">
@@ -138,7 +148,7 @@
                             <input class="submit" id="homeworksub" type="submit" value="Hinzufügen">
                             <div style="margin-top: 10px;">Felder mit * müssen ausgefüllt werden</div>
                         </form>
-                        <span id="closehwwinButton" class="closehwwin" onclick="closehwform()">&times;</span>
+                        <span id="closehwwinButton" class="closehwwin" onclick="tryclosehwform()">&times;</span>
                         <table id="mini-timetable" class="mini-timetable">
                             <thead>
                                 <tr>
@@ -174,6 +184,18 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="cancel_popup">
+                        <div class="newhwwin-cancel">
+                            <div class="header">
+                                <h2>Möchtest du wirklich abbrechen?</h2>
+                                <span id="closehwwinButton" class="closehwwin" onclick="closecancelwin()">&times;</span>
+                            </div>
+                            <div class="buttons">
+                                <button onclick="closehwform(); closecancelwin();">Ja</button>
+                                <button onclick="closecancelwin()">Nein</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <table class="homework-table">
@@ -197,4 +219,5 @@
         </div>
     </div>
 </body>
+<script src="{{url_for('static', filename='script.js')}}"></script>
 </html>

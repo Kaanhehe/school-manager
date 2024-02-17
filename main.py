@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 from itertools import groupby
 from operator import itemgetter
@@ -73,9 +73,16 @@ def index():
             "PoWi",
             "Spanisch",
         }
-    
+    username = "Fremder"
     # Render the index.html template -> templates/index.html; with the grouped_data
-    return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data)
+    return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data , username=username)
+
+@app.route('/homework', methods=['POST'])
+def homework():
+    form_data = request.form
+    print(form_data)
+
+    return "Homework added"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
