@@ -104,95 +104,96 @@
         <div id="homework">
                 <h1>Hausaufgaben</h1>
 
-                <button id="newhw" onclick="displayhwform()">Neue Hausaufgabe</button>
+                <button id="newhwbt" onclick="displayhwform()">Neue Hausaufgabe</button>
 
-                <div id="newhwwin" class="newhwwin">
-                    <div class="newhwwin-content">
-                        
-                        <form class="hwform" action="/homework" method="post">
-                            <h1>Neue Hausaufgabe</h1>
-                            <div class="hwformgroup">
-                                <label for="class">Fach *</label>
-                                <select required id="class" name="class">
-                                    <option value="">Wähle ein Fach</option>
-                                    {% for class in classes_data %}
-                                        <option value="{{ class }}" class="class-option">{{ class }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            
-                            <div class="hwformgroup">
-                                <label for="homework_name">Aufgabe *</label>
-                                <input required type="text" id="homework_name" name="homework_name" placeholder="z.B.: S.13/5a">
-                            </div>
-
-                            <div class="hwformgroup">
-                                <label for="work_amount">Arbeitsaufwand *</label>
-                                <select required id="work_amount" name="work_amount">
-                                    <option value="">Wähle den Arbeitsaufwand</option>
-                                    <option value="easy">Einfach😀</option>
-                                    <option value="normal">Normal🙂</option>
-                                    <option value="hard">Schwer🥵</option>
-                                </select>
-                            </div>
-
-                            <div class="hwformgroup">
-                                <label for="due_date">Abgabedatum</label>
-                                <input type="date" id="due_date" name="due_date" onchange="markintimetable()" onclick="markintimetable()">
-                                <div class="showtimetablecb">
-                                    <input type="checkbox" name="showtimetable" id="showtimetable" onclick="showtimetableinform()">
-                                    <label for="showtimetable">Zeig meinen Stundenplan</label>
-                                </div>
-                            </div>
-
-                            <input class="submit" id="homeworksub" type="submit" value="Hinzufügen">
-                            <div style="margin-top: 10px;">Felder mit * müssen ausgefüllt werden</div>
-                        </form>
+                <div id="newhwwinbg" class="newhwwinbg">
+                    <div id="newhwwin" class="newhwwin">
                         <span id="closehwwinButton" class="closehwwin" onclick="tryclosehwform()">&times;</span>
-                        <table id="mini-timetable" class="mini-timetable">
-                            <thead>
-                                <tr>
-                                    <th>Nummer</th>
-                                    <th>Zeit</th>
-                                    <th>Montag</th>
-                                    <th>Dienstag</th>
-                                    <th>Mittwoch</th>
-                                    <th>Donnerstag</th>
-                                    <th>Freitag</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for group in timetable_data %}
-                                    <tr>
-                                        {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
-                                        <td>{{ class_num }}</td>
-                                        <td>{{ class_time }}</td>
-                                        {% for class_data in group %}
-                                            {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
-                                            {% set day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6} %}
-                                            {% if class_day in day_columns %}
-                                                <td>{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
-                                            {% endif %}
+                        <div class="newhwwin-content">
+                            <form class="hwform" action="/homework" method="post">
+                                <h1>Neue Hausaufgabe</h1>
+                                <div class="hwformitem">
+                                    <label for="class">Fach *</label>
+                                    <select required id="class" name="class">
+                                        <option value="">Wähle ein Fach</option>
+                                        {% for class in classes_data %}
+                                            <option value="{{ class }}" class="class-option">{{ class }}</option>
                                         {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="hwformitem">
+                                    <label for="homework_name">Aufgabe *</label>
+                                    <input required type="text" id="homework_name" name="homework_name" placeholder="z.B.: S.13/5a">
+                                </div>
+
+                                <div class="hwformitem">
+                                    <label for="work_amount">Arbeitsaufwand *</label>
+                                    <select required id="work_amount" name="work_amount">
+                                        <option value="">Wähle den Arbeitsaufwand</option>
+                                        <option value="easy">Einfach😀</option>
+                                        <option value="normal">Normal🙂</option>
+                                        <option value="hard">Schwer🥵</option>
+                                    </select>
+                                </div>
+
+                                <div class="hwformitem">
+                                    <label for="due_date">Abgabedatum</label>
+                                    <input type="date" id="due_date" name="due_date" onchange="markintimetable()" onclick="markintimetable()">
+                                    <div class="showtimetablecb">
+                                        <input type="checkbox" name="showtimetable" id="showtimetable" onclick="showtimetableinform()">
+                                        <label for="showtimetable">Zeig meinen Stundenplan</label>
+                                    </div>
+                                </div>
+
+                                <input class="submit" id="homeworksub" type="submit" value="Hinzufügen">
+                                <div style="margin-top: 10px;">Felder mit * müssen ausgefüllt werden</div>
+                            </form>
+                            <table id="mini-timetable" class="mini-timetable">
+                                <thead>
+                                    <tr>
+                                        <th>Nummer</th>
+                                        <th>Zeit</th>
+                                        <th>Montag</th>
+                                        <th>Dienstag</th>
+                                        <th>Mittwoch</th>
+                                        <th>Donnerstag</th>
+                                        <th>Freitag</th>
                                     </tr>
-                                {% endfor %}
-                                <tr>
-                                    <td>7</td>
-                                    <td>13:00 - 13:45</td>
-                                    <td colspan="6" style="text-align: center; font-size: 20px; font-weight: bold;" class="lunchbreak">Mittagspause</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="cancel_popup">
-                        <div class="newhwwin-cancel">
-                            <div class="header">
-                                <h2>Möchtest du wirklich abbrechen?</h2>
-                                <span id="closehwwinButton" class="closehwwin" onclick="closecancelwin()">&times;</span>
-                            </div>
-                            <div class="buttons">
-                                <button onclick="closehwform(); closecancelwin();">Ja</button>
-                                <button onclick="closecancelwin()">Nein</button>
+                                </thead>
+                                <tbody>
+                                    {% for group in timetable_data %}
+                                        <tr>
+                                            {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
+                                            <td>{{ class_num }}</td>
+                                            <td>{{ class_time }}</td>
+                                            {% for class_data in group %}
+                                                {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
+                                                {% set day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6} %}
+                                                {% if class_day in day_columns %}
+                                                    <td>{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td>7</td>
+                                        <td>13:00 - 13:45</td>
+                                        <td colspan="6" style="text-align: center; font-size: 20px; font-weight: bold;" class="lunchbreak">Mittagspause</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="cancel_popup">
+                            <div class="newhwwin-cancel">
+                                <div class="header">
+                                    <h2>Möchtest du wirklich abbrechen?</h2>
+                                    <span id="closehwwinButton" class="closehwwin" onclick="closecancelwin()">&times;</span>
+                                </div>
+                                <div class="buttons">
+                                    <button onclick="closehwform(); closecancelwin();">Ja</button>
+                                    <button onclick="closecancelwin()">Nein</button>
+                                </div>
                             </div>
                         </div>
                     </div>

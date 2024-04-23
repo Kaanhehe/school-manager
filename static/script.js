@@ -1,6 +1,8 @@
 // Author: Kaanhehe
 // used to toggle the darkmode with the nice slider in the top right
 var mode = getModeFromCookies() || "bright";
+var windowheight = 0;
+var windowwidth = 0;
 
 $(document).ready(function(){
     $(".hwform").submit(function(event){
@@ -156,7 +158,7 @@ function changeActiveClass(event) {
 }
 
 function resetForm() {
-    var form = document.getElementsByClassName("newhwwin")[0];
+    var form = document.getElementsByClassName("newhwwinbg")[0];
     var values = form.getElementsByTagName("input");
     var selects = form.getElementsByTagName("select");
     for (var i = 0; i < values.length; i++) {
@@ -171,16 +173,22 @@ function resetForm() {
 
 // Opens the form to add a new homework
 function displayhwform() {
-    var form = document.getElementsByClassName("newhwwin")[0];
+    var form = document.getElementsByClassName("newhwwinbg")[0];
+    var win = document.getElementsByClassName("newhwwin")[0];
     setTimeout(function() {
         form.style.opacity = "1";
     }, 10);
-    form.style.display = "block";
+    form.style.display = "flex";
+    windowheight = win.offsetHeight;
+    windowwidth = win.offsetWidth;
+    console.log(windowheight, windowwidth);
+    win.style.maxHeight = windowheight + "px";
+    win.style.maxWidth = windowwidth + "px";
     sortClassesByColor();
 }
 
 function tryclosehwform() {
-    var form = document.getElementsByClassName("newhwwin")[0];
+    var form = document.getElementsByClassName("newhwwinbg")[0];
     var values = form.getElementsByTagName("input");
     var cancelwin = form.getElementsByClassName("cancel_popup")[0];
     for (var i = 0; i < values.length; i++) {
@@ -188,7 +196,7 @@ function tryclosehwform() {
             setTimeout(function() {
                 cancelwin.style.opacity = "1";
             }, 10);
-            cancelwin.style.display = "block";
+            cancelwin.style.display = "flex";
             return;
         }
     }
@@ -200,7 +208,7 @@ function tryclosehwform() {
 
 // Closes the form to add a new homework with the close button in the top right
 function closehwform() {
-    var form = document.getElementsByClassName("newhwwin")[0];
+    var form = document.getElementsByClassName("newhwwinbg")[0];
     form.style.opacity = "0";
     setTimeout(function() {
         form.style.display = "none";
@@ -320,17 +328,21 @@ function color_classes(){
 // Show the timetable in the homework form for better orientation
 var showingtimetable = false;
 function showtimetableinform() {
-    var form = document.getElementsByClassName("newhwwin-content")[0];
+    var form = document.getElementsByClassName("newhwwin")[0];
     var timetable = document.getElementsByClassName("mini-timetable")[0];
     if (showingtimetable) {
         timetable.classList.remove("visible");
         setTimeout(function() {
             timetable.style.display = "none";
-            form.classList.remove("expanded");
+            console.log(windowheight, windowwidth)
+            form.style.maxHeight = windowheight + "px";
+            form.style.maxWidth = windowwidth + "px";
         }, 250);
         showingtimetable = false;
     } else {
         form.classList.add("expanded");
+        form.style.maxHeight = "70%";
+        form.style.maxWidth = "100%";
         timetable.style.display = "block";
         setTimeout(function() {
             timetable.classList.add("visible");

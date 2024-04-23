@@ -113,6 +113,11 @@ select {
     -moz-appearance: none;
     text-indent: 1px;
     text-overflow: '';
+    cursor: pointer;
+}
+
+input[type=date] {
+    cursor: text;
 }
 
 th, td {
@@ -293,7 +298,7 @@ tr:nth-child(odd) {
     opacity: 1;
 }
 
-#newhw {
+#newhwbt {
     background-color: #4F396F;
     color: white;
     width: 100%;
@@ -308,15 +313,17 @@ tr:nth-child(odd) {
     border-radius: 20px;
 }
 
-#newhw:hover {
+#newhwbt:hover {
     background-color: #3D3053;
 }
 
-.newhwwin {
+.newhwwinbg {
     display: none;
     opacity: 0;
     transition: opacity 0.1s ease-in-out;
     position: fixed;
+    justify-content: center;
+    align-items: center;
     z-index: 1;
     left: 0;
     top: 0;
@@ -327,8 +334,39 @@ tr:nth-child(odd) {
     overflow: hidden;
 }
 
-.newhwwin.visible {
+.newhwwinbg.visible {
     opacity: 1;
+}
+
+.newhwwin {
+    display: flex;
+    transition: max-width 0.3s ease-in-out, max-height 0.3s ease-in-out;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #181818;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px -5px 15px rgba(255, 255, 255, 0.11);
+}
+
+.newhwwin.expanded {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.closehwwin {
+    margin-left: auto;
+    margin-right: 10px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.closehwwin:hover, .closehwwin:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .cancel_popup {
@@ -404,39 +442,7 @@ tr:nth-child(odd) {
 
 .newhwwin-content {
     display: flex;
-    position: relative;
-    transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
     flex-direction: row;
-    align-items: center;
-    background-color: #181818;
-    margin: 15% auto;
-    padding: 20px;
-    padding-right: 0;
-    width: 25%;
-    height: 60%;
-    border-radius: 20px;
-    box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px -5px 15px rgba(255, 255, 255, 0.11);
-}
-
-.newhwwin-content.expanded {
-    width: 82%;
-    height: 65%;
-}
-
-.closehwwin {
-    position: absolute;
-    right: 20px;
-    top: 10px;
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.closehwwin:hover, .closehwwin:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
 }
 
 .hwform {
@@ -455,13 +461,13 @@ tr:nth-child(odd) {
     background-color: transparent; /* Change the color of the class-option when hovered, but doesnt work somehow */
 }
 
-.hwformgroup {
+.hwformitem {
     display: flex;
     flex-direction: column;
     margin: 10px;
 }
 
-.hwformgroup input[type=checkbox] {
+.hwformitem input[type=checkbox] {
     background-color: #4F396F;
     width: 20px;
     height: 20px;
@@ -469,7 +475,7 @@ tr:nth-child(odd) {
     cursor: pointer;
 }
 
-.hwformgroup label {
+.hwformitem label {
     font-size: 18px;
     margin: 3px 10px;
 }
