@@ -123,17 +123,17 @@
                                 </div>
                                 
                                 <div class="hwformitem">
-                                    <label for="homework_name">Aufgabe *</label>
-                                    <input required type="text" id="homework_name" name="homework_name" placeholder="z.B.: S.13/5a">
+                                    <label for="homework_task">Aufgabe *</label>
+                                    <input required type="text" id="homework_task" name="homework_task" placeholder="z.B.: S.13/5a">
                                 </div>
 
                                 <div class="hwformitem">
                                     <label for="work_amount">Arbeitsaufwand *</label>
                                     <select required id="work_amount" name="work_amount">
                                         <option value="">Wähle den Arbeitsaufwand</option>
-                                        <option value="easy">Einfach😀</option>
-                                        <option value="normal">Normal🙂</option>
-                                        <option value="hard">Schwer🥵</option>
+                                        <option value="1">Einfach😀</option>
+                                        <option value="2">Normal🙂</option>
+                                        <option value="3">Schwer🥵</option>
                                     </select>
                                 </div>
 
@@ -204,6 +204,7 @@
                         <tr>
                             <th>Fach</th>
                             <th>Aufgabe</th>
+                            <th>Arbeitsaufwand</th>
                             <th>Abgabedatum</th>
                         </tr>
                     </thead>
@@ -213,6 +214,7 @@
                                 <td>{{ homework[0] }}</td>
                                 <td>{{ homework[1] }}</td>
                                 <td>{{ homework[2] }}</td>
+                                <td>{{ homework[3] }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

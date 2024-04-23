@@ -14,11 +14,15 @@ def get_timetable_data():
     conn.close()
     return timetable_data
 
-# Route for the homepage
-@app.route('/')
-def index():
-    timetable_data = get_timetable_data()
+def get_homework_data():
+    conn = sqlite3.connect('homework.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM homework")
+    homework_data = c.fetchall()
+    conn.close()
+    return homework_data
 
+def sort_timetable_date(timetable_data):
     # Replace weekdays with numbers
     weekday_mapping = {
         'Montag': 1,
@@ -55,33 +59,66 @@ def index():
             group[i][0] = list(weekday_mapping.keys())[list(weekday_mapping.values()).index(group[i][0])]
             group[i] = tuple(group[i])
         grouped_data.append(group)
-        classes_data = {
-            "Mathematik",
-            "Deutsch",
-            "Englisch",
-            "Biologie",
-            "Geschichte",
-            "Geographie",
-            "Physik",
-            "Chemie",
-            "Informatik",
-            "Sport",
-            "Musik",
-            "Kunst",
-            "Ethik",
-            "Religion",
-            "PoWi",
-            "Spanisch",
-        }
+    return grouped_data
+
+def change_homework_data(homework_data):
+    modified_homework_data = []
+    for homework in homework_data:
+        homework_list = list(homework)
+        if homework_list[2] == 1:
+            homework_list[2] = "Einfach😀"
+        elif homework_list[2] == 2:
+            homework_list[2] = "Normal🙂"
+        elif homework_list[2] == 3:
+            homework_list[2] = "Schwer🥵"
+        else:
+            homework_list[2] = "Unmöglich🤯"
+        homework_list[3] = homework_list[3].split("-")
+        homework_list[3] = ".".join(homework_list[3][::-1])
+        modified_homework_data.append(tuple(homework_list))
+        modified_homework_data = sorted(modified_homework_data, key=lambda x: x[3])
+    return modified_homework_data
+@app.route('/')
+def index():
+    timetable_data = get_timetable_data()
+    homework_data = get_homework_data()
+    print(homework_data)
+    homework_data = change_homework_data(homework_data)
+    
+
+    grouped_data = sort_timetable_date(timetable_data)
+    classes_data = {
+        "Mathematik",
+        "Deutsch",
+        "Englisch",
+        "Biologie",
+        "Geschichte",
+        "Geographie",
+        "Physik",
+        "Chemie",
+        "Informatik",
+        "Sport",
+        "Musik",
+        "Kunst",
+        "Ethik",
+        "Religion",
+        "PoWi",
+        "Spanisch",
+    }
     username = "Fremder"
     # Render the index.html template -> templates/index.html; with the grouped_data
-    return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data , username=username)
+    return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, username=username)
 
 @app.route('/homework', methods=['POST'])
 def homework():
     form_data = request.form
     print(form_data)
-
+    if form_data:
+        conn = sqlite3.connect('homework.db')
+        c = conn.cursor()
+        c.execute("INSERT INTO homework (class, homework_task, work_amount, due_date) VALUES (?, ?, ?, ?)", (form_data['class'], form_data['homework_task'], form_data['work_amount'], form_data['due_date']))
+        conn.commit()
+        conn.close()
     return "Homework added"
 
 if __name__ == '__main__':
