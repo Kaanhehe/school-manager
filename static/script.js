@@ -17,6 +17,10 @@ $(document).ready(function(){
                 type: "POST",
                 url: "/edithw",
                 data: $(this).serialize() + "&id=" + editinghw.cells[0].innerText,
+                success: function(data) {
+                    refreshHomeworks();
+                    closehwform();
+                },
                 error: function(jqXHR, textStatus, errorThrown) {
                     // Handle the error
                     console.error(textStatus, errorThrown);
@@ -28,6 +32,9 @@ $(document).ready(function(){
             type: "POST",
             url: "/newhw",
             data: $(this).serialize(),
+            success: function(data) {
+                refreshHomeworks();
+            },
             error: function(jqXHR, textStatus, errorThrown) {
                 // Handle the error
                 console.error(textStatus, errorThrown);
@@ -117,10 +124,6 @@ function sortTable(tableId) {
             switching = true;
         }
     }
-    var content = document.getElementsByClassName("content")[0];
-    var height = document.getElementById("timetable").offsetHeight;
-    height = height + 40;
-    content.style.height = height + "px";
 }
 
 // Change the active class in the navbar to the clicked one
@@ -132,21 +135,10 @@ function changeActiveClass(event) {
     event.target.className += " active";
     // If the timetable link is clicked, show the timetable
     if (event.target.id === "timetable-link") {
-        content.style.height = "550px";
+        document.getElementById("timetable").style.display = "block";
         setTimeout(function() {
-            content.style.height = "auto";
-            setTimeout(function() {
-                var height = document.getElementById("timetable").offsetHeight;
-                height = height + 40;
-                content.style.height = height + "px";
-            }, 10);
-        }, 300);
-        setTimeout(function() {
-            document.getElementById("timetable").style.display = "block";
-            setTimeout(function() {
-                document.getElementById("timetable").classList.add("visible");
-            }, 10);
-        }, 200);
+            document.getElementById("timetable").classList.add("visible");
+        }, 10);
     // else hide the timetable
     } else {
         document.getElementById("timetable").style.display = "none";
@@ -154,28 +146,51 @@ function changeActiveClass(event) {
     }
     // If the homework link is clicked, show the homework overview
     if (event.target.id === "homework-link") {
-        content.style.height = "400px";
+        document.getElementById("homework").style.display = "block";
         setTimeout(function() {
-            content.style.height = "auto";
-            setTimeout(function() {
-                var height = document.getElementById("homework").offsetHeight;
-                height = height + 40;
-                content.style.height = height + "px";
-            }, 10);
-        }, 300);
-        setTimeout(function() {
-            document.getElementById("homework").style.display = "block";
-            setTimeout(function() {
-                document.getElementById("homework").classList.add("visible");
-                // Color the classes in the homework overview
-                color_classes();
-            }, 10);
-        }, 100);
+            document.getElementById("homework").classList.add("visible");
+            // Color the classes in the homework overview
+            color_classes();
+        }, 10);
     // else hide the homework overview
     } else {
         document.getElementById("homework").style.display = "none";
         document.getElementById("homework").classList.remove("visible");
     }
+}
+
+function refreshHomeworks() {
+    $.ajax({
+        type: "GET",
+        url: "/gethw",
+        success: function(data) {
+            var tableBody = document.querySelector("#homework-table tbody");
+            var rows = eval(data).map(function(rowData) {
+                var row = document.createElement("tr");
+                rowData.forEach(function(cellData) {
+                    var cell = document.createElement("td");
+                    cell.textContent = cellData;
+                    row.appendChild(cell);
+                });
+                // Add action buttons to the last cell
+                var actionCell = document.createElement("td");
+                actionCell.className = "hwactions";
+                actionCell.innerHTML = `
+                    <button class="hwaction" id="hwdone">✔</button>
+                    <button class="hwaction" id="hwedit" onclick="editHomework(event)">✎</button>
+                    <button class="hwaction" id="hwdel" onclick="deleteHomework(event)">🗑</button>
+                `;
+                row.appendChild(actionCell);
+                return row.outerHTML;
+            });
+            tableBody.innerHTML = rows.join("");
+            color_classes();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
 }
 
 function editHomework(event) {
@@ -185,11 +200,30 @@ function editHomework(event) {
     editinghw = homework;
 }
 
+function deleteHomework(event) {
+    var row = event.target.closest("tr");
+    var id = row.cells[0].innerText;
+    $.ajax({
+        type: "POST",
+        url: "/deletehw",
+        data: "id=" + id,
+        success: function(data) {
+            refreshHomeworks();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
+}
+
 function resetForm() {
     var window = document.getElementsByClassName("newhwwinbg")[0];
     var values = window.getElementsByTagName("input");
     var selects = window.getElementsByTagName("select");
     var formHeader = document.getElementById("hwform-header");
+    var submit = window.querySelector('input[type="submit"]');
+    submit.value = "Hinzufügen";
     formHeader.innerText = "Neue Hausaufgabe";
     for (var i = 0; i < values.length; i++) {
         if (values[i].type != "submit" && values[i].type != "checkbox") {
@@ -227,6 +261,8 @@ function displayEdithwForm(homework) {
     var values = window.getElementsByTagName("input");
     var selects = window.getElementsByTagName("select");
     var formHeader = document.getElementById("hwform-header");
+    var submit = form.querySelector('input[type="submit"]');
+    submit.value = "Ändern";
     formHeader.innerText = "Hausaufgabe bearbeiten";
     selects[0].value = homework.cells[1].innerText;
     values[0].value = homework.cells[2].innerText;
@@ -284,8 +320,8 @@ function closehwform() {
     window.style.opacity = "0";
     setTimeout(function() {
         window.style.display = "none";
+        resetForm();
     }, 500);
-    resetForm();
 }
 
 function closecancelwin() {

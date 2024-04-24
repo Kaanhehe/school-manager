@@ -108,7 +108,7 @@
 
                 <div id="newhwwinbg" class="newhwwinbg">
                     <div id="newhwwin" class="newhwwin">
-                        <span id="closehwwinButton" class="closehwwin" onclick="tryclosehwform()">&times;</span>
+                        <span id="closehwwinButton" class="closehwwinbtn" onclick="tryclosehwform()">&times;</span>
                         <div class="newhwwin-content">
                             <form class="hwform" action="/homework" method="post">
                                 <h1 id="hwform-header">Neue Hausaufgabe</h1>
@@ -187,8 +187,8 @@
                         <div class="cancel_popup">
                             <div class="newhwwin-cancel">
                                 <div class="header">
+                                    <span id="closehwwinButton" class="closehwwinbtn" onclick="closecancelwin()">&times;</span>
                                     <h2>Möchtest du wirklich abbrechen?</h2>
-                                    <span id="closehwwinButton" class="closehwwin" onclick="closecancelwin()">&times;</span>
                                 </div>
                                 <div class="buttons">
                                     <button onclick="closehwform(); closecancelwin();">Ja</button>
@@ -199,7 +199,7 @@
                     </div>
                 </div>
 
-                <table class="homework-table">
+                <table class="homework-table" id="homework-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -219,9 +219,9 @@
                                 <td>{{ homework[3] }}</td>
                                 <td>{{ homework[4] }}</td>
                                 <td class="hwactions">
-                                    <button class="hwaction" id="hwdone">✔</button>
+                                    <button class="hwaction" id="hwdone" onclick="doneHomework(event)">✔</button>
                                     <button class="hwaction" id="hwedit" onclick="editHomework(event)">✎</button>
-                                    <button class="hwaction" id="hwdel">🗑</button>
+                                    <button class="hwaction" id="hwdel" onclick="deleteHomework(event)">🗑</button>
                                 </td>
                             </tr>
                         {% endfor %}

@@ -111,6 +111,13 @@ def index():
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, username=username)
 
+@app.route('/gethw', methods=['GET'])
+def gethw():
+    homework_data = get_homework_data()
+    homework_data = change_homework_data(homework_data)
+    return homework_data
+
+
 @app.route('/newhw', methods=['POST'])
 def newhw():
     form_data = request.form
@@ -134,6 +141,18 @@ def edithw():
         conn.commit()
         conn.close()
     return "Homework edited"
+
+@app.route('/deletehw', methods=['POST'])
+def deletehw():
+    form_data = request.form
+    print(form_data)
+    if form_data:
+        conn = sqlite3.connect('homework.db')
+        c = conn.cursor()
+        c.execute("DELETE FROM homework WHERE id = ?", (form_data['id'],))
+        conn.commit()
+        conn.close()
+    return "Homework deleted"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
