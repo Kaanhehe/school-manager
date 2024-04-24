@@ -114,6 +114,7 @@ function changeActiveClass(event) {
     var content = document.getElementsByClassName("content")[0];
     current[0].classList.remove("active");
     event.target.className += " active";
+    // If the timetable link is clicked, show the timetable
     if (event.target.id === "timetable-link") {
         content.style.height = "550px";
         setTimeout(function() {
@@ -130,12 +131,14 @@ function changeActiveClass(event) {
                 document.getElementById("timetable").classList.add("visible");
             }, 10);
         }, 200);
+    // else hide the timetable
     } else {
         document.getElementById("timetable").style.display = "none";
             document.getElementById("timetable").classList.remove("visible");
     }
+    // If the homework link is clicked, show the homework overview
     if (event.target.id === "homework-link") {
-        content.style.height = "200px";
+        content.style.height = "400px";
         setTimeout(function() {
             content.style.height = "auto";
             setTimeout(function() {
@@ -148,9 +151,11 @@ function changeActiveClass(event) {
             document.getElementById("homework").style.display = "block";
             setTimeout(function() {
                 document.getElementById("homework").classList.add("visible");
+                // Color the classes in the homework overview
                 color_classes();
             }, 10);
         }, 100);
+    // else hide the homework overview
     } else {
         document.getElementById("homework").style.display = "none";
         document.getElementById("homework").classList.remove("visible");
@@ -181,7 +186,6 @@ function displayhwform() {
     form.style.display = "flex";
     windowheight = win.offsetHeight;
     windowwidth = win.offsetWidth;
-    console.log(windowheight, windowwidth);
     win.style.maxHeight = windowheight + "px";
     win.style.maxWidth = windowwidth + "px";
     sortClassesByColor();
@@ -334,7 +338,6 @@ function showtimetableinform() {
         timetable.classList.remove("visible");
         setTimeout(function() {
             timetable.style.display = "none";
-            console.log(windowheight, windowwidth)
             form.style.maxHeight = windowheight + "px";
             form.style.maxWidth = windowwidth + "px";
         }, 250);
@@ -355,7 +358,7 @@ function classLabels(subject) {
     labels = {
         'Englisch' : 'E1',
         'Deutsch' : 'D',
-        'Mathe' : 'M',
+        'Mathematik' : 'M',
         'Biologie' : 'BIO',
         'Geographie' : 'GEO',
         'Geschichte' : 'G',
@@ -420,7 +423,8 @@ function markintimetable() {
     if (day === 6 || day === 0) {
         return;
     }
-    var subject = document.getElementById("class").value;
+    let form = document.querySelector('.hwform');
+    var subject = form.querySelector('#class').value;
     // If no subject is selected, mark all cells of the day
     if (subject === "") {
         ColorAllColumns(day);
@@ -436,4 +440,45 @@ function markintimetable() {
     }
     // Mark the cell with the subject
     cell.classList.add("marked");
+}
+
+function autogetdate() {
+    let form = document.querySelector('.hwform');
+    let due_date = form.querySelector('#due_date');
+    var subject = form.querySelector('#class').value;
+    subject = classLabels(subject);
+    console.log(subject);
+    var currentDate = new Date();
+    var currentDay = currentDate.getDay();
+    // Add one to search from tomorrow on
+    var tomorrowDay = currentDay +1;
+    // check from tomorrow till end of week
+    for (var i = tomorrowDay; i < 7; i++) {
+        var cell = checkColumnsMatch(document.getElementsByClassName("mini-timetable")[0], subject, i);
+        if (cell) {
+            var day = i;
+            var currentYear = currentDate.getFullYear();
+            var currentMonth = currentDate.getMonth();
+            var foundDate = new Date(currentYear, currentMonth, currentDate.getDate() + (day - currentDay +1));
+            due_date.value = foundDate.toISOString().split('T')[0];
+            markintimetable();
+            return foundDate;
+        }
+    }
+    // if nothing is found before this tests from monday till today
+    for (var i = 0; i < currentDay; i++) {
+        var cell = checkColumnsMatch(document.getElementsByClassName("mini-timetable")[0], subject, i);
+        if (cell) {
+            var day = i;
+            var currentYear = currentDate.getFullYear();
+            var currentMonth = currentDate.getMonth();
+            var foundDate = new Date(currentYear, currentMonth, currentDate.getDate() + (7 - currentDay + day + 1));
+            due_date.value = foundDate.toISOString().split('T')[0];
+            markintimetable();
+            return foundDate;
+        }
+    }
+    due_date.value = "";
+    markintimetable();
+    return null;
 }

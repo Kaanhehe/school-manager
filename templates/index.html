@@ -114,7 +114,7 @@
                                 <h1>Neue Hausaufgabe</h1>
                                 <div class="hwformitem">
                                     <label for="class">Fach *</label>
-                                    <select required id="class" name="class">
+                                    <select required id="class" name="class" onchange="autogetdate()">
                                         <option value="">Wähle ein Fach</option>
                                         {% for class in classes_data %}
                                             <option value="{{ class }}" class="class-option">{{ class }}</option>
