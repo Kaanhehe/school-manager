@@ -298,6 +298,36 @@ tr:nth-child(odd) {
     opacity: 1;
 }
 
+.hwactions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border: 0px;
+}
+
+.hwaction {
+    background-color: #4F396F;
+    color: white;
+    width: 100%;
+    padding: 6px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 2px 1px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+}
+
+.hwaction:hover {
+    background-color: #3D3053;
+}
+
+.hwaction:active {
+    background-color: #362b4a;
+}
+
 #newhwbt {
     background-color: #4F396F;
     color: white;
@@ -315,6 +345,10 @@ tr:nth-child(odd) {
 
 #newhwbt:hover {
     background-color: #3D3053;
+}
+
+#newhwbt:active {
+    background-color: #362b4a;
 }
 
 .newhwwinbg {

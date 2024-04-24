@@ -111,10 +111,10 @@
                         <span id="closehwwinButton" class="closehwwin" onclick="tryclosehwform()">&times;</span>
                         <div class="newhwwin-content">
                             <form class="hwform" action="/homework" method="post">
-                                <h1>Neue Hausaufgabe</h1>
+                                <h1 id="hwform-header">Neue Hausaufgabe</h1>
                                 <div class="hwformitem">
                                     <label for="class">Fach *</label>
-                                    <select required id="class" name="class" onchange="autogetdate()">
+                                    <select required id="class" name="class" onchange="autogetDate()">
                                         <option value="">Wähle ein Fach</option>
                                         {% for class in classes_data %}
                                             <option value="{{ class }}" class="class-option">{{ class }}</option>
@@ -139,9 +139,9 @@
 
                                 <div class="hwformitem">
                                     <label for="due_date">Abgabedatum</label>
-                                    <input type="date" id="due_date" name="due_date" onchange="markintimetable()" onclick="markintimetable()">
+                                    <input type="date" id="due_date" name="due_date" onchange="markinTimetable()" onclick="markinTimetable()">
                                     <div class="showtimetablecb">
-                                        <input type="checkbox" name="showtimetable" id="showtimetable" onclick="showtimetableinform()">
+                                        <input type="checkbox" name="showtimetable" id="showtimetable" onclick="showTimetableinForm()">
                                         <label for="showtimetable">Zeig meinen Stundenplan</label>
                                     </div>
                                 </div>
@@ -202,10 +202,12 @@
                 <table class="homework-table">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Fach</th>
                             <th>Aufgabe</th>
                             <th>Arbeitsaufwand</th>
                             <th>Abgabedatum</th>
+                            <th>Aktionen</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -215,6 +217,12 @@
                                 <td>{{ homework[1] }}</td>
                                 <td>{{ homework[2] }}</td>
                                 <td>{{ homework[3] }}</td>
+                                <td>{{ homework[4] }}</td>
+                                <td class="hwactions">
+                                    <button class="hwaction" id="hwdone">✔</button>
+                                    <button class="hwaction" id="hwedit" onclick="editHomework(event)">✎</button>
+                                    <button class="hwaction" id="hwdel">🗑</button>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

@@ -3,17 +3,30 @@
 var mode = getModeFromCookies() || "bright";
 var windowheight = 0;
 var windowwidth = 0;
+var editinghw = null;
 
 $(document).ready(function(){
     $(".hwform").submit(function(event){
         event.preventDefault();
         // Just get the date if it is not set; Not used right now -> make settings with this as option
         //if (!$(this).find("#due_date").val()) {
-        //    autogetdate();
+        //    autogetDate();
         //}
+        if (editinghw) {
+            $.ajax({
+                type: "POST",
+                url: "/edithw",
+                data: $(this).serialize() + "&id=" + editinghw.cells[0].innerText,
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // Handle the error
+                    console.error(textStatus, errorThrown);
+                }
+            });
+            return;
+        }
         $.ajax({
             type: "POST",
-            url: "/homework",
+            url: "/newhw",
             data: $(this).serialize(),
             error: function(jqXHR, textStatus, errorThrown) {
                 // Handle the error
@@ -165,10 +178,19 @@ function changeActiveClass(event) {
     }
 }
 
+function editHomework(event) {
+    var row = event.target.closest("tr");
+    var homework = row
+    displayEdithwForm(homework);
+    editinghw = homework;
+}
+
 function resetForm() {
-    var form = document.getElementsByClassName("newhwwinbg")[0];
-    var values = form.getElementsByTagName("input");
-    var selects = form.getElementsByTagName("select");
+    var window = document.getElementsByClassName("newhwwinbg")[0];
+    var values = window.getElementsByTagName("input");
+    var selects = window.getElementsByTagName("select");
+    var formHeader = document.getElementById("hwform-header");
+    formHeader.innerText = "Neue Hausaufgabe";
     for (var i = 0; i < values.length; i++) {
         if (values[i].type != "submit" && values[i].type != "checkbox") {
             values[i].value = "";
@@ -177,16 +199,59 @@ function resetForm() {
     for (var i = 0; i < selects.length; i++) {
         selects[i].selectedIndex = 0;
     }
+    editinghw = null;
+}
+
+function getworkamountINT(workamount) {
+    if (workamount === "Einfach😀") {
+        return 1;
+    } else if (workamount === "Normal🙂") {
+        return 2;
+    } else if (workamount === "Schwer🥵") {
+        return 3;
+    }
+    return 0;
+}
+
+function getdateinISO(date) {
+    // date is in format dd.mm.yyyy
+    var parts = date.split(".");
+    return parts[2] + "-" + parts[1] + "-" + parts[0];
+}
+
+
+function displayEdithwForm(homework) {
+    var window = document.getElementsByClassName("newhwwinbg")[0];
+    var win = document.getElementsByClassName("newhwwin")[0];
+    var form = document.getElementsByClassName("hwform")[0];
+    var values = window.getElementsByTagName("input");
+    var selects = window.getElementsByTagName("select");
+    var formHeader = document.getElementById("hwform-header");
+    formHeader.innerText = "Hausaufgabe bearbeiten";
+    selects[0].value = homework.cells[1].innerText;
+    values[0].value = homework.cells[2].innerText;
+    selects[1].value = getworkamountINT(homework.cells[3].innerText);
+    values[1].value = getdateinISO(homework.cells[4].innerText);
+    setTimeout(function() {
+        window.style.opacity = "1";
+    }, 10);
+    window.style.display = "flex";
+    windowheight = win.offsetHeight;
+    windowwidth = win.offsetWidth;
+    win.style.maxHeight = windowheight + "px";
+    win.style.maxWidth = windowwidth + "px";
+    sortClassesByColor();
+    markinTimetable();
 }
 
 // Opens the form to add a new homework
 function displayhwform() {
-    var form = document.getElementsByClassName("newhwwinbg")[0];
+    var window = document.getElementsByClassName("newhwwinbg")[0];
     var win = document.getElementsByClassName("newhwwin")[0];
     setTimeout(function() {
-        form.style.opacity = "1";
+        window.style.opacity = "1";
     }, 10);
-    form.style.display = "flex";
+    window.style.display = "flex";
     windowheight = win.offsetHeight;
     windowwidth = win.offsetWidth;
     win.style.maxHeight = windowheight + "px";
@@ -195,9 +260,9 @@ function displayhwform() {
 }
 
 function tryclosehwform() {
-    var form = document.getElementsByClassName("newhwwinbg")[0];
-    var values = form.getElementsByTagName("input");
-    var cancelwin = form.getElementsByClassName("cancel_popup")[0];
+    var window = document.getElementsByClassName("newhwwinbg")[0];
+    var values = window.getElementsByTagName("input");
+    var cancelwin = window.getElementsByClassName("cancel_popup")[0];
     for (var i = 0; i < values.length; i++) {
         if (values[i].value != "" && (values[i].type != "submit" && values[i].type != "checkbox" && values[i].type != "date")) {
             setTimeout(function() {
@@ -207,18 +272,18 @@ function tryclosehwform() {
             return;
         }
     }
-    form.style.opacity = "0";
+    window.style.opacity = "0";
     setTimeout(function() {
-        form.style.display = "none";
+        window.style.display = "none";
     }, 500);
 }
 
 // Closes the form to add a new homework with the close button in the top right
 function closehwform() {
-    var form = document.getElementsByClassName("newhwwinbg")[0];
-    form.style.opacity = "0";
+    var window = document.getElementsByClassName("newhwwinbg")[0];
+    window.style.opacity = "0";
     setTimeout(function() {
-        form.style.display = "none";
+        window.style.display = "none";
     }, 500);
     resetForm();
 }
@@ -334,21 +399,21 @@ function color_classes(){
 
 // Show the timetable in the homework form for better orientation
 var showingtimetable = false;
-function showtimetableinform() {
-    var form = document.getElementsByClassName("newhwwin")[0];
+function showTimetableinForm() {
+    var win = document.getElementsByClassName("newhwwin")[0];
     var timetable = document.getElementsByClassName("mini-timetable")[0];
     if (showingtimetable) {
         timetable.classList.remove("visible");
         setTimeout(function() {
             timetable.style.display = "none";
-            form.style.maxHeight = windowheight + "px";
-            form.style.maxWidth = windowwidth + "px";
+            win.style.maxHeight = windowheight + "px";
+            win.style.maxWidth = windowwidth + "px";
         }, 250);
         showingtimetable = false;
     } else {
-        form.classList.add("expanded");
-        form.style.maxHeight = "70%";
-        form.style.maxWidth = "100%";
+        win.classList.add("expanded");
+        win.style.maxHeight = "70%";
+        win.style.maxWidth = "100%";
         timetable.style.display = "block";
         setTimeout(function() {
             timetable.classList.add("visible");
@@ -413,7 +478,7 @@ function checkColumnsMatch(timetable, subject, day) {
     }
  }
 
-function markintimetable() {
+function markinTimetable() {
     // Clean up the timetable from previous marks
     cleanMarkedCells();
     var timetable = document.getElementsByClassName("mini-timetable")[0];
@@ -445,7 +510,7 @@ function markintimetable() {
     cell.classList.add("marked");
 }
 
-function autogetdate() {
+function autogetDate() {
     let form = document.querySelector('.hwform');
     let due_date = form.querySelector('#due_date');
     var subject = form.querySelector('#class').value;
@@ -464,7 +529,7 @@ function autogetdate() {
             var currentMonth = currentDate.getMonth();
             var foundDate = new Date(currentYear, currentMonth, currentDate.getDate() + (day - currentDay +1));
             due_date.value = foundDate.toISOString().split('T')[0];
-            markintimetable();
+            markinTimetable();
             return foundDate;
         }
     }
@@ -477,11 +542,11 @@ function autogetdate() {
             var currentMonth = currentDate.getMonth();
             var foundDate = new Date(currentYear, currentMonth, currentDate.getDate() + (7 - currentDay + day + 1));
             due_date.value = foundDate.toISOString().split('T')[0];
-            markintimetable();
+            markinTimetable();
             return foundDate;
         }
     }
     due_date.value = "";
-    markintimetable();
+    markinTimetable();
     return null;
 }

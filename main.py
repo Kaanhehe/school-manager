@@ -65,18 +65,20 @@ def change_homework_data(homework_data):
     modified_homework_data = []
     for homework in homework_data:
         homework_list = list(homework)
-        if homework_list[2] == 1:
-            homework_list[2] = "Einfach😀"
-        elif homework_list[2] == 2:
-            homework_list[2] = "Normal🙂"
-        elif homework_list[2] == 3:
-            homework_list[2] = "Schwer🥵"
+        if homework_list[3] == 1:
+            homework_list[3] = "Einfach😀"
+        elif homework_list[3] == 2:
+            homework_list[3] = "Normal🙂"
+        elif homework_list[3] == 3:
+            homework_list[3] = "Schwer🥵"
         else:
-            homework_list[2] = "Unmöglich🤯"
-        homework_list[3] = homework_list[3].split("-")
-        homework_list[3] = ".".join(homework_list[3][::-1])
+            homework_list[3] = "Unmöglich🤯"
+        if homework_list[4] == "":
+            homework_list[4] = "Noch nicht festgelegt"
+        homework_list[4] = homework_list[4].split("-")
+        homework_list[4] = ".".join(homework_list[4][::-1])
         modified_homework_data.append(tuple(homework_list))
-        modified_homework_data = sorted(modified_homework_data, key=lambda x: x[3])
+        modified_homework_data = sorted(modified_homework_data, key=lambda x: x[4])
     return modified_homework_data
 @app.route('/')
 def index():
@@ -109,8 +111,8 @@ def index():
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, username=username)
 
-@app.route('/homework', methods=['POST'])
-def homework():
+@app.route('/newhw', methods=['POST'])
+def newhw():
     form_data = request.form
     print(form_data)
     if form_data:
@@ -120,6 +122,18 @@ def homework():
         conn.commit()
         conn.close()
     return "Homework added"
+
+@app.route('/edithw', methods=['POST'])
+def edithw():
+    form_data = request.form
+    print(form_data)
+    if form_data:
+        conn = sqlite3.connect('homework.db')
+        c = conn.cursor()
+        c.execute("UPDATE homework SET class = ?, homework_task = ?, work_amount = ?, due_date = ? WHERE id = ?", (form_data['class'], form_data['homework_task'], form_data['work_amount'], form_data['due_date'], form_data['id']))
+        conn.commit()
+        conn.close()
+    return "Homework edited"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
