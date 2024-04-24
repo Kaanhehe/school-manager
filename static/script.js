@@ -7,7 +7,10 @@ var windowwidth = 0;
 $(document).ready(function(){
     $(".hwform").submit(function(event){
         event.preventDefault();
-
+        // Just get the date if it is not set; Not used right now -> make settings with this as option
+        //if (!$(this).find("#due_date").val()) {
+        //    autogetdate();
+        //}
         $.ajax({
             type: "POST",
             url: "/homework",
@@ -466,7 +469,7 @@ function autogetdate() {
         }
     }
     // if nothing is found before this tests from monday till today
-    for (var i = 0; i < currentDay; i++) {
+    for (var i = 0; i < tomorrowDay; i++) { // Use tomorrowDay cuz it needs to be one more for today to be included
         var cell = checkColumnsMatch(document.getElementsByClassName("mini-timetable")[0], subject, i);
         if (cell) {
             var day = i;
