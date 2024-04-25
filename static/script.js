@@ -48,7 +48,7 @@ $(document).ready(function(){
 });
 
 function setMode(mode) {
-    var modeToggle = document.getElementById("darkmode-toggle");
+    var modeSwitch = document.getElementById("darkmode-toggle");
     var brightbg = document.getElementsByClassName("brightbg")[0];
     var darkbg = document.getElementsByClassName("darkbg")[0];
     var navbar = document.getElementsByClassName("navbar")[0];
@@ -56,11 +56,11 @@ function setMode(mode) {
     if (mode === "bright") {
         brightbg.classList.add("visible");
         navbar.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
-        modeToggle.checked = false;
+        modeSwitch.checked = false;
     } else {
         darkbg.classList.add("visible");
         navbar.style.backgroundColor = "rgba(24, 24, 24, 0.7)";
-        modeToggle.checked = true;
+        modeSwitch.checked = true;
     }
 }
 
@@ -170,11 +170,11 @@ function change_done_homeworks() {
         if (dataid === "0") {
             button.addEventListener("click", doneHomework);
             button.classList.remove("undone");
-            button.innerHTML = "✔";
+            button.innerHTML = `<i class="fa-solid fa-check"></i>`;
         } else if (dataid === "1") {
             button.addEventListener("click", undoneHomework);
             button.classList.add("undone");
-            button.innerHTML = "✘";
+            button.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
             // Strike through the text and make it grey
             var cells = row.cells;
             for (var j = 0; j < cells.length; j++) {
@@ -227,9 +227,9 @@ function refreshHomeworks() {
                 var actionCell = document.createElement("td");
                 actionCell.className = "hwactions";
                 actionCell.innerHTML = `
-                    <button class="hwaction" id="hwdone" data-id=${done}>✔</button> <!-- onclick gets added in change_done_homeworks() -->
-                    <button class="hwaction" id="hwedit" onclick="editHomework(event)">✎</button>
-                    <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)">🗑</button>
+                    <button class="hwaction" id="hwdone" data-id=${done}><i class="fa-solid fa-check"></i></button> <!-- onclick gets added in change_done_homeworks() -->
+                    <button class="hwaction" id="hwedit" onclick="editHomework(event)"><i class="fa-regular fa-pen-to-square"></i></button>
+                    <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)"><i class="fa-solid fa-trash-can"></i></button>
                 `;
                 row.appendChild(actionCell);
                 return row.outerHTML;
