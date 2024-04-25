@@ -219,7 +219,7 @@
                                 <td>{{ homework[3] }}</td>
                                 <td>{{ homework[4] }}</td>
                                 <td class="hwactions">
-                                    <button class="hwaction" id="hwdone" data-id="{{ homework[5] }}" onclick="doneHomework(event)">✔</button> <!-- If its a done or not homework gets changed in change_done_homeworks() -->
+                                    <button class="hwaction" id="hwdone" data-id="{{ homework[5] }}">✔</button> <!-- If its a done or not homework gets changed in change_done_homeworks() (also onclick gets added there)-->
                                     <button class="hwaction" id="hwedit" onclick="editHomework(event)">✎</button>
                                     <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)">🗑</button>
                                 </td>
@@ -227,7 +227,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <button id="oldhwbtn">Ältere Hausaufgaben ansehen</button>
+                <button id="oldhwbtn" onclick="show_old_homework()">Ältere Hausaufgaben ansehen</button>
         </div>
     </div>
 </body>

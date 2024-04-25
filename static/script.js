@@ -4,6 +4,7 @@ var mode = getModeFromCookies() || "bright";
 var windowheight = 0;
 var windowwidth = 0;
 var editinghw = null;
+var oldhw = false;
 
 $(document).ready(function(){
     $(".hwform").submit(function(event){
@@ -174,11 +175,14 @@ function change_done_homeworks() {
             button.addEventListener("click", undoneHomework);
             button.classList.add("undone");
             button.innerHTML = "✘";
+            // Strike through the text and make it grey
             var cells = row.cells;
             for (var j = 0; j < cells.length; j++) {
-                if (j !== 5) {
+                if (j !== 5) { // Skip the button column
+                    // Adding line-through and grey color to the text
                     cells[j].style.textDecoration = "line-through";
                     cells[j].style.color = "rgba(255, 255, 255, 0.5)";
+                    // Remove the line-through and grey color when hovering over the row
                     cells[j].onmouseover = function() {
                         for (var j = 0; j < cells.length; j++) {
                             if (j !== 5) {
@@ -187,6 +191,7 @@ function change_done_homeworks() {
                             }
                         }
                     }
+                    // Add the line-through and grey color back when leaving the row
                     cells[j].onmouseout = function() {
                         for (var j = 0; j < cells.length; j++) {
                             if (j !== 5) {
@@ -222,7 +227,7 @@ function refreshHomeworks() {
                 var actionCell = document.createElement("td");
                 actionCell.className = "hwactions";
                 actionCell.innerHTML = `
-                    <button class="hwaction" id="hwdone" data-id=${done} onclick="doneHomework(event)">✔</button>
+                    <button class="hwaction" id="hwdone" data-id=${done}>✔</button> <!-- onclick gets added in change_done_homeworks() -->
                     <button class="hwaction" id="hwedit" onclick="editHomework(event)">✎</button>
                     <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)">🗑</button>
                 `;
@@ -666,4 +671,51 @@ function autogetDate() {
     due_date.value = "";
     markinTimetable();
     return null;
+}
+
+function show_old_homework() {
+    if (!oldhw) {
+        document.getElementById("oldhwbtn").innerHTML = "Aktuelle Hausaufgaben ansehen";
+        $.ajax({
+            type: "GET",
+            url: "/getoldhw",
+            success: function(data) {
+                var tableBody = document.querySelector("#homework-table tbody");
+                var rows = eval(data).map(function(rowData) {
+                    var row = document.createElement("tr");
+                    rowData.forEach(function(cellData, index) {
+                        if (index !== 5) { // Skip the done column
+                            var cell = document.createElement("td");
+                            cell.textContent = cellData;
+                            row.appendChild(cell);
+                        } else {
+                            done = cellData;
+                        }
+                    });
+                    // Add action buttons to the last cell
+                    var actionCell = document.createElement("td");
+                    actionCell.className = "hwactions";
+                    actionCell.innerHTML = `
+                        <button class="hwaction" id="hwdone" data-id=${done}>✔</button> <!-- onclick gets added in change_done_homeworks() -->
+                        <button class="hwaction" id="hwedit" onclick="editHomework(event)">✎</button>
+                        <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)">🗑</button>
+                    `;
+                    row.appendChild(actionCell);
+                    return row.outerHTML;
+                });
+                tableBody.innerHTML = rows.join("");
+                color_classes();
+                change_done_homeworks();
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                // Handle the error
+                console.error(textStatus, errorThrown);
+            }
+        });
+        oldhw = true;
+    } else {
+        document.getElementById("oldhwbtn").innerHTML = "Ältere Hausaufgaben ansehen";
+        refreshHomeworks();
+        oldhw = false;
+    }
 }

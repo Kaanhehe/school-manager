@@ -119,6 +119,16 @@ def gethw():
     homework_data = change_homework_data(homework_data)
     return homework_data
 
+@app.route('/getoldhw', methods=['GET'])
+def getoldhw():
+    conn = sqlite3.connect('homework.db')
+    c = conn.cursor()
+    today = datetime.date.today()
+    c.execute("SELECT * FROM homework WHERE due_date < ?", (today,))
+    homework_data = c.fetchall()
+    conn.close()
+    homework_data = change_homework_data(homework_data)
+    return homework_data
 
 @app.route('/newhw', methods=['POST'])
 def newhw():
