@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 from itertools import groupby
 from operator import itemgetter
+import datetime
 
 app = Flask(__name__)
 
@@ -17,7 +18,8 @@ def get_timetable_data():
 def get_homework_data():
     conn = sqlite3.connect('homework.db')
     c = conn.cursor()
-    c.execute("SELECT * FROM homework")
+    today = datetime.date.today()
+    c.execute("SELECT * FROM homework WHERE due_date >= ?", (today,))
     homework_data = c.fetchall()
     conn.close()
     return homework_data
@@ -129,6 +131,30 @@ def newhw():
         conn.commit()
         conn.close()
     return "Homework added"
+
+@app.route('/donehw', methods=['POST'])
+def donehw():
+    form_data = request.form
+    print(form_data)
+    if form_data:
+        conn = sqlite3.connect('homework.db')
+        c = conn.cursor()
+        c.execute("UPDATE homework SET done = 1 WHERE id = ?", (form_data['id'],))
+        conn.commit()
+        conn.close()
+    return "Homework done"
+
+@app.route('/undonehw', methods=['POST'])
+def undonehw():
+    form_data = request.form
+    print(form_data)
+    if form_data:
+        conn = sqlite3.connect('homework.db')
+        c = conn.cursor()
+        c.execute("UPDATE homework SET done = 0 WHERE id = ?", (form_data['id'],))
+        conn.commit()
+        conn.close()
+    return "Homework undone"
 
 @app.route('/edithw', methods=['POST'])
 def edithw():

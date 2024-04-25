@@ -151,11 +151,53 @@ function changeActiveClass(event) {
             document.getElementById("homework").classList.add("visible");
             // Color the classes in the homework overview
             color_classes();
+            change_done_homeworks();
         }, 10);
     // else hide the homework overview
     } else {
         document.getElementById("homework").style.display = "none";
         document.getElementById("homework").classList.remove("visible");
+    }
+}
+
+function change_done_homeworks() {
+    var buttons = document.querySelectorAll(".hwaction#hwdone");
+    for (var i = 0; i < buttons.length; i++) {
+        var dataid = buttons[i].getAttribute("data-id");
+        var row = buttons[i].closest("tr");
+        var button = row.querySelector(".hwaction#hwdone");
+        if (dataid === "0") {
+            button.addEventListener("click", doneHomework);
+            button.classList.remove("undone");
+            button.innerHTML = "✔";
+        } else if (dataid === "1") {
+            button.addEventListener("click", undoneHomework);
+            button.classList.add("undone");
+            button.innerHTML = "✘";
+            var cells = row.cells;
+            for (var j = 0; j < cells.length; j++) {
+                if (j !== 5) {
+                    cells[j].style.textDecoration = "line-through";
+                    cells[j].style.color = "rgba(255, 255, 255, 0.5)";
+                    cells[j].onmouseover = function() {
+                        for (var j = 0; j < cells.length; j++) {
+                            if (j !== 5) {
+                                cells[j].style.textDecoration = "none";
+                                cells[j].style.color = "rgba(255, 255, 255, 1)";
+                            }
+                        }
+                    }
+                    cells[j].onmouseout = function() {
+                        for (var j = 0; j < cells.length; j++) {
+                            if (j !== 5) {
+                                cells[j].style.textDecoration = "line-through";
+                                cells[j].style.color = "rgba(255, 255, 255, 0.5)";
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -167,24 +209,63 @@ function refreshHomeworks() {
             var tableBody = document.querySelector("#homework-table tbody");
             var rows = eval(data).map(function(rowData) {
                 var row = document.createElement("tr");
-                rowData.forEach(function(cellData) {
-                    var cell = document.createElement("td");
-                    cell.textContent = cellData;
-                    row.appendChild(cell);
+                rowData.forEach(function(cellData, index) {
+                    if (index !== 5) { // Skip the done column
+                        var cell = document.createElement("td");
+                        cell.textContent = cellData;
+                        row.appendChild(cell);
+                    } else {
+                        done = cellData;
+                    }
                 });
                 // Add action buttons to the last cell
                 var actionCell = document.createElement("td");
                 actionCell.className = "hwactions";
                 actionCell.innerHTML = `
-                    <button class="hwaction" id="hwdone">✔</button>
+                    <button class="hwaction" id="hwdone" data-id=${done} onclick="doneHomework(event)">✔</button>
                     <button class="hwaction" id="hwedit" onclick="editHomework(event)">✎</button>
-                    <button class="hwaction" id="hwdel" onclick="deleteHomework(event)">🗑</button>
+                    <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)">🗑</button>
                 `;
                 row.appendChild(actionCell);
                 return row.outerHTML;
             });
             tableBody.innerHTML = rows.join("");
             color_classes();
+            change_done_homeworks();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
+}
+
+function doneHomework(event) {
+    var row = event.target.closest("tr");
+    var id = row.cells[0].innerText;
+    $.ajax({
+        type: "POST",
+        url: "/donehw",
+        data: "id=" + id,
+        success: function(data) {
+            refreshHomeworks();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
+}
+
+function undoneHomework(event) {
+    var row = event.target.closest("tr");
+    var id = row.cells[0].innerText;
+    $.ajax({
+        type: "POST",
+        url: "/undonehw",
+        data: "id=" + id,
+        success: function(data) {
+            refreshHomeworks();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error

@@ -64,9 +64,9 @@ body {
 .welcome h1 {
     display: flex;
     flex-direction: column;
-    margin-left: 13%;
     color: white;
     padding: 3px;
+    padding-left: 13.1%; /* Cant use Margin for some stupid reason */
 }
 
 .schoolbg {
@@ -124,7 +124,7 @@ input[type=date] {
 }
 
 th, td {
-    border: 1px solid #424242;
+    border: 1px solid #808080;
     padding: 8px;
     text-align: left;
 }
@@ -139,13 +139,6 @@ tr:nth-child(even) {
 
 tr:nth-child(odd) {
     background-color: #181818;
-}
-
-.timetable, .homework-table{
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 15px 0;
 }
 
 .navbar {
@@ -295,6 +288,13 @@ tr:nth-child(odd) {
     transition: opacity 0.3s ease-in-out;
 }
 
+.timetable, .homework-table{
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 15px 0;
+}
+
 #timetable.visible, #homework.visible {
     display: block;
     opacity: 1;
@@ -327,6 +327,54 @@ tr:nth-child(odd) {
 
 .hwaction:active {
     background-color: #362b4a;
+}
+
+#hwdone {
+    background-color: #396f39;
+}
+
+#hwdone:hover {
+    background-color: #305330;
+}
+
+#hwdone:active {
+    background-color: #2b4a2b;
+}
+
+#hwdone.undone {
+    background-color: #6f3939;
+}
+
+#hwdone.undone:hover {
+    background-color: #533030;
+}
+
+#hwdone.undone:active {
+    background-color: #4a2b2b;
+}
+
+#hwedit {
+    background-color: #396F6F;
+}
+
+#hwedit:hover {
+    background-color: #305353;
+}
+
+#hwedit:active {
+    background-color: #2b4a4a;
+}
+
+#hwdelete {
+    background-color: #6f3939;
+}
+
+#hwdelete:hover {
+    background-color: #533030;
+}
+
+#hwdelete:active {
+    background-color: #4a2b2b;
 }
 
 #newhwbt {
