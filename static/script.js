@@ -52,15 +52,22 @@ function setMode(mode) {
     var brightbg = document.getElementsByClassName("brightbg")[0];
     var darkbg = document.getElementsByClassName("darkbg")[0];
     var navbar = document.getElementsByClassName("navbar")[0];
+    var navbar_elements = document.getElementsByClassName("navbar-elements");
     
     if (mode === "bright") {
         brightbg.classList.add("visible");
         navbar.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
         modeSwitch.checked = false;
+        for (var i = 0; i < navbar_elements.length; i++) {
+            navbar_elements[i].classList.add("bright");
+        }
     } else {
         darkbg.classList.add("visible");
         navbar.style.backgroundColor = "rgba(24, 24, 24, 0.7)";
         modeSwitch.checked = true;
+        for (var i = 0; i < navbar_elements.length; i++) {
+            navbar_elements[i].classList.remove("bright");
+        }
     }
 }
 
@@ -68,16 +75,23 @@ function toggleMode() {
     var brightbg = document.getElementsByClassName("brightbg")[0];
     var darkbg = document.getElementsByClassName("darkbg")[0];
     var navbar = document.getElementsByClassName("navbar")[0];
+    var navbar_elements = document.getElementsByClassName("navbar-elements");
     if (mode === "bright") {
         mode = "dark";
         darkbg.classList.add("visible");
         brightbg.classList.remove("visible");
         navbar.style.backgroundColor = "rgba(24, 24, 24, 0.8)";
+        for (var i = 0; i < navbar_elements.length; i++) {
+            navbar_elements[i].classList.remove("bright");
+        }
     } else {
         mode = "bright";
         brightbg.classList.add("visible");
         darkbg.classList.remove("visible");
         navbar.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
+        for (var i = 0; i < navbar_elements.length; i++) {
+            navbar_elements[i].classList.add("bright");
+        }
     }
     saveModeToCookies(mode);
 }

@@ -2,6 +2,7 @@
     box-sizing: border-box;
     user-select: none;
     --main-white: rgb(243, 243, 243);
+    --main-black: rgb(32, 32, 32);
     --background: #2B2636;
     --background-transparent: rgba(43, 38, 54, 0.8);
     --user-input-text: #9e9e9e;
@@ -169,8 +170,12 @@ tr:nth-child(odd) {
     color: var(--main-white);
     text-align: center;
     padding: 10px 16px;
-    text-decoration: none;
+    text-decoration: solid;
     font-size: 17px;
+}
+
+.navbar-elements.bright a {
+    color: var(--main-black);
 }
 
 .navbar-elements a:hover {
@@ -195,6 +200,7 @@ tr:nth-child(odd) {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-right: 8px;
     width: 50px;
     height: 25px;
     background-color: var(--darkmode-toggle-bg);
@@ -381,6 +387,7 @@ tr:nth-child(odd) {
     background-color: var(--main-purple);
     color: var(--main-white);
     width: 100%;
+    margin-top: 15px;
     padding: 10px 32px;
     text-align: center;
     text-decoration: none;
