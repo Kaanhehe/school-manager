@@ -45,6 +45,8 @@ $(document).ready(function(){
     setMode(mode);
     sortTable('timetable'); 
     sortTable('mini-timetable');
+    applyrepplan(repplanData, 'timetable');
+    applyrepplan(repplanData, 'mini-timetable');
 });
 
 function setMode(mode) {
@@ -114,6 +116,82 @@ function getModeFromCookies() {
         }
     }
     return null;
+}
+
+function applyrepplan(repplanData, tableId) {
+    var table = document.getElementsByClassName(tableId)[0];
+    for (var i = 0; i < repplanData.length; i++) {
+        is_sub = false;
+        is_info = false;
+        is_cancelled = false;
+        is_room = false;
+        id = repplanData[i][0];
+        date = repplanData[i][1];
+        date = new Date(getdateinISO(date));
+        day = date.getDay();
+        hour = repplanData[i][2];
+        classes = repplanData[i][3];
+        substitute = repplanData[i][4];
+        teacher = repplanData[i][5];
+        subject = repplanData[i][6];
+        room = repplanData[i][7];
+        info = repplanData[i][8];
+        cell = day + 1;
+        row = hour;
+        // check if the subject and teacher match
+        if (table.rows[row].cells[cell].innerText.split(' ')[0] === subject && table.rows[row].cells[cell].innerText.split(' ')[2] === teacher) {
+            // check if substitute is not empty and not the same as the teacher
+            if (substitute != "" && substitute != teacher) {
+                cellsplit = table.rows[row].cells[cell].innerHTML.split(' ');
+                // Make the og teacher strike through
+                cellsplit[2] = "<strike>" + cellsplit[2] + "</strike>";
+                // Add the substitute
+                cellsplit[3] = substitute;
+                table.rows[row].cells[cell].innerHTML = cellsplit.join(' ');
+                // Set the is_sub flag to true
+                is_sub = true;
+            }
+            // check if room is not empty and not the same as the default room
+            if (room != "" && room != table.rows[row].cells[cell].innerText.split(' ')[1]) {
+                cellsplit = table.rows[row].cells[cell].innerHTML.split(' ');
+                // Make the default room strike through
+                cellsplit[1] = "<strike>" + cellsplit[1] + "</strike>";
+                // Add the room
+                cellsplit.splice(2, 0, room);
+                table.rows[row].cells[cell].innerHTML = cellsplit.join(' ');
+                // Set the is_room flag to true
+                is_room = true;
+            }
+            // Add the info icon if the lesson is cancelled
+            if (info === "fällt aus") {
+                // Strike through the whole cell
+                table.rows[row].cells[cell].innerHTML = `<strike>${table.rows[row].cells[cell].innerHTML}</strike>`;
+                // Set the is_cancelled flag to true
+                is_cancelled = true;
+            // Add the info icon if there is a info
+            } else if (info != "") {
+                // Set the is_info flag to true
+                is_info = true;
+            }
+            // Add the icons to the cell
+            if (is_sub) {
+                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="teacher-icon fas fa-chalkboard-teacher" title="Vertreter: ${substitute}" style="font-size: smaller;"></i>`;
+            }
+            if (is_cancelled) {
+                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="cancelled-icon fas fa-times-circle" title="Diese Stunde fällt aus" style="font-size: smaller;"></i>`;
+            }
+            if (is_info) {
+                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="info-icon fas fa-info-circle" title="${info}" style="font-size: smaller;"></i>`;
+            }
+            if (is_room) {
+                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="room-icon fas fa-door-open" title="Neuer Raum: ${room}" style="font-size: smaller;"></i>`;
+            }
+            // Add the info icon with a warning if the lesson is cancelled and there is a substitute
+            if (is_sub && is_cancelled) {
+                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="info-icon fas fa-info-circle" title="Entfall und Vertretung???" style="font-size: smaller;"></i>`;
+            }
+        }
+    }
 }
 
 

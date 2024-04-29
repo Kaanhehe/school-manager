@@ -24,6 +24,14 @@ def get_homework_data():
     conn.close()
     return homework_data
 
+def get_repplan_data():
+    conn = sqlite3.connect('repplan.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM repplan")
+    repplan_data = c.fetchall()
+    conn.close()
+    return repplan_data
+
 def sort_timetable_date(timetable_data):
     # Replace weekdays with numbers
     weekday_mapping = {
@@ -86,6 +94,7 @@ def change_homework_data(homework_data):
 def index():
     timetable_data = get_timetable_data()
     homework_data = get_homework_data()
+    repplan_data = get_repplan_data()
     print(homework_data)
     homework_data = change_homework_data(homework_data)
     
@@ -111,7 +120,7 @@ def index():
     }
     username = "Fremder"
     # Render the index.html template -> templates/index.html; with the grouped_data
-    return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, username=username)
+    return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
 
 @app.route('/gethw', methods=['GET'])
 def gethw():

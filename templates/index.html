@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://kit.fontawesome.com/bbd4622928.js" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        var repplanData = JSON.parse('{{ repplan_data|tojson|safe }}'); // Needed to use the repplan data in the script.js
+    </script>
 </head>
 <!-- Using not the direct id for timetable but for mini-timetable using the direct id, idk no more -->
 <body>

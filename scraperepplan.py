@@ -38,6 +38,11 @@ def scrape_repplan(driver, url):
     repplan_data = []
     driver.get(url)
     time.sleep(1)  # Wait for page to load
+    panel_primary = driver.find_element(By.CSS_SELECTOR, 'div.panel.panel-primary')
+    # For some reason, the first shown panel sometimes has the panel-primary class instead of panel-info
+    if panel_primary is not None:
+        driver.execute_script("arguments[0].classList.remove('panel-primary')", panel_primary)  # This is to remove the hidden class from the panel
+        driver.execute_script("arguments[0].classList.add('panel-info')", panel_primary)  # This is to add the panel-info class to the panel
     panels = driver.find_elements(By.CSS_SELECTOR, 'div.panel.panel-info')
     driver.execute_script("arguments[0].style.display = 'block';", panels[2]) # This is to show the hidden panels
     for panel in panels[1:]:
@@ -96,7 +101,7 @@ def save_repplan_to_db(repplan_data):
         CREATE TABLE IF NOT EXISTS repplan (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT,
-            hour TEXT,
+            hour INTEGER,
             class TEXT,
             substitute TEXT,
             teacher TEXT,
