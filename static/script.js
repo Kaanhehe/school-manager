@@ -122,9 +122,10 @@ function applyrepplan(repplanData, tableId) {
     var table = document.getElementsByClassName(tableId)[0];
     for (var i = 0; i < repplanData.length; i++) {
         is_sub = false;
-        is_info = false;
-        is_cancelled = false;
         is_room = false;
+        is_cancelled = false;
+        sv_std = false;
+        is_info = false;
         id = repplanData[i][0];
         date = repplanData[i][1];
         date = new Date(getdateinISO(date));
@@ -138,6 +139,10 @@ function applyrepplan(repplanData, tableId) {
         info = repplanData[i][8];
         cell = day + 1;
         row = hour;
+        // check if the cell exists
+        if (!table.rows[row].cells[cell]) {
+            continue;
+        }
         // check if the subject and teacher match
         if (table.rows[row].cells[cell].innerText.split(' ')[0] === subject && table.rows[row].cells[cell].innerText.split(' ')[2] === teacher) {
             // check if substitute is not empty and not the same as the teacher
@@ -169,22 +174,30 @@ function applyrepplan(repplanData, tableId) {
                 // Set the is_cancelled flag to true
                 is_cancelled = true;
             // Add the info icon if there is a info
+            } else if (info === "SV-Std") {
+                // Make the cells background yellow
+                table.rows[row].cells[cell].style.backgroundColor = "rgba(255, 255, 0, 0.2)";
+                // Set the sv_std flag to true
+                sv_std = true;
             } else if (info != "") {
                 // Set the is_info flag to true
                 is_info = true;
             }
             // Add the icons to the cell
+            if (is_room) {
+                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="room-icon fas fa-door-open" title="Neuer Raum: ${room}" style="font-size: smaller;"></i>`;
+            }
             if (is_sub) {
                 table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="teacher-icon fas fa-chalkboard-teacher" title="Vertreter: ${substitute}" style="font-size: smaller;"></i>`;
             }
             if (is_cancelled) {
                 table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="cancelled-icon fas fa-times-circle" title="Diese Stunde fällt aus" style="font-size: smaller;"></i>`;
             }
+            if (sv_std) {
+                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="sv-std-icon fas fa-user-friends" title="SV-Std" style="font-size: smaller;"></i>`;
+            }
             if (is_info) {
                 table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="info-icon fas fa-info-circle" title="${info}" style="font-size: smaller;"></i>`;
-            }
-            if (is_room) {
-                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="room-icon fas fa-door-open" title="Neuer Raum: ${room}" style="font-size: smaller;"></i>`;
             }
             // Add the info icon with a warning if the lesson is cancelled and there is a substitute
             if (is_sub && is_cancelled) {
