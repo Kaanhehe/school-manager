@@ -5,6 +5,7 @@ var windowheight = 0;
 var windowwidth = 0;
 var editinghw = null;
 var oldhw = false;
+var submited = false;
 
 $(document).ready(function(){
     $(".hwform").submit(function(event){
@@ -13,6 +14,7 @@ $(document).ready(function(){
         //if (!$(this).find("#due_date").val()) {
         //    autogetDate();
         //}
+        submited = true;
         if (editinghw) {
             $.ajax({
                 type: "POST",
@@ -45,8 +47,10 @@ $(document).ready(function(){
     setMode(mode);
     sortTable('timetable'); 
     sortTable('mini-timetable');
-    applyrepplan(repplanData, 'timetable');
-    applyrepplan(repplanData, 'mini-timetable');
+    applyrepplan(repplan_data, 'timetable');
+    applyrepplan(repplan_data, 'mini-timetable');
+    applyhomework(homework_data, 'timetable');
+    applyhomework(homework_data, 'mini-timetable');
 });
 
 function setMode(mode) {
@@ -118,6 +122,46 @@ function getModeFromCookies() {
     return null;
 }
 
+// Used to apply the homework to the timetable
+// Adds a little icon to the cell if there is a homework with the amount of homeworks that are due
+// Also adds a icon the the column header with the amount of homeworks that are due in the whole day
+function applyhomework(homework_data, tableId) {
+    var table = document.getElementsByClassName(tableId)[0];
+    for (var i = 0; i < homework_data.length; i++) {
+        date = homework_data[i][4];
+        date = new Date(getdateinISO(date));
+        day = date.getDay();
+        subject = homework_data[i][1];
+        subject = classLabels(subject);
+        amount = homework_data[i][3];
+        task = homework_data[i][2];
+        done = homework_data[i][5];
+        cell = day + 1;
+        // check if the homework is done
+        if (done === 1) {
+            continue;
+        }
+        // loop through every row and check if the subject matches
+        for (var row = 0; row < table.rows.length; row++) {
+            // check if the cell exists
+            if (!table.rows[row].cells[cell]) {
+                continue;
+            }
+            // check if the subject matches
+            if (table.rows[row].cells[cell].innerText.split(' ')[0] === subject) {
+                // Add the icon to the cell
+                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="homework-icon fas fa-book" title="Offnene Hausaufgabe: ${task}" style="font-size: smaller;"></i>`;
+                // Add the icon to the column header
+                if (!table.rows[0].cells[cell].innerHTML.includes("homework-icon")) {
+                    table.rows[0].cells[cell].innerHTML = `${table.rows[0].cells[cell].innerHTML} <i class="homework-icon fas fa-book" title="Offene Hausaufgaben für diesen Tag" style="font-size: smaller;"></i>`;
+                }
+                break;
+            }
+        }
+    }
+}
+
+// Used to apply the replacement plan to the timetable
 function applyrepplan(repplanData, tableId) {
     var table = document.getElementsByClassName(tableId)[0];
     for (var i = 0; i < repplanData.length; i++) {
@@ -484,12 +528,21 @@ function displayhwform() {
     win.style.maxHeight = windowheight + "px";
     win.style.maxWidth = windowwidth + "px";
     sortClassesByColor();
+    submited = false;
 }
 
 function tryclosehwform() {
     var window = document.getElementsByClassName("newhwwinbg")[0];
     var values = window.getElementsByTagName("input");
     var cancelwin = window.getElementsByClassName("cancel_popup")[0];
+    if (submited) {
+        window.style.opacity = "0";
+        setTimeout(function() {
+            window.style.display = "none";
+            resetForm();
+        }, 500);
+        return;
+    }
     for (var i = 0; i < values.length; i++) {
         if (values[i].value != "" && (values[i].type != "submit" && values[i].type != "checkbox" && values[i].type != "date")) {
             setTimeout(function() {
@@ -502,6 +555,7 @@ function tryclosehwform() {
     window.style.opacity = "0";
     setTimeout(function() {
         window.style.display = "none";
+        resetForm();
     }, 500);
 }
 
@@ -742,7 +796,6 @@ function autogetDate() {
     let due_date = form.querySelector('#due_date');
     var subject = form.querySelector('#class').value;
     subject = classLabels(subject);
-    console.log(subject);
     var currentDate = new Date();
     var currentDay = currentDate.getDay();
     // Add one to search from tomorrow on

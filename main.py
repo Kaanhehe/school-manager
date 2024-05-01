@@ -25,9 +25,15 @@ def get_homework_data():
     return homework_data
 
 def get_repplan_data():
+    def convert_date(date_str):
+        # Convert date from DD.MM.YYYY to YYYY-MM-DD
+        return datetime.datetime.strptime(date_str, '%d.%m.%Y').strftime('%Y-%m-%d')
+
     conn = sqlite3.connect('repplan.db')
+    conn.create_function('convert_date', 1, convert_date)  # Create custom SQLite function
     c = conn.cursor()
-    c.execute("SELECT * FROM repplan")
+    today = datetime.date.today()
+    c.execute("SELECT * FROM repplan WHERE convert_date(date) >= ?", (today,))
     repplan_data = c.fetchall()
     conn.close()
     return repplan_data
@@ -95,7 +101,6 @@ def index():
     timetable_data = get_timetable_data()
     homework_data = get_homework_data()
     repplan_data = get_repplan_data()
-    print(homework_data)
     homework_data = change_homework_data(homework_data)
     
 

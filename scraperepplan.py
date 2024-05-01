@@ -135,22 +135,6 @@ def save_repplan_to_db(repplan_data):
     conn.commit()
     conn.close()
 
-def delete_old_entries():
-    def convert_date(date_str):
-        # Convert date from DD.MM.YYYY to YYYY-MM-DD
-        return datetime.strptime(date_str, '%d.%m.%Y').strftime('%Y-%m-%d')
-
-    conn = sqlite3.connect('repplan.db')
-    conn.create_function('convert_date', 1, convert_date)  # Create custom SQLite function
-    cursor = conn.cursor()
-    today = datetime.now().date()
-    today_str = today.strftime('%Y-%m-%d')  # Convert today's date to the SQLite date format
-    cursor.execute("DELETE FROM repplan WHERE convert_date(date) < ?", (today_str,))
-    deleted_entries = cursor.rowcount
-    print(f"{deleted_entries} entries deleted.")
-    conn.commit()
-    conn.close()
-
 # Main function
 def main():
     # Perform login using Selenium
@@ -174,12 +158,6 @@ def main():
 
     # Store Representation Plan data in SQLite database
     save_repplan_to_db(repplan_data)
-
-    # ask for deletion of old entries
-    if input("Do you want to delete old entries? (y/n): ").lower() == 'y':
-        # Delete old entries
-        delete_old_entries()
-        print("Old entries have been deleted.")
 
     print("Representation Plan data has been scraped and stored successfully.")
 

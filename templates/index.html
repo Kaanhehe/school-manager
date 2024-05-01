@@ -10,7 +10,9 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://kit.fontawesome.com/bbd4622928.js" crossorigin="anonymous"></script>
     <script type="text/javascript">
-        var repplanData = JSON.parse('{{ repplan_data|tojson|safe }}'); // Needed to use the repplan data in the script.js
+        var timetable_data = JSON.parse('{{ timetable_data|tojson|safe }}'); // Needed to use the timetable data in the script.js
+        var homework_data = JSON.parse('{{ homework_data|tojson|safe }}'); // Needed to use the homework data in the script.js
+        var repplan_data = JSON.parse('{{ repplan_data|tojson|safe }}'); // Needed to use the repplan data in the script.js
     </script>
 </head>
 <!-- Using not the direct id for timetable but for mini-timetable using the direct id, idk no more -->
@@ -123,8 +125,10 @@
                                         <label for="showtimetable">Zeig meinen Stundenplan</label>
                                     </div>
                                 </div>
-
-                                <input class="submit" id="homeworksub" type="submit" value="Hinzufügen">
+                                <div class="hwformbuttons">
+                                    <button class="clear" type="button" onclick="resetForm()">Clear</button>
+                                    <input class="submit" id="homeworksub" type="submit" value="Hinzufügen">
+                                </div>
                                 <div style="margin-top: 10px;">Felder mit * müssen ausgefüllt werden</div>
                             </form>
                             <table id="mini-timetable" class="mini-timetable">
