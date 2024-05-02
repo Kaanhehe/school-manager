@@ -1,6 +1,5 @@
 // Author: Kaanhehe
-// used to toggle the darkmode with the nice slider in the top right
-var mode = getModeFromCookies() || "bright";
+
 var windowheight = 0;
 var windowwidth = 0;
 var editinghw = null;
@@ -44,83 +43,11 @@ $(document).ready(function(){
             }
         });
     });
-    setMode(mode);
-    sortTable('timetable'); 
-    sortTable('mini-timetable');
     applyrepplan(repplan_data, 'timetable');
     applyrepplan(repplan_data, 'mini-timetable');
     applyhomework(homework_data, 'timetable');
     applyhomework(homework_data, 'mini-timetable');
 });
-
-function setMode(mode) {
-    var modeSwitch = document.getElementById("darkmode-toggle");
-    var brightbg = document.getElementsByClassName("brightbg")[0];
-    var darkbg = document.getElementsByClassName("darkbg")[0];
-    var navbar = document.getElementsByClassName("navbar")[0];
-    var navbar_elements = document.getElementsByClassName("navbar-elements");
-    
-    if (mode === "bright") {
-        brightbg.classList.add("visible");
-        navbar.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
-        modeSwitch.checked = false;
-        for (var i = 0; i < navbar_elements.length; i++) {
-            navbar_elements[i].classList.add("bright");
-        }
-    } else {
-        darkbg.classList.add("visible");
-        navbar.style.backgroundColor = "rgba(24, 24, 24, 0.7)";
-        modeSwitch.checked = true;
-        for (var i = 0; i < navbar_elements.length; i++) {
-            navbar_elements[i].classList.remove("bright");
-        }
-    }
-}
-
-function toggleMode() {
-    var brightbg = document.getElementsByClassName("brightbg")[0];
-    var darkbg = document.getElementsByClassName("darkbg")[0];
-    var navbar = document.getElementsByClassName("navbar")[0];
-    var navbar_elements = document.getElementsByClassName("navbar-elements");
-    if (mode === "bright") {
-        mode = "dark";
-        darkbg.classList.add("visible");
-        brightbg.classList.remove("visible");
-        navbar.style.backgroundColor = "rgba(24, 24, 24, 0.8)";
-        for (var i = 0; i < navbar_elements.length; i++) {
-            navbar_elements[i].classList.remove("bright");
-        }
-    } else {
-        mode = "bright";
-        brightbg.classList.add("visible");
-        darkbg.classList.remove("visible");
-        navbar.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
-        for (var i = 0; i < navbar_elements.length; i++) {
-            navbar_elements[i].classList.add("bright");
-        }
-    }
-    saveModeToCookies(mode);
-}
-
-function saveModeToCookies(mode) {
-    document.cookie = "mode=" + mode + "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
-}
-
-function getModeFromCookies() {
-    var name = "mode=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var cookies = decodedCookie.split(';');
-    for (var i = 0; i < cookies.length; i++) {
-        var cookie = cookies[i];
-        while (cookie.charAt(0) === ' ') {
-            cookie = cookie.substring(1);
-        }
-        if (cookie.indexOf(name) === 0) {
-            return cookie.substring(name.length, cookie.length);
-        }
-    }
-    return null;
-}
 
 // Used to apply the homework to the timetable
 // Adds a little icon to the cell if there is a homework with the amount of homeworks that are due
@@ -247,31 +174,6 @@ function applyrepplan(repplanData, tableId) {
             if (is_sub && is_cancelled) {
                 table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="info-icon fas fa-info-circle" title="Entfall und Vertretung???" style="font-size: smaller;"></i>`;
             }
-        }
-    }
-}
-
-
-// Used to add the Mittagspause in the timetable at 7th period
-function sortTable(tableId) {
-    var table, rows, switching, i, x, y, shouldSwitch;
-    table = document.getElementById(tableId);
-    switching = true;
-    while (switching) {
-        switching = false;
-        rows = table.getElementsByTagName("tr");
-        for (i = 1; i < (rows.length - 1); i++) {
-            shouldSwitch = false;
-            x = rows[i].getElementsByTagName("td")[0];
-            y = rows[i + 1].getElementsByTagName("td")[0];
-            if (parseInt(x.innerHTML) > parseInt(y.innerHTML)) {
-                shouldSwitch = true;
-                break;
-            }
-        }
-        if (shouldSwitch) {
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
         }
     }
 }

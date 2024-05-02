@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>School Manager</title>
     <link rel="icon" href="{{url_for('static', filename='images/SchulHub_trans (500 x 200 px).svg')}}" type="image/x-icon">
-    <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='general.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='index.css')}}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://kit.fontawesome.com/bbd4622928.js" crossorigin="anonymous"></script>
     <script type="text/javascript">
@@ -15,7 +16,6 @@
         var repplan_data = JSON.parse('{{ repplan_data|tojson|safe }}'); // Needed to use the repplan data in the script.js
     </script>
 </head>
-<!-- Using not the direct id for timetable but for mini-timetable using the direct id, idk no more -->
 <body>
     <div class="siteerror" style="display:none">
         <h1 class="error">{{ error }}</h1>
@@ -28,8 +28,8 @@
     </div>
     <div class="navbar">
         <div class="navbar-elements navbar-start">
-            <a id="timetable-link" class="active" onclick="changeActiveClass(event)" href="#">Stundenplan</a>
-            <a id="homework-link" onclick="changeActiveClass(event)" href="#">Hausaufgaben</a>
+            <a id="timetable-link" class="active" onclick="changeActiveClass(event)" href="#timetable">Stundenplan</a>
+            <a id="homework-link" onclick="changeActiveClass(event)" href="#homework">Hausaufgaben</a>
         </div>
         <div class="navbar-elements navbar-end">
             <label class="darkmode-switch">
@@ -59,25 +59,27 @@
                         </tr>
                     </thead> 
                     <tbody>
-                        {% for group in timetable_data %}
-                            <tr>
-                                {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
-                                <td>{{ class_num }}</td>
-                                <td>{{ class_time }}</td>
-                                {% for class_data in group %}
-                                    {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
-                                    {% set day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6} %}
-                                    {% if class_day in day_columns %}
-                                        <td>{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
-                                    {% endif %}
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
+                    {% for group in timetable_data %}
+                        {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
                         <tr>
-                            <td>7</td>
-                            <td>13:00 - 13:45</td>
-                            <td colspan="6" style="text-align: center; font-size: 20px; font-weight: bold;" class="special-font">Mittagspause</td>
+                            <td>{{ class_num }}</td>
+                            <td>{{ class_time }}</td>
+                            {% for class_data in group %}
+                                {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
+                                {% set day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6} %}
+                                {% if class_day in day_columns %}
+                                    <td>{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
+                                {% endif %}
+                            {% endfor %}
                         </tr>
+                        {% if class_num == 6 %}
+                            <tr>
+                                <td>7</td>
+                                <td>13:00 - 13:45</td>
+                                <td colspan="6" style="text-align: center; font-size: 20px; font-weight: bold;" class="special-font">Mittagspause</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
                     </tbody>
                 </table>
         </div>
@@ -213,5 +215,6 @@
         </div>
     </div>
 </body>
-<script src="{{url_for('static', filename='script.js')}}"></script>
+<script src="{{url_for('static', filename='general.js')}}"></script>
+<script src="{{url_for('static', filename='index.js')}}"></script>
 </html>

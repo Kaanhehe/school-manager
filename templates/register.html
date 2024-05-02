@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="icon" href="{{url_for('static', filename='images/SchulHub_trans (500 x 200 px).svg')}}" type="image/x-icon">
+    <link rel="stylesheet" href="{{url_for('static', filename='general.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='register/register.css')}}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://kit.fontawesome.com/bbd4622928.js" crossorigin="anonymous"></script>
+
+</head>
+<body>
+    <div class="siteerror" style="display:none">
+        <h1 class="error">{{ error }}</h1>
+    </div>
+    <div class="schoolhub">
+        <img src="{{url_for('static', filename='images/SchulHub (500 x 200 px).svg')}}" alt="logo">
+    </div>
+    <div class="navbar">
+        <div class="navbar-elements navbar-start">
+            <a id="login-link" href="/login">Login</a>
+            <a id="register-link" class="active" href="/register">Register</a>
+        </div>
+        <div class="navbar-elements navbar-end">
+            <label class="darkmode-switch">
+                <input id="darkmode-toggle" type="checkbox" onclick="toggleMode()">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+    <div id="bgimg">
+        <div class="schoolbg brightbg" style="background-image: url(https://startcache.schulportal.hessen.de/exporteur.php?a=schoolbg&i=5202&s=lg);"></div>
+        <img class="schoolbg darkbg" src="{{url_for('static', filename='images/3101702.jpg')}}" alt="background-image">
+    </div>
+    <div class="content">
+        <div class="register-form">
+            <h2>Register</h2>
+            <form action="/register" method="post" onsubmit="return validateForm()">
+                <label for="username">Username:</label><br>
+                <input type="text" id="username" name="username" required><br>
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password" required><br>
+                <label for="confirm_password">Confirm Password:</label><br>
+                <input type="password" id="confirm_password" name="confirm_password" required><br>
+                <input type="submit" value="Register">
+            </form>
+        </div>
+    </div>
+</body>
+<script src="{{url_for('static', filename='general.js')}}"></script>
+<script src="{{url_for('static', filename='register/register.js')}}"></script>
+</html>

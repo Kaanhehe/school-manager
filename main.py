@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 from itertools import groupby
 from operator import itemgetter
 import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+app.secret_key = 'longrandomstring' # For now
 
 # Function to retrieve timetable data from the database
 def get_timetable_data():
@@ -96,8 +98,54 @@ def change_homework_data(homework_data):
         modified_homework_data.append(tuple(homework_list))
         modified_homework_data = sorted(modified_homework_data, key=lambda x: x[4])
     return modified_homework_data
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        form_data = request.form
+        conn = sqlite3.connect('users.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE username = ?", (form_data['username'],))
+        user = c.fetchone()
+        if user:
+            return "User already exists"
+        else:
+            hashed_password = generate_password_hash(form_data['password'], method='pbkdf2:sha256')
+            c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (form_data['username'], hashed_password))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('login'))
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        form_data = request.form
+        conn = sqlite3.connect('users.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE username = ?", (form_data['username'],))
+        user = c.fetchone()
+        conn.close()
+        if user and check_password_hash(user[1], form_data['password']):
+            session['username'] = form_data['username']
+            return redirect(url_for('index'))
+        else:
+            return "Login failed"
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
 @app.route('/')
 def index():
+    username = "Fremder"
+    if 'username' in session:
+        username = session['username']
+    else:
+        return redirect(url_for('login'))
+    
     timetable_data = get_timetable_data()
     homework_data = get_homework_data()
     repplan_data = get_repplan_data()
@@ -123,7 +171,6 @@ def index():
         "PoWi",
         "Spanisch",
     }
-    username = "Fremder"
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
 
