@@ -20,11 +20,13 @@ $(document).ready(function(){
                 url: "/edithw",
                 data: $(this).serialize() + "&id=" + editinghw.cells[0].innerText,
                 success: function(data) {
-                    refreshHomeworks();
+                    RequestHomeworkRefresh();
                     closehwform();
+                    sendNotification("success", "Hausaufgabe bearbeitet", "Die Hausaufgabe wurde erfolgreich bearbeitet.");
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     // Handle the error
+                    sendNotification("error", "Fehler", "Die Hausaufgabe konnte nicht bearbeitet werden.");
                     console.error(textStatus, errorThrown);
                 }
             });
@@ -35,10 +37,12 @@ $(document).ready(function(){
             url: "/newhw",
             data: $(this).serialize(),
             success: function(data) {
-                refreshHomeworks();
+                RequestHomeworkRefresh();
+                sendNotification("success", "Hausaufgabe hinzugefügt", "Die Hausaufgabe wurde erfolgreich hinzugefügt.");
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 // Handle the error
+                sendNotification("error", "Fehler", "Die Hausaufgabe konnte nicht hinzugefügt werden.");
                 console.error(textStatus, errorThrown);
             }
         });
@@ -257,6 +261,14 @@ function change_done_homeworks() {
     }
 }
 
+function RequestHomeworkRefresh() {
+    if (oldhw) {
+        refreshOldHomeworks();
+    } else {
+        refreshHomeworks();
+    }
+}
+
 function refreshHomeworks() {
     $.ajax({
         type: "GET",
@@ -296,6 +308,45 @@ function refreshHomeworks() {
     });
 }
 
+function refreshOldHomeworks() {
+    $.ajax({
+        type: "GET",
+        url: "/getoldhw",
+        success: function(data) {
+            var tableBody = document.querySelector("#homework-table tbody");
+            var rows = eval(data).map(function(rowData) {
+                var row = document.createElement("tr");
+                rowData.forEach(function(cellData, index) {
+                    if (index !== 5) { // Skip the done column
+                        var cell = document.createElement("td");
+                        cell.textContent = cellData;
+                        row.appendChild(cell);
+                    } else {
+                        done = cellData;
+                    }
+                });
+                // Add action buttons to the last cell
+                var actionCell = document.createElement("td");
+                actionCell.className = "hwactions";
+                actionCell.innerHTML = `
+                <button class="hwaction" id="hwdone" data-id=${done}><i class="fa-solid fa-check"></i></button> <!-- onclick gets added in change_done_homeworks() -->
+                <button class="hwaction" id="hwedit" onclick="editHomework(event)"><i class="fa-regular fa-pen-to-square"></i></button>
+                <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)"><i class="fa-solid fa-trash-can"></i></button>
+            `;
+                row.appendChild(actionCell);
+                return row.outerHTML;
+            });
+            tableBody.innerHTML = rows.join("");
+            color_classes();
+            change_done_homeworks();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
+}
+
 function doneHomework(event) {
     var row = event.target.closest("tr");
     var id = row.cells[0].innerText;
@@ -304,7 +355,7 @@ function doneHomework(event) {
         url: "/donehw",
         data: "id=" + id,
         success: function(data) {
-            refreshHomeworks();
+            RequestHomeworkRefresh();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error
@@ -321,7 +372,7 @@ function undoneHomework(event) {
         url: "/undonehw",
         data: "id=" + id,
         success: function(data) {
-            refreshHomeworks();
+            RequestHomeworkRefresh();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error
@@ -345,10 +396,12 @@ function deleteHomework(event) {
         url: "/deletehw",
         data: "id=" + id,
         success: function(data) {
-            refreshHomeworks();
+            RequestHomeworkRefresh();
+            sendNotification("success", "Hausaufgabe gelöscht", "Die Hausaufgabe wurde erfolgreich gelöscht.");
         },
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error
+            sendNotification("error", "Fehler", "Die Hausaufgabe konnte nicht gelöscht werden.");
             console.error(textStatus, errorThrown);
         }
     });
@@ -733,49 +786,14 @@ function autogetDate() {
     return null;
 }
 
-function show_old_homework() {
+function toggle_old_homework() {
     if (!oldhw) {
         document.getElementById("oldhwbtn").innerHTML = "Aktuelle Hausaufgaben ansehen";
-        $.ajax({
-            type: "GET",
-            url: "/getoldhw",
-            success: function(data) {
-                var tableBody = document.querySelector("#homework-table tbody");
-                var rows = eval(data).map(function(rowData) {
-                    var row = document.createElement("tr");
-                    rowData.forEach(function(cellData, index) {
-                        if (index !== 5) { // Skip the done column
-                            var cell = document.createElement("td");
-                            cell.textContent = cellData;
-                            row.appendChild(cell);
-                        } else {
-                            done = cellData;
-                        }
-                    });
-                    // Add action buttons to the last cell
-                    var actionCell = document.createElement("td");
-                    actionCell.className = "hwactions";
-                    actionCell.innerHTML = `
-                        <button class="hwaction" id="hwdone" data-id=${done}>✔</button> <!-- onclick gets added in change_done_homeworks() -->
-                        <button class="hwaction" id="hwedit" onclick="editHomework(event)">✎</button>
-                        <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)">🗑</button>
-                    `;
-                    row.appendChild(actionCell);
-                    return row.outerHTML;
-                });
-                tableBody.innerHTML = rows.join("");
-                color_classes();
-                change_done_homeworks();
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                // Handle the error
-                console.error(textStatus, errorThrown);
-            }
-        });
         oldhw = true;
+        RequestHomeworkRefresh();
     } else {
         document.getElementById("oldhwbtn").innerHTML = "Ältere Hausaufgaben ansehen";
-        refreshHomeworks();
         oldhw = false;
+        RequestHomeworkRefresh();
     }
 }

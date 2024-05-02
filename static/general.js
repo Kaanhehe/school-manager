@@ -1,6 +1,8 @@
 // Author: Kaanhehe
 // used to toggle the darkmode with the nice slider in the top right
 var mode = getModeFromCookies() || "bright";
+// used to store the type of the notification, so it can be removed when clicked
+var notificationtype = "";
 
 $(document).ready(function() {
     setMode(mode);
@@ -73,4 +75,43 @@ function getModeFromCookies() {
         }
     }
     return null;
+}
+
+function sendNotification(type, header, message) {
+    var notificationclass = document.getElementsByClassName("notification")[0];
+    var notificationheader = document.getElementById("notification-header");
+    var notificationtext = document.getElementById("notification-text");
+    
+    // remove the old notification if it is still visible
+    if (notificationclass.classList.contains("visible")) {
+        notificationclass.classList.remove("visible");
+        notificationclass.classList.remove(notificationtype);
+        notificationheader.innerHTML = "";
+        notificationtext.innerHTML = "";
+    }
+
+    // set the new notification
+    notificationheader.innerHTML = header;
+    notificationtext.innerHTML = message;
+    notificationclass.classList.add(type);
+    notificationclass.classList.add("visible");
+    notificationtype = type;
+
+    // hide the notification after 3 seconds
+    setTimeout(function() {
+        notificationclass.classList.remove("visible");
+        // wait for the animation to finish
+        setTimeout(function() {
+            notificationclass.classList.remove(type);
+            notificationheader.innerHTML = "";
+            notificationtext.innerHTML = "";
+        }, 500);
+    }, 3000);
+}
+
+// hide the notification when clicked
+function hideNotification() {
+    var notificationclass = document.getElementsByClassName("notification")[0];
+    notificationclass.classList.remove("visible");
+    notificationclass.classList.remove(notificationtype);
 }

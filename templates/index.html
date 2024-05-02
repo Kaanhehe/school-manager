@@ -43,6 +43,10 @@
         <div class="schoolbg brightbg" style="background-image: url(https://startcache.schulportal.hessen.de/exporteur.php?a=schoolbg&i=5202&s=lg);"></div>
         <img class="schoolbg darkbg" src="{{url_for('static', filename='images/3101702.jpg')}}" alt="background-image">
     </div>
+    <div class="notification" onclick="hideNotification()">
+        <h3 id="notification-header">Hausaufgabe hinzugefügt</h3>
+        <p id="notification-text">Die Hausaufgabe wurde erfolgreich hinzugefügt</p>
+    </div>
     <div class="content">
         <div id="timetable" class="visible">
                 <h1>Stundenplan</h1>
@@ -211,7 +215,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <button id="oldhwbtn" onclick="show_old_homework()">Ältere Hausaufgaben ansehen</button>
+                <button id="oldhwbtn" onclick="toggle_old_homework()">Ältere Hausaufgaben ansehen</button>
         </div>
     </div>
 </body>

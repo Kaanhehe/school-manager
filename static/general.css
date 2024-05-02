@@ -16,6 +16,10 @@
     --border: #424242;
     --table-border: #808080;
     --darkout-bg-popup: rgba(0,0,0,0.4);
+    --error: rgb(100, 15, 0);
+    --success: rgb(0,100,0);
+    --warning: rgb(100,100,0);
+    --info: rgb(0, 35, 100);
 }
 
 * {
@@ -238,6 +242,49 @@ tr:nth-child(odd) {
 
 .darkmode-switch input[type="checkbox"]:checked + .slider:before {
     transform: translateX(-2px);
+}
+
+.notification {
+    position: absolute;
+    top: 70px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    cursor: pointer;
+    padding: 8px 16px;
+    background-color: var(--main-purple);
+    color: var(--main-white);
+    font-size: 16px;
+    border-radius: 15px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px 5px 15px rgba(255, 255, 255, 0.11);
+}
+
+.notification h2 {
+    font-weight: bold;
+}
+
+.notification.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.notification.error {
+    background-color: var(--error);
+}
+
+.notification.success {
+    background-color: var(--success);
+}
+
+.notification.warning {
+    background-color: var(--warning);
+}
+
+.notification.info {
+    background-color: var(--info);
 }
 
 .content {
