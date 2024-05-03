@@ -1,16 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import os
-from dotenv import load_dotenv
 import sqlite3
 from itertools import groupby
 from operator import itemgetter
 import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
-load_dotenv()
-
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
+app.secret_key = os.getenv('SECRET_KEY') or os.urandom(24)
 
 print(os.getenv('SECRET_KEY'))
 
