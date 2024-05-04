@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, abort
 import os
 import sqlite3
 from itertools import groupby
@@ -110,14 +110,22 @@ def register():
         c = conn.cursor()
         c.execute("SELECT * FROM users WHERE username = ?", (form_data['username'],))
         user = c.fetchone()
+        c.execute("SELECT * FROM users WHERE email = ?", (form_data['email'],))
+        email = c.fetchone()
         if user:
-            return "User already exists"
+            return jsonify({'error': '<i class="fa-solid fa-triangle-exclamation"></i> Benutzername bereits in Verwendung'})
+        if email:
+            return jsonify({'error': '<i class="fa-solid fa-triangle-exclamation"></i> Email bereits in Verwendung'})
+        elif not form_data['password'] or not form_data['username'] or not form_data['email']: 
+            return jsonify({'error': '<i class="fa-solid fa-triangle-exclamation"></i> Bitte fülle alle Felder aus'})
         else:
             hashed_password = generate_password_hash(form_data['password'], method='pbkdf2:sha256')
-            c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (form_data['username'], hashed_password))
+            c.execute("INSERT INTO users (username, email, password) VALUES (?, ?, ?)", (form_data['username'], form_data['email'], hashed_password))
             conn.commit()
             conn.close()
-            return redirect(url_for('login'))
+            return jsonify({'success': '<i class="fa-solid fa-check"></i> Registrierung erfolgreich'})
+    if 'username' in session:
+        return redirect(url_for('index'))
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -126,14 +134,21 @@ def login():
         form_data = request.form
         conn = sqlite3.connect('users.db')
         c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE username = ?", (form_data['username'],))
+        if not form_data['password'] or not form_data['username']:
+            return jsonify({'error': '<i class="fa-solid fa-triangle-exclamation"></i> Bitte fülle alle Felder aus'})
+        if '@' in form_data['username']:
+            c.execute("SELECT * FROM users WHERE email = ?", (form_data['username'],))
+        else:
+            c.execute("SELECT * FROM users WHERE username = ?", (form_data['username'],))
         user = c.fetchone()
         conn.close()
-        if user and check_password_hash(user[1], form_data['password']):
+        if user and check_password_hash(user[2], form_data['password']):
             session['username'] = form_data['username']
-            return redirect(url_for('index'))
+            return jsonify({'success': '<i class="fa-solid fa-check"></i> Login erfolgreich'})
         else:
-            return "Login failed"
+            return jsonify({'error': '<i class="fa-solid fa-triangle-exclamation"></i> Benutzername oder Passwort falsch'})
+    if 'username' in session:
+        return redirect(url_for('index'))
     return render_template('login.html')
 
 @app.route('/logout')

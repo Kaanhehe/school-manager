@@ -36,8 +36,9 @@
     <div class="content">
         <div class="login-form">
             <h2>Login</h2>
-            <form action="/login" method="post">
-                <label for="username">Username:</label><br>
+            <div class="form-error" style="display:none"><i class="fa-solid fa-triangle-exclamation"></i> Das ist eine Fehlermeldung.</div>
+            <form action="/login" id="login-form" method="post">
+                <label for="username">Username/Email:</label><br>
                 <input type="text" id="username" name="username" required><br>
                 <label for="password">Password:</label><br>
                 <input type="password" id="password" name="password" required><br>

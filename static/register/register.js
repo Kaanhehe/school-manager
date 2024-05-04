@@ -34,3 +34,31 @@ function validateForm() {
 
     return true;
 }
+
+function SubmitRegister(e) {
+    e.preventDefault();
+    if (!validateForm()) {
+        return;
+    }
+    $.ajax({
+        type: "POST",
+        url: "/register",
+        data: $("#register-form").serialize(),
+        success: function(response) {
+            if (response["success"]) {
+                window.location.href = "/";
+            } else {
+                errorelement = document.getElementsByClassName("form-error")[0];
+                errorelement.innerHTML = response["error"];
+                errorelement.style.display = "block";
+            }
+        },
+        error: function(error) {
+            alert("Ein Fehler ist aufgetreten! Bitte versuche es später erneut.")
+        }
+    });
+}
+
+$(document).ready(function() {
+    $("#register-form").submit(SubmitRegister);
+});

@@ -37,9 +37,12 @@
     <div class="content">
         <div class="register-form">
             <h2>Register</h2>
-            <form action="/register" method="post" onsubmit="return validateForm()">
+            <div class="form-error" style="display:none"><i class="fa-solid fa-triangle-exclamation"></i> Das ist eine Fehlermeldung.</div>
+            <form action="/register" id="register-form" method="post">
                 <label for="username">Username:</label><br>
                 <input type="text" id="username" name="username" required><br>
+                <label for="email">Email:</label><br>
+                <input type="email" id="email" name="email" required><br>
                 <label for="password">Password:</label><br>
                 <input type="password" id="password" name="password" required><br>
                 <label for="confirm_password">Confirm Password:</label><br>
