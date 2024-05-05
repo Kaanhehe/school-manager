@@ -31,6 +31,7 @@ body {
     flex-direction: column;
     align-items: center;
     font-family: Calibri, sans-serif;   
+    font-size: 100%;
     color : var(--main-white);
     background-color: var(--background);
 }
@@ -39,7 +40,7 @@ body {
     display: flex;
     width: 100%;
     flex-direction: column;
-    font-size: 16px;
+    font-size: 1em;
     font-weight: bold;
     color: var(--user-input-text);
     background-color: var(--main-purple);
@@ -80,7 +81,7 @@ body {
     display: flex;
     width: 100%;
     flex-direction: column;
-    font-size: 20px;
+    font-size: 1.1em;
     font-weight: bold;
     background-color: var(--background-transparent);
 }
@@ -126,7 +127,7 @@ body {
     text-align: center;
     padding: 10px 16px;
     text-decoration: solid;
-    font-size: 17px;
+    font-size: 1.05em;
 }
 
 .navbar-elements.bright a {
@@ -163,7 +164,7 @@ input[type=text], input[type=password], input[type=date], input[type=email], sel
     color: var(--user-input-text);
     width: 400px;
     height: 35px;
-    font-size: 20px;
+    font-size: 1.25em;
     background:rgba(255,255,255,.08);
     box-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     user-select: text;
@@ -257,7 +258,7 @@ tr:nth-child(odd) {
     padding: 8px 16px;
     background-color: var(--main-purple);
     color: var(--main-white);
-    font-size: 16px;
+    font-size: 1em;
     border-radius: 15px;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px 5px 15px rgba(255, 255, 255, 0.11);
 }
@@ -305,7 +306,7 @@ tr:nth-child(odd) {
     color: var(--main-white);
     width: 100%;
     text-align: center;
-    font-size: 16px;
+    font-size: 1em;
     font-weight: bold;
     padding: 8px;
     margin: 8px 0;

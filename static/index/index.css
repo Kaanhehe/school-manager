@@ -40,7 +40,7 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 14px;
+    font-size: 0.9em;
     margin: 2px;
     cursor: pointer;
     border: none;
@@ -112,7 +112,7 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 1em;
     cursor: pointer;
     border: none;
     border-radius: 20px;
@@ -220,7 +220,7 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 1em;
     margin: 10px;
     cursor: pointer;
     border-radius: 20px;
@@ -243,7 +243,7 @@
     align-self: flex-end;
     margin-right: 10px;
     color: #aaa;
-    font-size: 28px;
+    font-size: 1.75em;
     font-weight: bold;
 }
 
@@ -265,7 +265,7 @@
 }
 
 .class-option {
-    font-size: 20px;
+    font-size: 1.25em;
     font-weight: bold;
     color: var(--light-grey);
 }
@@ -289,7 +289,7 @@
 }
 
 .hwformitem label {
-    font-size: 18px;
+    font-size: 1.1em;
     margin: 3px 10px;
 }
 
@@ -343,7 +343,7 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 1em;
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 10px;
@@ -361,7 +361,7 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 1em;
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 10px;
@@ -379,7 +379,7 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 1em;
     cursor: pointer;
     border: none;
     border-radius: 20px;
