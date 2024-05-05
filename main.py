@@ -192,6 +192,17 @@ def index():
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
 
+@app.route('/gettt', methods=['GET'])
+def gettt():
+    timetable_data = get_timetable_data()
+    grouped_data = sort_timetable_date(timetable_data)
+    return jsonify(grouped_data)
+
+@app.route('/getrp', methods=['GET'])
+def getrp():
+    repplan_data = get_repplan_data()
+    return jsonify(repplan_data)
+
 @app.route('/gethw', methods=['GET'])
 def gethw():
     homework_data = get_homework_data()

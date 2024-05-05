@@ -59,6 +59,7 @@ $(document).ready(function(){
 function applyhomework(homework_data, tableId) {
     var table = document.getElementsByClassName(tableId)[0];
     for (var i = 0; i < homework_data.length; i++) {
+        id = homework_data[i][0];
         date = homework_data[i][4];
         date = new Date(getdateinISO(date));
         day = date.getDay();
@@ -75,13 +76,13 @@ function applyhomework(homework_data, tableId) {
         // loop through every row and check if the subject matches
         for (var row = 0; row < table.rows.length; row++) {
             // check if the cell exists
-            if (!table.rows[row].cells[cell]) {
+            if (!table.rows[row] || !table.rows[row].cells[cell]) {
                 continue;
             }
             // check if the subject matches
             if (table.rows[row].cells[cell].innerText.split(' ')[0] === subject) {
                 // Add the icon to the cell
-                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="homework-icon fas fa-book" title="Offnene Hausaufgabe: ${task}" style="font-size: smaller;"></i>`;
+                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="homework-icon fas fa-book" title="Offnene Hausaufgabe: ${task} (ID:${id})" style="font-size: smaller;"></i>`;
                 // Add the icon to the column header
                 if (!table.rows[0].cells[cell].innerHTML.includes("homework-icon")) {
                     table.rows[0].cells[cell].innerHTML = `${table.rows[0].cells[cell].innerHTML} <i class="homework-icon fas fa-book" title="Offene Hausaufgaben für diesen Tag" style="font-size: smaller;"></i>`;
@@ -115,7 +116,7 @@ function applyrepplan(repplanData, tableId) {
         cell = day + 1;
         row = hour;
         // check if the cell exists
-        if (!table.rows[row].cells[cell]) {
+        if (!table.rows[row] || !table.rows[row].cells[cell]) {
             continue;
         }
         // check if the subject and teacher match
@@ -194,6 +195,7 @@ function changeActiveClass(event) {
         document.getElementById("timetable").style.display = "block";
         setTimeout(function() {
             document.getElementById("timetable").classList.add("visible");
+            RefreshTimetable();
         }, 10);
     // else hide the timetable
     } else {
@@ -206,6 +208,7 @@ function changeActiveClass(event) {
         setTimeout(function() {
             document.getElementById("homework").classList.add("visible");
             // Color the classes in the homework overview
+            RequestHomeworkRefresh();
             color_classes();
             change_done_homeworks();
         }, 10);
@@ -259,6 +262,119 @@ function change_done_homeworks() {
             }
         }
     }
+}
+
+// Its done very complicated and should be done better
+// Maybe with a better data structure
+// And not being applied in the html code at first
+// Apply the timetable to the table
+function applyTimetable(data, tableId) {
+    var tableHead = document.querySelector("#" + tableId + " thead");
+    var tableBody = document.querySelector("#" + tableId + " tbody");
+    // Clear the table
+    tableHead.innerHTML = '';
+    tableBody.innerHTML = '';
+
+    // Add the column headers
+    var headerRow = document.createElement('tr');
+    headerRow.innerHTML = `
+        <th>Stunde</th>
+        <th>Zeit</th>
+        <th>Montag</th>
+        <th>Dienstag</th>
+        <th>Mittwoch</th>
+        <th>Donnerstag</th>
+        <th>Freitag</th>
+    `;
+
+    tableHead.appendChild(headerRow);
+
+    // Takes only the number and the time of the first class of the row
+    // Applys that to the first two cells of the row
+    data.forEach(function(group, index) {
+        var class_day = group[0][0];
+        var class_num = group[0][1];
+        var class_time = group[0][2];
+        var class_name = group[0][3];
+        var class_loc = group[0][4];
+        var class_tea = group[0][5];
+    
+        var row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${class_num}</td>
+            <td>${class_time}</td>
+        `;
+        
+        // Then loops over all the classes of the row and adds them to the row
+        group.forEach(function(class_data) {
+            var class_day = class_data[0];
+            var class_num = class_data[1];
+            var class_time = class_data[2];
+            var class_name = class_data[3];
+            var class_loc = class_data[4];
+            var class_tea = class_data[5];
+    
+            var day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6};
+    
+            if (class_day in day_columns) {
+                var cell = document.createElement('td');
+                cell.textContent = class_name + ' ' + class_loc + ' ' + class_tea;
+                row.appendChild(cell);
+            }
+        });
+    
+        tableBody.appendChild(row);
+        
+        // Add a break row after the 6th class
+        if (class_num == 6) {
+            var breakRow = document.createElement('tr');
+            breakRow.innerHTML = `
+                <td>7</td>
+                <td>13:00 - 13:45</td>
+                <td colspan="6" style="text-align: center; font-size: 20px; font-weight: bold;" class="special-font">Mittagspause</td>
+            `;
+            tableBody.appendChild(breakRow);
+        }
+    });
+}
+
+async function RefreshTimetable() {
+    await $.ajax({
+        type: "GET",
+        url: "/gettt",
+        success: function(data) {
+            applyTimetable(data, 'timetable');
+            applyTimetable(data, 'mini-timetable');
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: "/getrp",
+        success: function(data) {
+            applyrepplan(data, 'timetable');
+            applyrepplan(data, 'mini-timetable');
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: "/gethw",
+        success: function(data) {
+            applyhomework(data, 'timetable');
+            applyhomework(data, 'mini-timetable');
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
 }
 
 function RequestHomeworkRefresh() {
