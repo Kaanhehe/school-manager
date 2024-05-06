@@ -1,13 +1,15 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, abort
 import os
+import sys
 import sqlite3
 from itertools import groupby
 from operator import itemgetter
 import datetime
+import subprocess
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY') or os.urandom(24)
+app.secret_key = "super secret key"
 
 print(os.getenv('SECRET_KEY'))
 
@@ -107,6 +109,8 @@ def change_homework_data(homework_data):
     return modified_homework_data
 
 def get_user_id():
+    if 'username' not in session:
+        return abort(403)
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
     c.execute("SELECT * FROM users WHERE username = ?", (session['username'],))
@@ -223,6 +227,24 @@ def index():
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
 
+@app.route('/scrapett', methods=['GET'])
+def scrapett():
+    user_id = get_user_id()
+
+    # Run the scrapettplan.py script
+    subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id])
+    print("Scraped Timetable data successfully from the website")
+    return "Scraped Timetable data successfully from the website"
+
+@app.route('/scraperep', methods=['GET'])
+def scraperep():
+    user_id = get_user_id()
+
+    # Run the scraperepplan.py script
+    subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id])
+    print("Scraped Representation Plan data successfully from the website")
+    return "Scraped Representation Plan data successfully from the website"
+
 @app.route('/gettt', methods=['GET'])
 def gettt():
     user_id = get_user_id()
@@ -234,6 +256,7 @@ def gettt():
 def getrp():
     user_id = get_user_id()
     repplan_data = get_repplan_data(user_id)
+    repplan_data = [entry[1:] for entry in repplan_data]
     return jsonify(repplan_data)
 
 @app.route('/gethw', methods=['GET'])

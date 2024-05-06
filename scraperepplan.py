@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import sqlite3
+import sys
 from datetime import date
 import time
 from datetime import datetime
@@ -94,7 +95,7 @@ def split_double_classes(repplan_data):
 
     return new_repplan_data
 
-def save_repplan_to_db(repplan_data):
+def save_repplan_to_db(repplan_data, user_id):
     # Connect to the SQLite database
     conn = sqlite3.connect('repplan.db')
     cursor = conn.cursor()
@@ -127,16 +128,18 @@ def save_repplan_to_db(repplan_data):
             date2found = entry['date']
             cursor.execute("DELETE FROM repplan WHERE date = ?", (entry['date'],))
         cursor.execute('''
-        INSERT INTO repplan (date, hour, class, substitute, teacher, subject, room, info)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (entry['date'], entry['hour'], entry['class'], entry['substitute'], entry['teacher'], entry['subject'], entry['room'], entry['info']))
+        INSERT INTO repplan (user_id, date, hour, class, substitute, teacher, subject, room, info)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (user_id, entry['date'], entry['hour'], entry['class'], entry['substitute'], entry['teacher'], entry['subject'], entry['room'], entry['info']))
 
     # Commit the changes and close the connection
     conn.commit()
     conn.close()
 
 # Main function
-def main():
+def main(args):
+    username = args[1]
+    user_id = args[2]
     # Perform login using Selenium
     driver = login_selenium(USERNAME, PASSWORD)
     if driver is None:
@@ -157,7 +160,7 @@ def main():
         print(entry)
 
     # Store Representation Plan data in SQLite database
-    save_repplan_to_db(repplan_data)
+    save_repplan_to_db(repplan_data, user_id)
 
     print("Representation Plan data has been scraped and stored successfully.")
 
@@ -165,4 +168,4 @@ def main():
     driver.quit()
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)

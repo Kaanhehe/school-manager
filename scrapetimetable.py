@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+import sys
 import sqlite3
 from datetime import date
 import time
@@ -45,7 +46,6 @@ def scrape_timetable(driver, url):
 
     own_plan_button.click()
 
-    time.sleep(5)  # Wait for page to load
 
     # Write code to scrape timetable data using Selenium
     table_rows = driver.find_elements(By.TAG_NAME, 'table')[1].find_elements(By.TAG_NAME, 'tr')
@@ -63,8 +63,6 @@ def scrape_timetable(driver, url):
             label_thu = row.find_element(By.CSS_SELECTOR, 'th:nth-child(5)').text
             label_fri = row.find_element(By.CSS_SELECTOR, 'th:nth-child(6)').text
             labels.append((label_hour, label_mon, label_tue, label_wed, label_thu, label_fri))
-            print("-----------------")
-            print(label_hour, label_mon, label_tue, label_wed, label_thu, label_fri)
             continue
         
         columns = row.find_elements(By.CSS_SELECTOR, 'td:nth-child(n)')
@@ -101,35 +99,21 @@ def scrape_timetable(driver, url):
                     timetable_data.append((next_class_day, next_class_num, next_class_time, next_class_name, next_class_loc, next_class_tea))
                 else:
                     timetable_data.append((class_day, class_num, class_time, class_name, class_loc, class_tea))
-                print("-----------------")
-                print("Class Day: ", class_day)
-                print("Class Number: ", class_num)
-                print("Class Time: ", class_time)
-                print("Class Name: ", class_name)
-                print("Class Location: ", class_loc)
-                print("Class Teacher: ", class_tea)
             except:
                 continue
     return timetable_data
 # Function to store timetable data in SQLite database
-def store_timetable_data(timetable_data):
+def store_timetable_data(timetable_data, user_id):
     conn = sqlite3.connect('timetable.db')
     c = conn.cursor()
     c.execute('''DROP TABLE IF EXISTS timetable''')
     c.execute('''CREATE TABLE IF NOT EXISTS timetable 
-                 (class_day TEXT, class_num INTEGER, class_time TEXT, class_name TEXT, class_loc TEXT, class_tea TEXT, date TEXT)''')
+                 (user_id TEXT, class_day TEXT, class_num INTEGER, class_time TEXT, class_name TEXT, class_loc TEXT, class_tea TEXT, date TEXT)''')
 
     today = date.today()
     if timetable_data is not None:
         for class_day, class_num, class_time, class_name, class_loc, class_tea in timetable_data:
-            print("-----------------")
-            print("Class Day: ", class_day)
-            print("Class Number: ", class_num)
-            print("Class Time: ", class_time)
-            print("Class Name: ", class_name)
-            print("Class Location: ", class_loc)
-            print("Class Teacher: ", class_tea)
-            c.execute("INSERT INTO timetable VALUES (?, ?, ?, ?, ?, ?, ?)", (class_day, class_num, class_time, class_name, class_loc, class_tea, today))
+            c.execute("INSERT INTO timetable VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (user_id, class_day, class_num, class_time, class_name, class_loc, class_tea, today))
     else:
         print("No timetable data available to store in database.")
 
@@ -137,7 +121,9 @@ def store_timetable_data(timetable_data):
     conn.close()
 
 # Main function
-def main():
+def main(args):
+    username = args[1]
+    user_id = args[2]
     # Perform login using Selenium
     driver = login_selenium(USERNAME, PASSWORD)
 
@@ -145,7 +131,7 @@ def main():
     timetable_data = scrape_timetable(driver, TIMETABLE_URL)
 
     # Store timetable data in database
-    store_timetable_data(timetable_data)
+    store_timetable_data(timetable_data, user_id)
 
     print("Timetable data has been scraped and stored successfully.")
 
@@ -153,4 +139,4 @@ def main():
     driver.quit()
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

@@ -53,6 +53,36 @@ $(document).ready(function(){
     applyhomework(homework_data, 'mini-timetable');
 });
 
+function ScrapeTimeTable() {
+    $.ajax({
+        type: "GET",
+        url: "/scrapett",
+        success: function(data) {
+            RefreshTimetable();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            sendNotification("error", "Fehler", "Der Stundenplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
+            console.error(textStatus, errorThrown);
+        }
+    });
+}
+
+function ScrapeRepPlan() {
+    $.ajax({
+        type: "GET",
+        url: "/scraperep",
+        success: function(data) {
+            RefreshTimetable();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            sendNotification("error", "Fehler", "Der Vertretungsplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
+            console.error(textStatus, errorThrown);
+        }
+    });
+}
+
 // Used to apply the homework to the timetable
 // Adds a little icon to the cell if there is a homework with the amount of homeworks that are due
 // Also adds a icon the the column header with the amount of homeworks that are due in the whole day
@@ -349,6 +379,7 @@ async function RefreshTimetable() {
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error
             console.error(textStatus, errorThrown);
+            sendNotification("error", "Fehler", "Der Stundenplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
         }
     });
     $.ajax({
@@ -361,6 +392,7 @@ async function RefreshTimetable() {
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error
             console.error(textStatus, errorThrown);
+            sendNotification("error", "Fehler", "Der Vertretungsplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
         }
     });
     $.ajax({
@@ -373,6 +405,7 @@ async function RefreshTimetable() {
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error
             console.error(textStatus, errorThrown);
+            sendNotification("error", "Fehler", "Die Hausaufgaben konnten nicht aktualisiert werden. Versuche die Seite neu zu laden.");
         }
     });
 }
