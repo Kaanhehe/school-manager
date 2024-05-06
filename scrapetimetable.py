@@ -1,108 +1,122 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
 import sys
-import sqlite3
+import requests
 from datetime import date
-import time
+import sqlite3
+from bs4 import BeautifulSoup
 
 # Login credentials
 USERNAME = 'kaan.torun'
 PASSWORD = '7ZaqfmnETOaNfudsWA?FytOTnYV6?#?1x0V2F&9V'
+SCHOOLID = '5202'
 
-LOGIN_URL = 'https://login.schulportal.hessen.de/?i=5202'
+LOGIN_URL = 'https://login.schulportal.hessen.de/?url=aHR0cHM6Ly9jb25uZWN0LnNjaHVscG9ydGFsLmhlc3Nlbi5kZS8=&skin=sp&i=5202'
 TIMETABLE_URL = 'https://start.schulportal.hessen.de/stundenplan.php?a=detail_klasse&e=1&k=09A'
 
-# Function to perform login using Selenium
-def login_selenium(username, password):
-    driver = webdriver.Chrome()  # You'll need to download and install chromedriver or geckodriver
-    driver.get(LOGIN_URL)
-    time.sleep(1)  # Wait for page to load
+# Function to perform login using requests
+def login_requests(username, password):
+    session = requests.Session()
+    response = session.get(LOGIN_URL)
+    if response.status_code != 200:
+        print("Failed to load login page")
+        return None
 
-    username_field = driver.find_element(By.ID, 'username2')  # Using By.ID to specify the selector type
-    password_field = driver.find_element(By.ID, 'inputPassword')  # Using By.ID to specify the selector type
-    login_button = driver.find_element(By.ID, 'tlogin')  # Using By.ID to specify the selector type
+    form_data = {
+        'user': SCHOOLID + '.' + username,
+        'password': password
+    }
+    response = session.post(LOGIN_URL, data=form_data)
+    if response.status_code != 200:
+        print("Failed to login")
+        return None
 
+    return session
 
-    username_field.send_keys(username)
-    password_field.send_keys(password)
-    login_button.click()
-
-    time.sleep(1)  # Wait for login to complete
-    return driver
-
-# Function to scrape timetable data using Selenium
-def scrape_timetable(driver, url):
-    if driver is None:
-        print("Driver not available. Login failed.")
+def scrape_timetable(session, url):
+    if session is None:
+        print("Session not available. Login failed.")
         return []
 
+    response = session.get(url)
+    if response.status_code != 200:
+        print("Failed to load timetable page")
+        return []
     timetable_data = []
-    driver.get(url)
-    time.sleep(1)  # Wait for page to load
+    # Write code to scrape timetable data using requests
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-    navbar_elements = driver.find_elements(By.CSS_SELECTOR, 'ul.nav.nav-tabs li')
-    own_plan_button = navbar_elements[1]
-
-    own_plan_button.click()
-
-
-    # Write code to scrape timetable data using Selenium
-    table_rows = driver.find_elements(By.TAG_NAME, 'table')[1].find_elements(By.TAG_NAME, 'tr')
-    counter = 0 # Idk why I cant just do "for rownum, row in tablerows:" but it doesnt work
+    # Find the timetable table
+    owndiv = soup.find('div', {'id': 'own'})  # Use the parsed HTML to find the desired element
+    table = owndiv.find('table')
+    table_header = table.find('thead')
+    table_body = table.find('tbody')
+    
+    header = table_header.find_all('th')
     labels = []
-    for row in table_rows:
-        counter = counter + 1 # Gotta use this counter to skip second row and get the labels from first row -> look comment above
-        if counter == 2:
-            continue
-        if counter == 1:
-            label_hour = row.find_element(By.CSS_SELECTOR, 'th:nth-child(1)').text
-            label_mon = row.find_element(By.CSS_SELECTOR, 'th:nth-child(2)').text
-            label_tue = row.find_element(By.CSS_SELECTOR, 'th:nth-child(3)').text
-            label_wed = row.find_element(By.CSS_SELECTOR, 'th:nth-child(4)').text
-            label_thu = row.find_element(By.CSS_SELECTOR, 'th:nth-child(5)').text
-            label_fri = row.find_element(By.CSS_SELECTOR, 'th:nth-child(6)').text
-            labels.append((label_hour, label_mon, label_tue, label_wed, label_thu, label_fri))
-            continue
-        
-        columns = row.find_elements(By.CSS_SELECTOR, 'td:nth-child(n)')
+    for head in header:
+        labels.append(head.text)
+    print(labels)
 
-        for num, column in enumerate(columns, start=1):
-            try:
-                class_day = labels[0][num] # class_day gets changed in the while loop if there is already a class with the same day num and time in the timetable_data below
-                class_num = row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[0]
-                class_time = row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[1]
-                class_name = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split()[0]
-                class_loc = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split()[1]
-                class_tea = row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').text.split("\n")[1]
-                # Check if there is already a class with the same day num and time in the timetable_data
-                existing_classes = [class_data for class_data in timetable_data if class_data[0] == class_day and class_data[1] == class_num]
-                # If there is an existing class, keep adding one to class_day until the class does not already exist anymore
-                counterexisting = 0
-                while existing_classes:
-                    counterexisting = counterexisting + 1
-                    class_day = labels[0][num + counterexisting]
+    # Find all the rows in the table
+    rows = table_body.find_all('tr')
+
+    # Initialize an empty list to store the timetable data
+    timetable_data = []
+
+    # Loop over the rows
+    for row in rows[1:]:
+        # Find all the columns in the row
+        columns = row.find_all('td')
+
+        # Skip the row if it doesn't have any columns (e.g., the header row)
+        if not columns:
+            continue
+
+        try:
+            # Extract the class details from the columns
+            class_num_n_time, useless, useless = columns[0].text.split("\n")
+            class_num_n_time = class_num_n_time.strip()
+            class_num, class_time = class_num_n_time.split(" ", 1)
+            class_time = class_time.strip()
+            #print(class_num, class_time)
+            for num, column in enumerate(columns[1:]):
+                text = column.text.replace(" ", "").replace("\n", " ").replace("  ", " ").replace("  ", " ") # IDK why I have to do this but it works
+                try:
+                    class_day = labels[num +1]
+                    class_name = text.split(" ")[0].strip()
+                    class_loc = text.split(" ")[1].strip()
+                    class_tea = text.split(" ")[2].strip()
+                    
+                    # Check if there is already a class with the same day num and time in the timetable_data
                     existing_classes = [class_data for class_data in timetable_data if class_data[0] == class_day and class_data[1] == class_num]
-
-                # Check if the class has rowspan="2"
-                if row.find_element(By.CSS_SELECTOR, f'td:nth-child({num + 1})').get_attribute("rowspan") == "2":
-                    next_row = table_rows[counter]
-                    next_class_day = class_day
-                    next_class_num = next_row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[0]
-                    next_class_time = next_row.find_element(By.CSS_SELECTOR, 'td:nth-child(1)').text.split("\n")[1]
-                    next_class_name = class_name
-                    next_class_loc = class_loc
-                    next_class_tea = class_tea
-
-                    # Append the next hour with the same name, location, and teacher
-                    timetable_data.append((class_day, class_num, class_time, class_name, class_loc, class_tea))
-                    timetable_data.append((next_class_day, next_class_num, next_class_time, next_class_name, next_class_loc, next_class_tea))
-                else:
-                    timetable_data.append((class_day, class_num, class_time, class_name, class_loc, class_tea))
-            except:
-                continue
+                    # If there is an existing class, keep adding one to class_day until the class does not already exist anymore
+                    counterexisting = 0
+                    while existing_classes:
+                        counterexisting = counterexisting + 1
+                        class_day = labels[num + counterexisting]
+                        existing_classes = [class_data for class_data in timetable_data if class_data[0] == class_day and class_data[1] == class_num]
+                    
+                    if column.get('rowspan') == "2": # Check if the class has rowspan="2"
+                        next_row = rows[rows.index(row) + 1]
+                        next_class_day = class_day
+                        next_class_num_n_time, useless, useless = next_row.find('td').text.split("\n")
+                        next_class_num_n_time = next_class_num_n_time.strip()
+                        next_class_num, next_class_time = next_class_num_n_time.split(" ", 1)
+                        next_class_time = next_class_time.strip()
+                        next_class_name = class_name
+                        next_class_loc = class_loc
+                        next_class_tea = class_tea
+                        
+                        timetable_data.append((class_day, class_num, class_time, class_name, class_loc, class_tea))
+                        timetable_data.append((next_class_day, next_class_num, next_class_time, next_class_name, next_class_loc, next_class_tea))
+                    else:
+                        timetable_data.append((class_day, class_num, class_time, class_name, class_loc, class_tea))
+                except:
+                        continue
+        except ValueError:
+            continue # Skip the row if the first column doesn't contain the class number and time
+        
     return timetable_data
-# Function to store timetable data in SQLite database
+
 def store_timetable_data(timetable_data, user_id):
     conn = sqlite3.connect('timetable.db')
     c = conn.cursor()
@@ -124,19 +138,16 @@ def store_timetable_data(timetable_data, user_id):
 def main(args):
     username = args[1]
     user_id = args[2]
-    # Perform login using Selenium
-    driver = login_selenium(USERNAME, PASSWORD)
+    session = login_requests(USERNAME, PASSWORD)
+    if session is None:
+        return
 
-    # Scrape timetable data
-    timetable_data = scrape_timetable(driver, TIMETABLE_URL)
+    timetable_data = scrape_timetable(session, TIMETABLE_URL)
 
     # Store timetable data in database
     store_timetable_data(timetable_data, user_id)
 
-    print("Timetable data has been scraped and stored successfully.")
+    print("Timetable data stored successfully.")
 
-    # Remember to close the browser window when done
-    driver.quit()
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main(sys.argv)
