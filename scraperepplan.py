@@ -188,8 +188,15 @@ def main(args):
     if not user_id or not user_password:
         return sys.exit("Please provide a user ID and password")
     
-    # Get the login URL, school ID, username, and password hash from the database
-    login_url, schoolid, username, password_hash = get_data_from_db(user_id)
+
+    if len(args) > 4:
+        login_url = args[4]
+        schoolid = args[5]
+        username = args[6]
+        password_hash = args[7]
+    else:
+        # Get the login URL, school ID, username, and password hash from the database
+        login_url, schoolid, username, password_hash = get_data_from_db(user_id)
     
     # Decrypt the password
     password = decrypt_password(user_id, user_password, password_hash)

@@ -6,6 +6,7 @@ var submited = false;
 
 $(document).ready(function(){
     var urlParams = new URLSearchParams(window.location.search);
+    var urlTab = window.location.hash === "#timetable" ? "timetable" : "homework";
     if (urlParams.has("setscrapedata")) {
         var formbg = document.querySelector('.scrape_form_bg');
         var form = document.querySelector('.scrapeform');
@@ -30,6 +31,7 @@ $(document).ready(function(){
                         setTimeout(function() {
                             formbg.style.display = "none";
                         }, 500);
+                        history.replaceState(null, null, window.location.pathname + '#timetable');
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -39,6 +41,16 @@ $(document).ready(function(){
                 }
             });
         });
+    }
+    if (urlTab === "homework") {
+        var timetable = document.getElementsByClassName("timetable")[0];
+        var homework = document.getElementsByClassName("homework")[0];
+        var timetablelink = document.getElementById("timetable-link");
+        var homeworklink = document.getElementById("homework-link");
+        homeworklink.classList.add("active");
+        timetablelink.classList.remove("active");
+        timetable.classList.remove("visible");
+        homework.classList.add("visible");
     }
     $(".hwform").submit(function(event){
         event.preventDefault();
@@ -303,7 +315,6 @@ function applyrepplan(repplanData, tableId) {
 function changeActiveClass(event) {
     var navbar = document.getElementsByClassName("navbar")[0];
     var current = navbar.getElementsByClassName("active");
-    var content = document.getElementsByClassName("content")[0];
     var timetable = document.getElementsByClassName("timetable")[0];
     var homework = document.getElementsByClassName("homework")[0];
     current[0].classList.remove("active");

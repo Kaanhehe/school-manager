@@ -164,8 +164,11 @@ def store_scrape_data(user_id, login_url, schoolid, username, password):
     c = conn.cursor()
 
     # Store the scrape data in the database
-    c.execute("INSERT INTO scrape_data (user_id, login_url, schoolid, username, password) VALUES (?, ?, ?, ?, ?)", (user_id, login_url, schoolid, username, password))
-    
+    try:
+        c.execute("INSERT INTO scrape_data (user_id, login_url, schoolid, username, password) VALUES (?, ?, ?, ?, ?)", (user_id, login_url, schoolid, username, password))
+    except sqlite3.IntegrityError:
+        c.execute("UPDATE scrape_data SET login_url = ?, schoolid = ?, username = ?, password = ? WHERE user_id = ?", (login_url, schoolid, username, password, user_id))
+
     # Update the entered_scrape_data column in the users table
     c.execute("UPDATE users SET entered_scrape_data = 1 WHERE user_id = ?", (user_id,))
 
@@ -194,13 +197,8 @@ def register():
         else:
             #create password hash and insert user into database
             hashed_password = generate_password_hash(form_data['password'], method='pbkdf2:sha256')
-            while True:
-                uuid = str(uuid.uuid4().hex)
-                c.execute("SELECT * FROM users WHERE user_id = ?", (uuid,))
-                existing_user = c.fetchone()
-                if not existing_user:
-                    break
-            c.execute("INSERT INTO users (user_id, username, email, password, entered_scrape_data) VALUES (?, ?, ?, ?)", (uuid, form_data['username'], form_data['email'], hashed_password, 0))
+            id = str(uuid.uuid4())
+            c.execute("INSERT INTO users (user_id, username, email, password, entered_scrape_data) VALUES (?, ?, ?, ?, ?)", (id, form_data['username'], form_data['email'], hashed_password, 0))
             conn.commit()
             conn.close()
             return jsonify({'success': '<i class="fa-solid fa-check"></i> Registrierung erfolgreich'})
@@ -294,21 +292,21 @@ def sendscrapedata():
     if not login_url or not username or not password or not user_password:
         return abort(403)
     if not check_password(user_id, user_password):
-        return abort(403)
+        return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
     
     # login url: https://login.schulportal.hessen.de/?i=5202
     schoolid = login_url.split('=')[-1]
 
     # Encrypt the password for the school website using the user's password
-    password_hash = encrypt_password(user_password, password)#
+    password_hash = encrypt_password(user_password, password)
     
     # Run the scrapettplan.py script
-    message1 = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password], capture_output=True, text=True)
+    message1 = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password, login_url, schoolid, username, password_hash], capture_output=True, text=True)
     fullmessage1 = message1.stderr
     type1 = fullmessage1.split("+")[0]
     
     # Run the scraperepplan.py script
-    message2 = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password], capture_output=True, text=True)
+    message2 = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password, login_url, schoolid, username, password_hash], capture_output=True, text=True)
     fullmessage2 = message2.stderr
     type2 = fullmessage2.split("+")[0]
 
@@ -320,7 +318,7 @@ def sendscrapedata():
     store_scrape_data(user_id, login_url, schoolid, username, password_hash)
     
     # Return a success message -> "type+title+message"
-    return "success+Erfolg+Daten erfolgreich abgerufen"
+    return "success+Erfolg+Alle Daten vom Schulportal erfolgreich abgerufen"
 
 @app.route('/scrapett', methods=['POST'])
 def scrapett():
@@ -330,7 +328,7 @@ def scrapett():
         return abort(403)
     
     if not check_password(user_id, user_password):
-        return abort(403)
+        return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
 
     # Run the scrapettplan.py script
     message = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password], capture_output=True, text=True)
@@ -345,7 +343,7 @@ def scraperep():
         return abort(403)
     
     if not check_password(user_id, user_password):
-        return abort(403)
+        return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
     
     # Run the scraperepplan.py script
     message = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password], capture_output=True, text=True)

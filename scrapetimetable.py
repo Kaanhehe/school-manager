@@ -167,9 +167,7 @@ def scrape_timetable(session, url):
 def store_timetable_data(timetable_data, user_id):
     conn = sqlite3.connect('timetable.db')
     c = conn.cursor()
-    c.execute('''DROP TABLE IF EXISTS timetable''')
-    c.execute('''CREATE TABLE IF NOT EXISTS timetable 
-                 (user_id TEXT, class_day TEXT, class_num INTEGER, class_time TEXT, class_name TEXT, class_loc TEXT, class_tea TEXT, date TEXT)''')
+    c.execute("DELETE FROM timetable WHERE user_id = ?", (user_id,))
 
     today = date.today().isoformat()  # Convert the date to a string in ISO 8601 format
     if timetable_data is not None:
@@ -187,9 +185,15 @@ def main(args):
     user_password = args[3]
     if not user_id or not user_password:
         return sys.exit("Error: Please provide a user ID and password")
-
-    # Get the login URL, school ID, username, and encrypted password from the database
-    login_url, schoolid, username, encrypted_password = get_data_from_db(user_id)
+    
+    if len(args) > 4:
+        login_url = args[4]
+        schoolid = args[5]
+        username = args[6]
+        encrypted_password = args[7]
+    else:
+        # Get the login URL, school ID, username, and encrypted password from the database
+        login_url, schoolid, username, encrypted_password = get_data_from_db(user_id)
 
     # Decrypt the password
     password = decrypt_password(user_id, user_password, encrypted_password)
