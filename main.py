@@ -7,6 +7,7 @@ from operator import itemgetter
 import datetime
 import subprocess
 from werkzeug.security import generate_password_hash, check_password_hash
+import uuid
 
 app = Flask(__name__)
 app.secret_key = "super secret key"
@@ -141,12 +142,12 @@ def register():
             #create password hash and insert user into database
             hashed_password = generate_password_hash(form_data['password'], method='pbkdf2:sha256')
             while True:
-                unique_id = os.urandom(16).hex()
-                c.execute("SELECT * FROM users WHERE user_id = ?", (unique_id,))
+                uuid = str(uuid.uuid4().hex)
+                c.execute("SELECT * FROM users WHERE user_id = ?", (uuid,))
                 existing_user = c.fetchone()
                 if not existing_user:
                     break
-            c.execute("INSERT INTO users (user_id, username, email, password) VALUES (?, ?, ?, ?)", (unique_id, form_data['username'], form_data['email'], hashed_password))
+            c.execute("INSERT INTO users (user_id, username, email, password) VALUES (?, ?, ?, ?)", (uuid, form_data['username'], form_data['email'], hashed_password))
             conn.commit()
             conn.close()
             return jsonify({'success': '<i class="fa-solid fa-check"></i> Registrierung erfolgreich'})
