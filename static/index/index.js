@@ -85,7 +85,7 @@ function ScrapeRepPlan() {
 // Adds a little icon to the cell if there is a homework with the amount of homeworks that are due
 // Also adds a icon the the column header with the amount of homeworks that are due in the whole day
 function applyhomework(homework_data, tableId) {
-    var table = document.getElementsByClassName(tableId)[0];
+    var table = document.getElementById(tableId);
     for (var i = 0; i < homework_data.length; i++) {
         id = homework_data[i][0];
         date = homework_data[i][4];
@@ -216,25 +216,27 @@ function changeActiveClass(event) {
     var navbar = document.getElementsByClassName("navbar")[0];
     var current = navbar.getElementsByClassName("active");
     var content = document.getElementsByClassName("content")[0];
+    var timetable = document.getElementsByClassName("timetable")[0];
+    var homework = document.getElementsByClassName("homework")[0];
     current[0].classList.remove("active");
     event.target.className += " active";
     // If the timetable link is clicked, show the timetable
     if (event.target.id === "timetable-link") {
-        document.getElementById("timetable").style.display = "block";
+        timetable.style.display = "block";
         setTimeout(function() {
-            document.getElementById("timetable").classList.add("visible");
+            timetable.classList.add("visible");
             RefreshTimetable();
         }, 10);
     // else hide the timetable
     } else {
-        document.getElementById("timetable").style.display = "none";
-            document.getElementById("timetable").classList.remove("visible");
+        timetable.style.display = "none";
+        timetable.classList.remove("visible");
     }
     // If the homework link is clicked, show the homework overview
     if (event.target.id === "homework-link") {
-        document.getElementById("homework").style.display = "block";
+        homework.style.display = "block";
         setTimeout(function() {
-            document.getElementById("homework").classList.add("visible");
+            homework.classList.add("visible");
             // Color the classes in the homework overview
             RequestHomeworkRefresh();
             color_classes();
@@ -242,8 +244,8 @@ function changeActiveClass(event) {
         }, 10);
     // else hide the homework overview
     } else {
-        document.getElementById("homework").style.display = "none";
-        document.getElementById("homework").classList.remove("visible");
+        homework.style.display = "none";
+        homework.classList.remove("visible");
     }
 }
 

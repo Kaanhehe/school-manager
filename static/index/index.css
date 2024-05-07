@@ -1,4 +1,4 @@
-#timetable, #homework {
+.timetable, .homework {
     width: 100%;
     display: none;
     opacity: 0;
@@ -40,14 +40,14 @@
     background-color: var(--thrid-purple);
 }
 
-.timetable, .homework-table{
+#timetable, #homework-table{
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     margin: 15px 0;
 }
 
-#timetable.visible, #homework.visible {
+.timetable.visible, .homework.visible {
     display: block;
     opacity: 1;
 }

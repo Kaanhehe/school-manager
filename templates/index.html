@@ -48,13 +48,13 @@
         <p id="notification-text">Die Hausaufgabe wurde erfolgreich hinzugefügt</p>
     </div>
     <div class="content">
-        <div id="timetable" class="visible">
+        <div class="timetable visible">
                 <h1>Stundenplan</h1>
                 <div class="scrape_btns">
                     <button class="scrape_btn" id="scrapetimetable_btn" onclick="ScrapeTimeTable()">Stundenplan von Schulpage beziehen</button>
                     <button class="scrape_btn" id="scraperepplan_btn" onclick="ScrapeRepPlan()">Vertretungsplan von Schulpage beziehen</button>
                 </div>
-                <table class="timetable">
+                <table id="timetable">
                     <thead>
                         <tr>
                             <th>Stunde</th>
@@ -91,7 +91,7 @@
                     </tbody>
                 </table>
         </div>
-        <div id="homework">
+        <div class="homework">
                 <h1>Hausaufgaben</h1>
 
                 <button id="newhwbt" onclick="displayhwform()">Neue Hausaufgabe</button>
