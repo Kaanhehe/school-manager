@@ -56,6 +56,7 @@ function ScrapeTimeTable() {
         type: "GET",
         url: "/scrapett",
         success: function(data) {
+            sendNotification("success", "Erfolg", "Der Stundenplan wurde erfolgreich aktualisiert.");
             RefreshTimetable();
         },
         error: function(jqXHR, textStatus, errorThrown) {
@@ -71,6 +72,7 @@ function ScrapeRepPlan() {
         type: "GET",
         url: "/scraperep",
         success: function(data) {
+            sendNotification("success", "Erfolg", "Der Vertretungsplan wurde erfolgreich aktualisiert.");
             RefreshTimetable();
         },
         error: function(jqXHR, textStatus, errorThrown) {

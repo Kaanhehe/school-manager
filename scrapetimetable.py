@@ -54,7 +54,6 @@ def scrape_timetable(session, url):
     labels = []
     for head in header:
         labels.append(head.text)
-    print(labels)
 
     # Find all the rows in the table
     rows = table_body.find_all('tr')
@@ -124,7 +123,7 @@ def store_timetable_data(timetable_data, user_id):
     c.execute('''CREATE TABLE IF NOT EXISTS timetable 
                  (user_id TEXT, class_day TEXT, class_num INTEGER, class_time TEXT, class_name TEXT, class_loc TEXT, class_tea TEXT, date TEXT)''')
 
-    today = date.today()
+    today = date.today().isoformat()  # Convert the date to a string in ISO 8601 format
     if timetable_data is not None:
         for class_day, class_num, class_time, class_name, class_loc, class_tea in timetable_data:
             c.execute("INSERT INTO timetable VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (user_id, class_day, class_num, class_time, class_name, class_loc, class_tea, today))

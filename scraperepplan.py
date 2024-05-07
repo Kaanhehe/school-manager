@@ -50,13 +50,11 @@ def scrape_repplan(session, url):
         panel_primary['class'] = ['panel', 'panel-info']
     panels = soup.find_all('div', {'class': 'panel panel-info'})
     for panel in panels[1:]:
-        print(panel)
         date = panel.find('div', {'class': 'panel-heading'}).find('span', {'class': 'hidden-xs'}).text.split(' ')[2]
         table = panel.find('table', {'class': 'table table-hover table-condensed table-striped'})
         table_rows = table.find_all('tr')
         for row in table_rows[1:]:
             cells = row.find_all('td')
-            print(len(cells))
             if len(cells) == 1:
                 continue
             repplan_data.append({
@@ -147,10 +145,6 @@ def main(args):
 
     # Scrape Representation Plan data
     repplan_data = scrape_repplan(session, REPPLAN_URL)
-
-    # Print the repplan data
-    for item in repplan_data:
-        print(item)
 
     repplan_data = split_double_classes(repplan_data)
 

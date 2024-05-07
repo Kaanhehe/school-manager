@@ -27,7 +27,7 @@ def get_timetable_data(user_id):
 def get_homework_data(user_id):
     conn = sqlite3.connect('homework.db')
     c = conn.cursor()
-    today = datetime.date.today()
+    today = datetime.date.today().isoformat()
     c.execute("SELECT * FROM homework WHERE due_date >= ? AND user_id = ?", (today, user_id))
     homework_data = c.fetchall()
     conn.close()
@@ -41,7 +41,7 @@ def get_repplan_data(user_id):
     conn = sqlite3.connect('repplan.db')
     conn.create_function('convert_date', 1, convert_date)  # Create custom SQLite function
     c = conn.cursor()
-    today = datetime.date.today()
+    today = datetime.date.today().isoformat()
     c.execute("SELECT * FROM repplan WHERE convert_date(date) >= ? AND user_id = ?", (today, user_id))
     repplan_data = c.fetchall()
     conn.close()
