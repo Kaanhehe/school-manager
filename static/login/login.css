@@ -1,5 +1,5 @@
 .content {
-    width: 30%;
+    width: 28vw;
 }
 
 .login-form {
@@ -39,11 +39,32 @@
     justify-content: center;
 }
 
+@media screen and (max-width: 1500px) {
+    .content {
+        width: 38vw;
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .content {
+        width: 48vw;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .content {
+        width: 58vw;
+    }
+}
+
 @media screen and (max-width: 600px) {
     .content {
-        width: 90%;
+        width: 78vw;
     }
-    .login-form {
-        margin: 20px;
+}
+
+@media screen and (max-width: 400px){
+    .content {
+        width: 88vw;
     }
 }

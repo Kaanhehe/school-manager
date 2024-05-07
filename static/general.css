@@ -314,9 +314,25 @@ tr:nth-child(odd) {
     border-radius: 20px;
 }
 
-@media screen and (max-width: 600px) {
+
+@media screen and (max-width: 1400px) {
+    .content {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 1100px) {
     body {
-        font-size: 0.2em;
+        font-size: 0.8em;
+    }
+    .content {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    body {
+        font-size: 0.5em;
     }
     .schoolhub img {
         width:80px;
@@ -340,7 +356,19 @@ tr:nth-child(odd) {
     .darkmode-switch {
         display: none;
     }
+    th, td {
+        padding: 3px;
+    }
     .content {
         width: 90%;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .content {
+        width: 100%;
+    }
+    th, td {
+        padding: 2px;
     }
 }

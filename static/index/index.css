@@ -9,7 +9,7 @@
 .scrape_btns {
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: space-between;
     margin: 15px 0;
 }
 
@@ -18,7 +18,7 @@
     color: var(--main-white);
     width: 100%;
     padding: 10px 32px;
-    margin: 0 10px;
+    margin-right: 10px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -26,6 +26,10 @@
     cursor: pointer;
     border: none;
     border-radius: 20px;
+}
+
+.scrape_btn:last-child {
+    margin-right: 0;
 }
 
 .scrape_btn:hover {
@@ -421,7 +425,10 @@
     background-color: var(--thrid-purple);
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 700px) {
+    .scrape_btn {
+        padding: 6px;
+    }
     .hwaction {
         font-size: 0.5em;
         padding: 3px;
@@ -432,5 +439,21 @@
     }
     .newhwwin-cancel {
         width: 60%;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    .scrape_btn {
+        padding: 3px;
+    }
+    .hwaction {
+        font-size: 0.4em;
+        padding: 2px;
+    }
+    .newhwwin {
+        width: 100%;
+    }
+    .newhwwin-cancel {
+        width: 80%;
     }
 }

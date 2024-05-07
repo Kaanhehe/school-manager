@@ -361,7 +361,7 @@ function applyTimetable(data, tableId) {
             breakRow.innerHTML = `
                 <td>7</td>
                 <td>13:00 - 13:45</td>
-                <td colspan="6" style="text-align: center; font-size: 20px; font-weight: bold;" class="special-font">Mittagspause</td>
+                <td colspan="6" style="text-align: center; font-size: 1.25em; font-weight: bold;" class="special-font">Mittagspause</td>
             `;
             tableBody.appendChild(breakRow);
         }
