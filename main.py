@@ -254,6 +254,9 @@ def index():
         return redirect(url_for('login'))
     
     user_id = get_user_id()
+    # It is possible that the user_id got changed, so we have to check if the user_id that we got is valid in the database
+    if not user_id:
+        return abort(403)
     timetable_data = get_timetable_data(user_id)
     homework_data = get_homework_data(user_id)
     repplan_data = get_repplan_data(user_id)
