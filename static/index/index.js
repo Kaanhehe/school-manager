@@ -6,7 +6,7 @@ var submited = false;
 
 $(document).ready(function(){
     var urlParams = new URLSearchParams(window.location.search);
-    var urlTab = window.location.hash === "#timetable" ? "timetable" : "homework";
+    var urlTab = window.location.hash === "#homework" ? "homework" : "timetable";
     if (urlParams.has("setscrapedata")) {
         var formbg = document.querySelector('.scrape_form_bg');
         var form = document.querySelector('.scrapeform');
