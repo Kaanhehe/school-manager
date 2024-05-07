@@ -789,7 +789,7 @@ function showTimetableinForm() {
     } else {
         win.classList.add("expanded");
         timetable.style.display = "flex";
-        form.style.width = "60%";
+        form.style.width = "65%";
         setTimeout(function() {
             timetable.classList.add("visible");
         }, 250);
