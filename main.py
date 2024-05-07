@@ -10,9 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 
 app = Flask(__name__)
-app.secret_key = "super secret key"
-
-print(os.getenv('SECRET_KEY'))
+app.secret_key = os.environ.get('Flask_secret_key')
 
 # Function to retrieve timetable data from the database
 def get_timetable_data(user_id):
