@@ -449,6 +449,9 @@
     .newhwwin {
         width: 90%;
     }
+    .newhwwin.expanded {
+        width: 100%;
+    }
     .newhwwin-cancel {
         width: 60%;
     }
@@ -463,6 +466,9 @@
         padding: 2px;
     }
     .newhwwin {
+        width: 100%;
+    }
+    .newhwwin.expanded {
         width: 100%;
     }
     .newhwwin-cancel {
