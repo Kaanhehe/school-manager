@@ -366,7 +366,7 @@ tr:nth-child(odd) {
 
 @media screen and (max-width: 500px) {
     .content {
-        width: 97%;
+        width: 98.5%;
     }
     th, td {
         padding: 2px;
