@@ -141,40 +141,45 @@
                                 </div>
                                 <div style="margin-top: 10px;">Felder mit * müssen ausgefüllt werden</div>
                             </form>
-                            <table id="mini-timetable" class="mini-timetable">
-                                <thead>
-                                    <tr>
-                                        <th>Nummer</th>
-                                        <th>Zeit</th>
-                                        <th>Montag</th>
-                                        <th>Dienstag</th>
-                                        <th>Mittwoch</th>
-                                        <th>Donnerstag</th>
-                                        <th>Freitag</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for group in timetable_data %}
+                            <div class="mini-timetable">
+                                <h1>Stundenplan</h1>
+                                <table id="mini-timetable">
+                                    <thead>
                                         <tr>
-                                            {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
-                                            <td>{{ class_num }}</td>
-                                            <td>{{ class_time }}</td>
-                                            {% for class_data in group %}
-                                                {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
-                                                {% set day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6} %}
-                                                {% if class_day in day_columns %}
-                                                    <td>{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
-                                                {% endif %}
-                                            {% endfor %}
+                                            <th>Nummer</th>
+                                            <th>Zeit</th>
+                                            <th>Montag</th>
+                                            <th>Dienstag</th>
+                                            <th>Mittwoch</th>
+                                            <th>Donnerstag</th>
+                                            <th>Freitag</th>
                                         </tr>
-                                    {% endfor %}
-                                    <tr>
-                                        <td>7</td>
-                                        <td>13:00 - 13:45</td>
-                                        <td colspan="6" style="text-align: center; font-size: 1.25em; font-weight: bold;" class="lunchbreak">Mittagspause</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {% for group in timetable_data %}
+                                            {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
+                                            <tr>
+                                                <td>{{ class_num }}</td>
+                                                <td>{{ class_time }}</td>
+                                                {% for class_data in group %}
+                                                    {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
+                                                    {% set day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6} %}
+                                                    {% if class_day in day_columns %}
+                                                        <td>{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </tr>
+                                            {% if class_num == 6 %}
+                                                <tr>
+                                                    <td>7</td>
+                                                    <td>13:00 - 13:45</td>
+                                                    <td colspan="6" style="text-align: center; font-size: 1.25em; font-weight: bold;" class="special-font">Mittagspause</td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                        </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="cancel_popup">
                             <div class="newhwwin-cancel">

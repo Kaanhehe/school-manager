@@ -1,7 +1,5 @@
 // Author: Kaanhehe
 
-var windowheight = 0;
-var windowwidth = 0;
 var editinghw = null;
 var oldhw = false;
 var submited = false;
@@ -125,7 +123,7 @@ function applyhomework(homework_data, tableId) {
 
 // Used to apply the replacement plan to the timetable
 function applyrepplan(repplanData, tableId) {
-    var table = document.getElementsByClassName(tableId)[0];
+    var table = document.getElementById(tableId);
     for (var i = 0; i < repplanData.length; i++) {
         is_sub = false;
         is_room = false;
@@ -611,10 +609,6 @@ function displayEdithwForm(homework) {
         window.style.opacity = "1";
     }, 10);
     window.style.display = "flex";
-    windowheight = win.offsetHeight;
-    windowwidth = win.offsetWidth;
-    win.style.maxHeight = windowheight + "px";
-    win.style.maxWidth = windowwidth + "px";
     sortClassesByColor();
     markinTimetable();
 }
@@ -627,10 +621,6 @@ function displayhwform() {
         window.style.opacity = "1";
     }, 10);
     window.style.display = "flex";
-    windowheight = win.offsetHeight;
-    windowwidth = win.offsetWidth;
-    win.style.maxHeight = windowheight + "px";
-    win.style.maxWidth = windowwidth + "px";
     sortClassesByColor();
     submited = false;
 }
@@ -787,19 +777,19 @@ var showingtimetable = false;
 function showTimetableinForm() {
     var win = document.getElementsByClassName("newhwwin")[0];
     var timetable = document.getElementsByClassName("mini-timetable")[0];
+    var form = document.getElementsByClassName("hwform")[0];
     if (showingtimetable) {
         timetable.classList.remove("visible");
         setTimeout(function() {
             timetable.style.display = "none";
-            win.style.maxHeight = windowheight + "px";
-            win.style.maxWidth = windowwidth + "px";
+            form.style.width = "100%";
+            win.classList.remove("expanded");
         }, 250);
         showingtimetable = false;
     } else {
         win.classList.add("expanded");
-        win.style.maxHeight = "70%";
-        win.style.maxWidth = "100%";
-        timetable.style.display = "block";
+        timetable.style.display = "flex";
+        form.style.width = "60%";
         setTimeout(function() {
             timetable.classList.add("visible");
         }, 250);
@@ -830,7 +820,7 @@ function classLabels(subject) {
 }
 
 function cleanMarkedCells() {
-    var timetable = document.getElementsByClassName("mini-timetable")[0];
+    var timetable = document.getElementById("mini-timetable");
     var cells = timetable.getElementsByClassName("marked");
     while (cells.length > 0) {
         cells[0].classList.remove("marked");
@@ -852,7 +842,7 @@ function checkColumnsMatch(timetable, subject, day) {
  }
 
  function ColorAllColumns(day) {
-    var timetable = document.getElementsByClassName("mini-timetable")[0];
+    var timetable = document.getElementById("mini-timetable");
     var rows = timetable.rows;
     for (var i = 0; i < rows.length; i++) {
        var cell = rows[i].cells[day + 1];
@@ -866,7 +856,7 @@ function checkColumnsMatch(timetable, subject, day) {
 function markinTimetable() {
     // Clean up the timetable from previous marks
     cleanMarkedCells();
-    var timetable = document.getElementsByClassName("mini-timetable")[0];
+    var timetable = document.getElementById("mini-timetable");
     var date = document.getElementById("due_date").value;
     if (date === "") {
         return;
@@ -906,7 +896,7 @@ function autogetDate() {
     var tomorrowDay = currentDay +1;
     // check from tomorrow till end of week
     for (var i = tomorrowDay; i < 7; i++) {
-        var cell = checkColumnsMatch(document.getElementsByClassName("mini-timetable")[0], subject, i);
+        var cell = checkColumnsMatch(document.getElementById("mini-timetable"), subject, i);
         if (cell) {
             var day = i;
             var currentYear = currentDate.getFullYear();
@@ -919,7 +909,7 @@ function autogetDate() {
     }
     // if nothing is found before this tests from monday till today
     for (var i = 0; i < tomorrowDay; i++) { // Use tomorrowDay cuz it needs to be one more for today to be included
-        var cell = checkColumnsMatch(document.getElementsByClassName("mini-timetable")[0], subject, i);
+        var cell = checkColumnsMatch(document.getElementById("mini-timetable"), subject, i);
         if (cell) {
             var day = i;
             var currentYear = currentDate.getFullYear();
