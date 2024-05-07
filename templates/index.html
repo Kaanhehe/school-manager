@@ -49,6 +49,52 @@
     </div>
     <div class="content">
         <div class="timetable visible">
+                <div class="scrape_form_bg">
+                    <div class="scrape_form_win">
+                        <span id="closeScrapeFormButton" class="closeScrapeFormbtn" onclick="CloseScrapeForm()">&times;</span>
+                        <div class="scrape_form-content">
+                            <form class="scrapeform" action="/scrape" method="post">
+                                <h1 id="scrapeform-header">Schulpage Daten</h1>
+                                <div class="scrapeformitem">
+                                    <label for="login_url">Link zur Login Seite deiner Schule</label>
+                                    <input required type="url" id="login_url" name="login_url" placeholder="https://login.schulportal.hessen.de/?i=XXXX">
+                                </div>
+                                <div class="scrapeformitem">
+                                    <label for="username">Loginname</label>
+                                    <input required type="text" id="username" name="username" placeholder="Vorname.Nachname (oder Kürzel bei Lehrenden)">
+                                </div>
+                                <div class="scrapeformitem">
+                                    <label for="password">Passwort für die Schulpage <i class="fa-solid fa-circle-info" title="Dein Passwort wird verschlüsselt, und kann nur mit deinem Passwort für unsere Seite entschlüsselt werden!"></i></label>
+                                    <input required type="password" id="password" name="password" placeholder="Passwort">
+                                </div>
+                                <div class="scrapeformitem">
+                                    <label for="user_password">Dein Passwort <i class="fa-solid fa-circle-info" title="Hier wird dein Passwort für diese Seite (SchulHub) benötigt"></i></label>
+                                    <input required type="password" id="user_password" name="user_password" placeholder="Passwort">
+                                </div>
+                                <div class="scrapeformbuttons">
+                                    <input class="submit" id="scrapesub" type="submit" value="Absenden">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="passwort_input_bg">
+                    <div class="passwort_input_win">
+                        <span id="closePasswortInputButton" class="closePasswortInputbtn" onclick="ClosePasswortForm()">&times;</span>
+                        <div class="passwort_input-content">
+                            <form class="passwortinputform" action="/passwort" method="post">
+                                <h1 id="passwortinputform-header">Passwort benötigt</h1>
+                                <div class="passwortinputformitem">
+                                    <label for="passwort_input">Dein Passwort <i class="fa-solid fa-circle-info" title="Hier wird dein Passwort für diese Seite (SchulHub) benötigt"></i></label>
+                                    <input required type="password" id="passwort_input" name="passwort_input" placeholder="Passwort">
+                                </div>
+                                <div class="passwortinputformbuttons">
+                                    <input class="submit" id="passwortsub" type="submit" value="Absenden">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <h1>Stundenplan</h1>
                 <div class="scrape_btns">
                     <button class="scrape_btn" id="scrapetimetable_btn" onclick="ScrapeTimeTable()">Stundenplan von Schulpage beziehen</button>

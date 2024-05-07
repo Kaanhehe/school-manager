@@ -2,6 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 import os
 import sys
 import sqlite3
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+import base64
 from itertools import groupby
 from operator import itemgetter
 import datetime
@@ -117,6 +123,55 @@ def get_user_id():
     conn.close()
     return user_id
 
+def check_password(user_id, user_password):
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+    user = c.fetchone()
+    conn.close()
+    if not user:
+        return False
+    if check_password_hash(user[3], user_password):
+        return True
+    return False
+
+def encrypt_password(user_password, target_password):
+    # Derive a key from the user's password
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=b'salt',  # Change this to a unique salt per user
+        iterations=100000,
+        backend=default_backend()
+    )
+    key = kdf.derive(user_password.encode())
+
+    # Pad the target password to ensure it's a multiple of 16 bytes
+    padder = padding.PKCS7(algorithms.AES.block_size).padder()
+    padded_data = padder.update(target_password.encode()) + padder.finalize()
+
+    # Encrypt the padded target password
+    iv = b'InitializationVe'  # Change this to a unique IV per encrypted password
+    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+    encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+
+    # Encode the encrypted data as base64 for storage
+    return base64.b64encode(encrypted_data)
+
+def store_scrape_data(user_id, login_url, schoolid, username, password):
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+
+    # Store the scrape data in the database
+    c.execute("INSERT INTO scrape_data (user_id, login_url, schoolid, username, password) VALUES (?, ?, ?, ?, ?)", (user_id, login_url, schoolid, username, password))
+    
+    # Update the entered_scrape_data column in the users table
+    c.execute("UPDATE users SET entered_scrape_data = 1 WHERE user_id = ?", (user_id,))
+
+    conn.commit()
+    conn.close()
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -145,7 +200,7 @@ def register():
                 existing_user = c.fetchone()
                 if not existing_user:
                     break
-            c.execute("INSERT INTO users (user_id, username, email, password) VALUES (?, ?, ?, ?)", (uuid, form_data['username'], form_data['email'], hashed_password))
+            c.execute("INSERT INTO users (user_id, username, email, password, entered_scrape_data) VALUES (?, ?, ?, ?)", (uuid, form_data['username'], form_data['email'], hashed_password, 0))
             conn.commit()
             conn.close()
             return jsonify({'success': '<i class="fa-solid fa-check"></i> Registrierung erfolgreich'})
@@ -175,6 +230,9 @@ def login():
         if user and check_password_hash(user[3], form_data['password']):
             # set the session username
             session['username'] = form_data['username']
+            # checks if the user has given the data for the school website login
+            if user[4] == 0:
+                return jsonify({'warning': '<i class="fa-solid fa-exclamation"></i> Login erfolgreich. Bitte gib deine Daten für den Vertretungsplan und den Stundenplan an'})
             return jsonify({'success': '<i class="fa-solid fa-check"></i> Login erfolgreich'})
         else:
             # return error if the password is incorrect
@@ -226,23 +284,73 @@ def index():
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
 
-@app.route('/scrapett', methods=['GET'])
+@app.route('/sendscrapedata', methods=['POST'])
+def sendscrapedata():
+    login_url = request.form['login_url']
+    username = request.form['username']
+    password = request.form['password']
+    user_password = request.form['user_password']
+    user_id = get_user_id()
+    if not login_url or not username or not password or not user_password:
+        return abort(403)
+    if not check_password(user_id, user_password):
+        return abort(403)
+    
+    # login url: https://login.schulportal.hessen.de/?i=5202
+    schoolid = login_url.split('=')[-1]
+
+    # Encrypt the password for the school website using the user's password
+    password_hash = encrypt_password(user_password, password)#
+    
+    # Run the scrapettplan.py script
+    message1 = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password], capture_output=True, text=True)
+    fullmessage1 = message1.stderr
+    type1 = fullmessage1.split("+")[0]
+    
+    # Run the scraperepplan.py script
+    message2 = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password], capture_output=True, text=True)
+    fullmessage2 = message2.stderr
+    type2 = fullmessage2.split("+")[0]
+
+    # Check if an error occurred
+    if type1 == "error" or type2 == "error":
+        return "error+Fehler+Ein Fehler ist aufgetreten. Bitte überprüfen Sie Ihre Anmeldeinformationen."
+    
+    # Store the scrape data in the database if no error occurred
+    store_scrape_data(user_id, login_url, schoolid, username, password_hash)
+    
+    # Return a success message -> "type+title+message"
+    return "success+Erfolg+Daten erfolgreich abgerufen"
+
+@app.route('/scrapett', methods=['POST'])
 def scrapett():
     user_id = get_user_id()
+    user_password = request.form['passwort_input']
+    if not user_password:
+        return abort(403)
+    
+    if not check_password(user_id, user_password):
+        return abort(403)
 
     # Run the scrapettplan.py script
-    subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id])
-    print("Scraped Timetable data successfully from the website")
-    return "Scraped Timetable data successfully from the website"
+    message = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password], capture_output=True, text=True)
+    fullmessage = message.stderr
+    return fullmessage
 
-@app.route('/scraperep', methods=['GET'])
+@app.route('/scraperep', methods=['POST'])
 def scraperep():
     user_id = get_user_id()
-
+    user_password = request.form['passwort_input']
+    if not user_password:
+        return abort(403)
+    
+    if not check_password(user_id, user_password):
+        return abort(403)
+    
     # Run the scraperepplan.py script
-    subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id])
-    print("Scraped Representation Plan data successfully from the website")
-    return "Scraped Representation Plan data successfully from the website"
+    message = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password], capture_output=True, text=True)
+    fullmessage = message.stderr
+    return  fullmessage
 
 @app.route('/gettt', methods=['GET'])
 def gettt():

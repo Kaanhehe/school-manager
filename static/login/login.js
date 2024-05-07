@@ -7,6 +7,8 @@ function SubmitLogin(e) {
         success: function(response) {
             if (response["success"]) {
                 window.location.href = "/";
+            } if (response["warning"]) {
+                window.location.href = "/?setscrapedata"
             } else {
                 errorelement = document.getElementsByClassName("form-error")[0];
                 errorelement.innerHTML = response["error"];

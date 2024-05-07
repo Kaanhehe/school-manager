@@ -6,6 +6,164 @@
     overflow-x: auto;
 }
 
+.timetable.visible, .homework.visible {
+    display: block;
+    opacity: 1;
+}
+
+.scrape_form_bg {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+    position: fixed;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--darkout-bg-popup);
+    overflow: hidden;
+}
+
+.scrape_form_bg.visible {
+    opacity: 1;
+}
+
+.scrape_form_win {
+    display: flex;
+    width: 28%;
+    height:57%;
+    transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--dark-grey);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px -5px 15px rgba(255, 255, 255, 0.11);
+}
+
+.closeScrapeFormbtn {
+    align-self: flex-end;
+    color: #aaa;
+    font-size: 1.75em;
+    font-weight: bold;
+}
+
+.closeScrapeFormbtn:hover, .closeScrapeFormbtn:focus {
+    color: var(--light-grey);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.scrape_form-content {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.scrapeform {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+
+.scrapeformitem {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    margin: 10px;
+}
+
+.scrapeformbuttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 65%;
+}
+
+.passwort_input_bg {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+    position: fixed;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--darkout-bg-popup);
+    overflow: hidden;
+}
+
+.passwort_input_win {
+    display: flex;
+    width: 28%;
+    height: 27%;
+    transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--dark-grey);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px -5px 15px rgba(255, 255, 255, 0.11);
+}
+
+.closePasswortInputbtn {
+    align-self: flex-end;
+    margin: 10px;
+    color: #aaa;
+    font-size: 1.75em;
+    font-weight: bold;
+}
+
+.closePasswortInputbtn:hover, .closePasswortInputbtn:focus {
+    color: var(--light-grey);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.passwort_input-content {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.passwortinputform {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+
+.passwortinputformitem {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    margin: 10px;
+}
+
+.passwortinputformbuttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 65%;
+}
+
 .scrape_btns {
     display: flex;
     flex-direction: row;
@@ -45,11 +203,6 @@
     border-collapse: separate;
     border-spacing: 0;
     margin: 15px 0;
-}
-
-.timetable.visible, .homework.visible {
-    display: block;
-    opacity: 1;
 }
 
 .hwactions {
@@ -438,7 +591,7 @@
 }
 
 @media screen and (max-width: 1400px) {
-    .newhwwin {
+    .newhwwin, .scrape_form_win, .passwort_input_win {
         width: 40%;
     }
     .newhwwin.expanded {
@@ -452,7 +605,7 @@
 }
 
 @media screen and (max-width: 800px) {
-    .newhwwin {
+    .newhwwin, .scrape_form_win, .passwort_input_win{
         width: 50%;
     }
     .newhwwin.expanded {
@@ -473,8 +626,10 @@
         padding: 3px;
         color: var(--main-white);
     }
-    .newhwwin {
+    .newhwwin, .scrape_form_win, .passwort_input_win{
         width: 60%;
+    }
+    .newhwwin {
         height: 55%;
     }
     .newhwwin.expanded {
@@ -487,7 +642,7 @@
 }
 
 @media screen and (max-width: 500px) {
-    .newhwwin {
+    .newhwwin, .scrape_form_win, .passwort_input_win{
         width: 70%;
     }
     .clear {
@@ -512,7 +667,7 @@
         font-size: 0.4em;
         padding: 2px;
     }
-    .newhwwin {
+    .newhwwin, .scrape_form_win, .passwort_input_win{
         width: 100%;
     }
     .newhwwin-cancel {

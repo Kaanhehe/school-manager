@@ -152,7 +152,7 @@ body {
     margin-left: 26%;
 }
 
-input[type=text], input[type=password], input[type=date], input[type=email], select {
+input[type=text], input, select {
     margin: 8px 0;
     display: inline-block;
     padding: 6px;

@@ -1,48 +1,96 @@
 import sys
 import requests
+import os
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+import base64
 from datetime import date
 import sqlite3
 from bs4 import BeautifulSoup
 
-# Login credentials
-USERNAME = 'kaan.torun'
-PASSWORD = '7ZaqfmnETOaNfudsWA?FytOTnYV6?#?1x0V2F&9V'
-SCHOOLID = '5202'
-
-LOGIN_URL = 'https://login.schulportal.hessen.de/?url=aHR0cHM6Ly9jb25uZWN0LnNjaHVscG9ydGFsLmhlc3Nlbi5kZS8=&skin=sp&i=5202'
 REPPLAN_URL = 'https://start.schulportal.hessen.de/vertretungsplan.php'
 
+def get_data_from_db(user_id):
+    # Connect to the SQLite database
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    # Get the data from the database
+    cursor.execute("SELECT * FROM scrape_data WHERE user_id = ?", (user_id,))
+    scrape_data = cursor.fetchone()
+
+    login_url = scrape_data[1]
+    schoolid = scrape_data[2]
+    username = scrape_data[3]
+    password_hash = scrape_data[4]
+
+    # Close the connection
+    conn.close()
+
+    return login_url, schoolid, username, password_hash
+
+# Function to decrypt the password using the users website login password
+def decrypt_password(user_id, user_password, encrypted_password):
+
+    # Decrypt the password
+# Derive the key from the user's password
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=b'salt',  # Same salt used for encryption
+        iterations=100000,
+        backend=default_backend()
+    )
+    key = kdf.derive(user_password.encode())
+
+    # Decode the base64-encoded encrypted data
+    encrypted_data = base64.b64decode(encrypted_password)
+
+    # Decrypt the data
+    iv = b'InitializationVe'  # Same IV used for encryption
+    cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+    decryptor = cipher.decryptor()
+    decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
+
+    # Unpad the decrypted data
+    unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
+    unpadded_data = unpadder.update(decrypted_data) + unpadder.finalize()
+
+    return unpadded_data.decode()
+
 # Function to perform login using requests
-def login_requests(username, password):
+def login_requests(login_url, schoolid, username, password):
     session = requests.Session()
-    response = session.get(LOGIN_URL)
+    response = session.get(login_url)
     if response.status_code != 200:
-        print("Failed to load login page")
-        return None
+        return sys.exit("error+Fehler+Fehler beim Laden der Schulportal-Loginseite.")
 
     form_data = {
-        'user': SCHOOLID + '.' + username,
+        'user': str(schoolid) + '.' + username,
         'password': password
     }
-    response = session.post(LOGIN_URL, data=form_data)
+    response = session.post(login_url, data=form_data)
     if response.status_code != 200:
-        print("Failed to login")
-        return None
+        return sys.exit("error+Fehler+Schulportal-Login fehlgeschlagen.")
 
     return session
 
 def scrape_repplan(session, url):
     if session is None:
-        print("Session not available. Login failed.")
-        return []
+        return sys.exit("error+Fehler+Schulportal-Login fehlgeschlagen.")
 
     response = session.get(url)
     if response.status_code != 200:
-        print("Failed to load repplan page")
-        return []
+        return sys.exit("error+Fehler+Fehler beim Laden der Schulportal-Stundenplanseite")
     repplan_data = []
     # Write code to scrape repplan data using requests
     soup = BeautifulSoup(response.content, 'html.parser')
+
+    if "Fehler" in soup.title.text:
+        return sys.exit("error+Fehler+Schulportal-Login abgelehnt. Bitte überprüfen Sie Ihre Anmeldeinformationen.")
 
     # Find the repplan table
     panel_primary = soup.find('div', {'class': 'panel panel-primary'})
@@ -135,17 +183,25 @@ def split_double_classes(repplan_data):
 
 # Main function
 def main(args):
-    username = args[1]
     user_id = args[2]
+    user_password = args[3]
+    if not user_id or not user_password:
+        return sys.exit("Please provide a user ID and password")
+    
+    # Get the login URL, school ID, username, and password hash from the database
+    login_url, schoolid, username, password_hash = get_data_from_db(user_id)
+    
+    # Decrypt the password
+    password = decrypt_password(user_id, user_password, password_hash)
+    
     # Perform login using requests
-    session = login_requests(USERNAME, PASSWORD)
-    if session is None:
-        print("Login failed. Exiting.")
-        sys.exit(1)
+    session = login_requests(login_url, schoolid, username, password)
 
     # Scrape Representation Plan data
     repplan_data = scrape_repplan(session, REPPLAN_URL)
 
+    # Many classes are merged when they are next to each other in the repplan data
+    # Split these double classes into separate entries
     repplan_data = split_double_classes(repplan_data)
 
     print("Split double classes:")
@@ -155,7 +211,7 @@ def main(args):
     # Store repplan data in database
     save_repplan_to_db(repplan_data, user_id)
 
-    print("Representation Plan data stored successfully.")
+    sys.exit("success+Erfolg+Vertretungsplan erfolgreich von Schulportal entnommen.")
 
 if __name__ == '__main__':
     main(sys.argv)

@@ -5,6 +5,41 @@ var oldhw = false;
 var submited = false;
 
 $(document).ready(function(){
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("setscrapedata")) {
+        var formbg = document.querySelector('.scrape_form_bg');
+        var form = document.querySelector('.scrapeform');
+        formbg.style.display = "flex";
+        setTimeout(function() {
+            formbg.style.opacity = "1";
+        }, 10);
+        $(form).submit(function(event){
+            event.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "/sendscrapedata",
+                data: $(this).serialize(),
+                success: function(data) {
+                    type = data.split('+')[0];
+                    header = data.split('+')[1];
+                    message = data.split('+')[2];
+                    sendNotification(type, header, message);
+                    if (type === "success") {
+                        RefreshTimetable();
+                        formbg.style.opacity = "0";
+                        setTimeout(function() {
+                            formbg.style.display = "none";
+                        }, 500);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // Handle the error
+                    sendNotification("error", "Fehler", "Deine Daten konnten nicht gesendet werden. Versuche es später erneut.");
+                    console.error(textStatus, errorThrown);
+                }
+            });
+        });
+    }
     $(".hwform").submit(function(event){
         event.preventDefault();
         // Just get the date if it is not set; Not used right now -> make settings with this as option
@@ -52,35 +87,86 @@ $(document).ready(function(){
 });
 
 function ScrapeTimeTable() {
-    $.ajax({
-        type: "GET",
-        url: "/scrapett",
-        success: function(data) {
-            sendNotification("success", "Erfolg", "Der Stundenplan wurde erfolgreich aktualisiert.");
-            RefreshTimetable();
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            // Handle the error
-            sendNotification("error", "Fehler", "Der Stundenplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
-            console.error(textStatus, errorThrown);
-        }
+    var formbg = document.querySelector('.passwort_input_bg');
+    var form = document.querySelector('.passwortinputform');
+    formbg.style.display = "flex";
+    setTimeout(function() {
+        formbg.style.opacity = "1";
+    }, 10);
+    $(form).off('submit').on('submit', function(event){
+        event.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/scrapett",
+            data: $(this).serialize(),
+            success: function(data) {
+                var type = data.split('+')[0];
+                var header = data.split('+')[1];
+                var message = data.split('+')[2];
+                sendNotification(type, header, message);
+                RefreshTimetable();
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                // Handle the error
+                sendNotification("error", "Fehler", "Der Stundenplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
+                console.error(textStatus, errorThrown);
+            }
+        });
+        formbg.style.opacity = "0";
+        setTimeout(function() {
+            formbg.style.display = "none";
+        }, 500);
     });
 }
 
-function ScrapeRepPlan() {
-    $.ajax({
-        type: "GET",
-        url: "/scraperep",
-        success: function(data) {
-            sendNotification("success", "Erfolg", "Der Vertretungsplan wurde erfolgreich aktualisiert.");
-            RefreshTimetable();
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            // Handle the error
-            sendNotification("error", "Fehler", "Der Vertretungsplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
-            console.error(textStatus, errorThrown);
-        }
+async function ScrapeRepPlan() {
+    var formbg = document.querySelector('.passwort_input_bg');
+    var form = document.querySelector('.passwortinputform');
+    formbg.style.display = "flex";
+    setTimeout(function() {
+        formbg.style.opacity = "1";
+    }, 10);
+    $(form).off('submit').on('submit', function(event){
+        event.preventDefault();
+        console.log($(this).serialize());
+        $.ajax({
+            type: "POST",
+            url: "/scraperep",
+            data: $(this).serialize(),
+            success: function(data) {
+                var type = data.split('+')[0];
+                var header = data.split('+')[1];
+                var message = data.split('+')[2];
+                sendNotification(type, header, message);
+                RefreshTimetable();
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                // Handle the error
+                sendNotification("error", "Fehler", "Der Vertretungsplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
+                console.error(textStatus, errorThrown);
+            }
+        });
+        formbg.style.opacity = "0";
+        setTimeout(function() {
+            formbg.style.display = "none";
+        }, 500);
     });
+}
+
+function CloseScrapeForm() {
+    var formbg = document.querySelector('.scrape_form_bg');
+    formbg.style.opacity = "0";
+    setTimeout(function() {
+        formbg.style.display = "none";
+    }, 500);
+}
+
+function ClosePasswortForm() {
+    var formbg = document.querySelector('.passwort_input_bg');
+    formbg.style.opacity = "0";
+    setTimeout(function() {
+        formbg.style.display = "none";
+    }, 500);
 }
 
 // Used to apply the homework to the timetable
