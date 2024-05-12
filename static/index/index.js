@@ -216,10 +216,12 @@ function applyhomework(homework_data, tableId) {
             // check if the subject matches
             if (table.rows[row].cells[cell].innerText.split(' ')[0] === subject) {
                 // Add the icon to the cell
-                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="homework-icon fas fa-book" title="Offnene Hausaufgabe: ${task} (ID:${id})" style="font-size: smaller;"></i>`;
+                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="homework-icon${id} fas fa-book" style="font-size: smaller;"></i>`;
+                tippy(`.homework-icon${id}`, { content: `Offnene Hausaufgabe: ${task} (ID:${id})` });
                 // Add the icon to the column header
                 if (!table.rows[0].cells[cell].innerHTML.includes("homework-icon")) {
-                    table.rows[0].cells[cell].innerHTML = `${table.rows[0].cells[cell].innerHTML} <i class="homework-icon fas fa-book" title="Offene Hausaufgaben für diesen Tag" style="font-size: smaller;"></i>`;
+                    table.rows[0].cells[cell].innerHTML = `${table.rows[0].cells[cell].innerHTML} <i class="homework-icon2 fas fa-book" style="font-size: smaller;"></i>`;
+                    tippy('.homework-icon2', { content: "Offene Hausaufgaben für diesen Tag" });
                 }
                 break;
             }
@@ -295,23 +297,33 @@ function applyrepplan(repplanData, tableId) {
             }
             // Add the icons to the cell
             if (is_room) {
-                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="room-icon fas fa-door-open" title="Neuer Raum: ${room}" style="font-size: smaller;"></i>`;
+                table.rows[row].cells[cell].innerHTML += ` <i class="room-icon fas fa-door-open" style="font-size: smaller;"></i>`;
+                tippy('.room-icon', { content: "Neuer Raum: " + room });
             }
+            
             if (is_sub) {
-                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="teacher-icon fas fa-chalkboard-teacher" title="Vertreter: ${substitute}" style="font-size: smaller;"></i>`;
+                table.rows[row].cells[cell].innerHTML += ` <i class="teacher-icon fas fa-chalkboard-teacher" style="font-size: smaller;"></i>`;
+                tippy('.teacher-icon', { content: "Vertreter: " + substitute });
             }
+            
             if (is_cancelled) {
-                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="cancelled-icon fas fa-times-circle" title="Diese Stunde fällt aus" style="font-size: smaller;"></i>`;
+                table.rows[row].cells[cell].innerHTML += ` <i class="cancelled-icon fas fa-times-circle" style="font-size: smaller;"></i>`;
+                tippy('.cancelled-icon', { content: "Diese Stunde fällt aus" });
             }
+            
             if (sv_std) {
-                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="sv-std-icon fas fa-user-friends" title="SV-Std" style="font-size: smaller;"></i>`;
+                table.rows[row].cells[cell].innerHTML += ` <i class="sv-std-icon fas fa-user-friends" style="font-size: smaller;"></i>`;
+                tippy('.sv-std-icon', { content: "SV-Std" });
             }
+            
             if (is_info) {
-                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="info-icon fas fa-info-circle" title="${info}" style="font-size: smaller;"></i>`;
+                table.rows[row].cells[cell].innerHTML += ` <i class="info-icon fas fa-info-circle" style="font-size: smaller;"></i>`;
+                tippy('.info-icon', { content: info });
             }
-            // Add the info icon with a warning if the lesson is cancelled and there is a substitute
+            
             if (is_sub && is_cancelled) {
-                table.rows[row].cells[cell].innerHTML = `${table.rows[row].cells[cell].innerHTML} <i class="info-icon fas fa-info-circle" title="Entfall und Vertretung???" style="font-size: smaller;"></i>`;
+                table.rows[row].cells[cell].innerHTML += ` <i class="info-icon fas fa-info-circle" style="font-size: smaller;"></i>`;
+                tippy('.info-icon', { content: "Entfall und Vertretung???" });
             }
         }
     }
