@@ -6,9 +6,9 @@ function SubmitLogin(e) {
         data: $("#login-form").serialize(),
         success: function(response) {
             if (response["success"]) {
-                window.location.href = "/";
+                return window.location.href = "/";
             } if (response["warning"]) {
-                window.location.href = "/?setscrapedata"
+                return window.location.href = "/?setscrapedata"
             } else {
                 errorelement = document.getElementsByClassName("form-error")[0];
                 errorelement.innerHTML = response["error"];

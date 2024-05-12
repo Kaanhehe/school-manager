@@ -8,6 +8,22 @@ $(document).ready(function() {
     setMode(mode);
 });
 
+// Makes the navbar work
+function changeActiveClass(event) {
+    var navbar = document.getElementsByClassName("navbar")[0];
+    var current = navbar.getElementsByClassName("active");
+    var content = document.getElementsByClassName(event.target.id.replace("-link", ""))[0];
+    var currentcontent = document.getElementsByClassName(current[0].id.replace("-link", ""))[0];
+    current[0].classList.remove("active");
+    event.target.className += " active";
+
+    content.style.display = "block";
+    currentcontent.style.display = "none";
+    setTimeout(function() {
+        content.classList.add("visible");
+    }, 10);
+}
+
 function setMode(mode) {
     var modeSwitch = document.getElementById("darkmode-toggle");
     var brightbg = document.getElementsByClassName("brightbg")[0];

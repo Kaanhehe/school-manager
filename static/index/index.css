@@ -34,8 +34,7 @@
 
 .scrape_form_win {
     display: flex;
-    width: 28%;
-    height:57%;
+    width: 22%;
     transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
     flex-direction: column;
     align-items: center;
@@ -108,8 +107,7 @@
 
 .passwort_input_win {
     display: flex;
-    width: 28%;
-    height: 27%;
+    width: 22%;
     transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
     flex-direction: column;
     align-items: center;
@@ -335,12 +333,11 @@
 
 .newhwwin {
     display: flex;
-    width: 28%;
-    height: 63%;
+    width: 22%;
     transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     background-color: var(--dark-grey);
     padding: 20px;
     border-radius: 20px;
@@ -543,14 +540,14 @@
     background-color: var(--secondary-purple);
     color: var(--main-white);
     border: none;
-    padding: 15px 32px;
+    padding: 1em 2em;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 1em;
-    margin: 4px 2px;
+    margin: 0.188em 0.125em;
     cursor: pointer;
-    border-radius: 10px;
+    border-radius: 0.625em;
 }
 
 .clear:hover {
@@ -561,14 +558,14 @@
     background-color: var(--main-purple);
     color: var(--main-white);
     border: none;
-    padding: 15px 32px;
+    padding: 1em 2em;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 1em;
-    margin: 4px 2px;
+    margin: 0.188em 0.125em;
     cursor: pointer;
-    border-radius: 10px;
+    border-radius: 0.625em;
 }
 
 .submit:hover {
@@ -579,14 +576,14 @@
     background-color: var(--main-purple);
     color: var(--main-white);
     width: 100%;
-    padding: 10px 32px;
+    padding: 1em 2em;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 1em;
     cursor: pointer;
     border: none;
-    border-radius: 20px;
+    border-radius: 1.25em;
 }
 
 #oldhwbtn:hover {
@@ -595,6 +592,16 @@
 
 #oldhwbtn:active {
     background-color: var(--thrid-purple);
+}
+
+@media screen and (max-height: 1400px) {
+    .newhwwin.expanded {
+        height: 80%;
+    }
+    .newhwwin-cancel {
+        height: 20%;
+    }
+
 }
 
 @media screen and (max-width: 1400px) {

@@ -274,6 +274,28 @@ def index():
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
 
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        form_data = request.form
+        conn = sqlite3.connect('users.db')
+        c = conn.cursor()
+        if form_data['new_password']:
+            if not form_data['old_password']:
+                return jsonify({'error': '<i class="fa-solid fa-triangle-exclamation"></i> Bitte gib dein altes Passwort ein'})
+            if not check_password(get_user_id(), form_data['old_password']):
+                return jsonify({'error': '<i class="fa-solid fa-triangle-exclamation"></i> Altes Passwort falsch'})
+            hashed_password = generate_password_hash(form_data['new_password'], method='pbkdf2:sha256')
+            c.execute("UPDATE users SET password = ? WHERE user_id = ?", (hashed_password, get_user_id()))
+        if form_data['email']:
+            c.execute("UPDATE users SET email = ? WHERE user_id = ?", (form_data['email'], get_user_id()))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': '<i class="fa-solid fa-check"></i> Einstellungen gespeichert'})
+    return render_template('settings.html')
+
 @app.route('/sendscrapedata', methods=['POST'])
 def sendscrapedata():
     login_url = request.form['login_url']

@@ -1,0 +1,12 @@
+.account, .general {
+    width: 100%;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    overflow-x: auto;
+}
+
+.account.visible, .general.visible {
+    display: block;
+    opacity: 1;
+}
