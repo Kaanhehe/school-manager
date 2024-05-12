@@ -113,24 +113,21 @@
                         </tr>
                     </thead> 
                     <tbody>
-                    {% for group in timetable_data %}
+                        {% for group in timetable_data %}
                         {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
                         <tr>
                             <td>{{ class_num }}</td>
                             <td>{{ class_time }}</td>
                             {% for class_data in group %}
                                 {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
-                                {% set day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6} %}
-                                {% if class_day in day_columns %}
-                                    <td>{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
-                                {% endif %}
+                                <td data-day="{{ class_day }}">{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
                             {% endfor %}
                         </tr>
                         {% if class_num == 6 %}
                             <tr>
                                 <td>7</td>
                                 <td>13:00 - 13:45</td>
-                                <td colspan="6" style="text-align: center; font-size: 1.25em; font-weight: bold;" class="special-font">Mittagspause</td>
+                                <td colspan="6" class="timetablebreak">Mittagspause</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
@@ -203,27 +200,24 @@
                                     </thead>
                                     <tbody>
                                         {% for group in timetable_data %}
-                                            {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
+                                        {% set class_day, class_num, class_time, class_name, class_loc, class_tea = group[0][:6] %}
+                                        <tr>
+                                            <td>{{ class_num }}</td>
+                                            <td>{{ class_time }}</td>
+                                            {% for class_data in group %}
+                                                {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
+                                                <td data-day="{{ class_day }}">{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        {% if class_num == 6 %}
                                             <tr>
-                                                <td>{{ class_num }}</td>
-                                                <td>{{ class_time }}</td>
-                                                {% for class_data in group %}
-                                                    {% set class_day, class_num, class_time, class_name, class_loc, class_tea = class_data[:6] %}
-                                                    {% set day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6} %}
-                                                    {% if class_day in day_columns %}
-                                                        <td>{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
-                                                    {% endif %}
-                                                {% endfor %}
+                                                <td>7</td>
+                                                <td>13:00 - 13:45</td>
+                                                <td colspan="6" class="timetablebreak">Mittagspause</td>
                                             </tr>
-                                            {% if class_num == 6 %}
-                                                <tr>
-                                                    <td>7</td>
-                                                    <td>13:00 - 13:45</td>
-                                                    <td colspan="6" style="text-align: center; font-size: 1.25em; font-weight: bold;" class="special-font">Mittagspause</td>
-                                                </tr>
-                                            {% endif %}
-                                        {% endfor %}
-                                        </tbody>
+                                        {% endif %}
+                                    {% endfor %}
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -263,7 +257,7 @@
                                 <td>{{ homework[4] }}</td>
                                 <td class="hwactions">
                                     <button class="hwaction" id="hwdone" data-id="{{ homework[5] }}"><i class="fa-solid fa-check"></i></button> <!-- If its a done or not homework gets changed in change_done_homeworks() (also onclick gets added there)-->
-                                    <button class="hwaction" id="hwedit" onclick="editHomework(event)"><i class="fa-regular fa-pen-to-square"></i></i></button>
+                                    <button class="hwaction" id="hwedit" onclick="editHomework(event)"><i class="fa-regular fa-pen-to-square"></i></button>
                                     <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)"><i class="fa-solid fa-trash-can"></i></button>
                                 </td>
                             </tr>

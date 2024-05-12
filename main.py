@@ -14,6 +14,7 @@ import datetime
 import subprocess
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
+import json
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('Flask_secret_key')
@@ -52,8 +53,7 @@ def get_repplan_data(user_id):
     return repplan_data
 
 def sort_timetable_data(timetable_data):
-    timetable_data = [entry[1:] for entry in timetable_data] # Remove the user_id from the data
-    # Replace weekdays with numbers
+    # Define the weekday mapping
     weekday_mapping = {
         'Montag': 1,
         'Dienstag': 2,
@@ -61,34 +61,22 @@ def sort_timetable_data(timetable_data):
         'Donnerstag': 4,
         'Freitag': 5
     }
-    """
-    Convert the timetable_data to a list of tuples and replace the weekdays with numbers
-    Sort the timetable_data by class_num and then by class_day and group the data by class_num
-    Convert the weekdays back to their original names
-    Complicated, but necessary to display the timetable in the correct order
-    !!!Did not find a better way to do this!!!
-    """
-    
-    # Convert the timetable_data to a list of tuples and replace the weekdays with numbers
-    for i in range(len(timetable_data)):
-        timetable_data[i] = list(timetable_data[i])
-        timetable_data[i][0] = weekday_mapping.get(timetable_data[i][0], timetable_data[i][0])
-        timetable_data[i] = tuple(timetable_data[i])
+    # Reverse mapping for converting numbers back to weekdays
+    reverse_mapping = {v: k for k, v in weekday_mapping.items()}
 
-    # Sort the timetable_data by class_num and then by class_day
-    timetable_data.sort(key=itemgetter(1, 0))  # Sort by class_num and then by class_day
-    
+    # Convert weekdays to numbers and remove user_id
+    timetable_data = [(weekday_mapping[entry[1]], *entry[2:]) for entry in timetable_data]
+
+    # Sort by class_num and then by class_day
+    timetable_data.sort(key=itemgetter(1, 0))
+
     # Group the data by class_num
     grouped_data = []
-    for key, group in groupby(timetable_data, key=itemgetter(1)): # Group by class_num
-
-        # Convert the weekdays back to their original names so 1 becomes Montag, 2 becomes Dienstag, etc.
-        group = list(group)
-        for i in range(len(group)):
-            group[i] = list(group[i])
-            group[i][0] = list(weekday_mapping.keys())[list(weekday_mapping.values()).index(group[i][0])]
-            group[i] = tuple(group[i])
+    for key, group in groupby(timetable_data, key=itemgetter(1)):
+        # Convert the weekdays back to their original names
+        group = [(reverse_mapping[g[0]], *g[1:]) for g in group]
         grouped_data.append(group)
+
     return grouped_data
 
 def change_homework_data(homework_data):
@@ -262,6 +250,7 @@ def index():
     repplan_data = get_repplan_data(user_id)
     repplan_data = [entry[1:] for entry in repplan_data]
     homework_data = change_homework_data(homework_data)
+    # returns groups of which every group is 1 row of the timetable
     grouped_data = sort_timetable_data(timetable_data)
     
     classes_data = {
@@ -390,61 +379,71 @@ def getoldhw():
 def newhw():
     form_data = request.form
     if form_data:
+        if not form_data['class'] or not form_data['homework_task'] or not form_data['work_amount'] or not form_data['due_date']:
+            return abort(403)
         user_id = get_user_id()
         conn = sqlite3.connect('homework.db')
         c = conn.cursor()
         c.execute("INSERT INTO homework (user_id, class, homework_task, work_amount, due_date) VALUES (?, ?, ?, ?, ?)", (user_id, form_data['class'], form_data['homework_task'], form_data['work_amount'], form_data['due_date']))
         conn.commit()
         conn.close()
-    return "Homework added"
+    return "success+Hausaufgabe hinzugefügt+Die Hausaufgabe wurde erfolgreich hinzugefügt"
 
 @app.route('/donehw', methods=['POST'])
 def donehw():
     form_data = request.form
     if form_data:
+        if not form_data['id']:
+            return abort(403)
         user_id = get_user_id()
         conn = sqlite3.connect('homework.db')
         c = conn.cursor()
         c.execute("UPDATE homework SET done = 1 WHERE id = ? AND user_id = ?", (form_data['id'], user_id))
         conn.commit()
         conn.close()
-    return "Homework done"
+    return "success+Hausaufgabe erledigt+Die Hausaufgabe wurde als erledigt markiert"
 
 @app.route('/undonehw', methods=['POST'])
 def undonehw():
     form_data = request.form
     if form_data:
+        if not form_data['id']:
+            return abort(403)
         user_id = get_user_id()
         conn = sqlite3.connect('homework.db')
         c = conn.cursor()
         c.execute("UPDATE homework SET done = 0 WHERE id = ? AND user_id = ?", (form_data['id'], user_id))
         conn.commit()
         conn.close()
-    return "Homework undone"
+    return "success+Hausaufgabe nicht erledigt+Die Hausaufgabe wurde als nicht erledigt markiert"
 
 @app.route('/edithw', methods=['POST'])
 def edithw():
     form_data = request.form
     if form_data:
+        if not form_data['class'] or not form_data['homework_task'] or not form_data['work_amount'] or not form_data['due_date']:
+            return abort(403)
         user_id = get_user_id()
         conn = sqlite3.connect('homework.db')
         c = conn.cursor()
         c.execute("UPDATE homework SET user_id = ?, class = ?, homework_task = ?, work_amount = ?, due_date = ? WHERE id = ?", (user_id, form_data['class'], form_data['homework_task'], form_data['work_amount'], form_data['due_date'], form_data['id']))
         conn.commit()
         conn.close()
-    return "Homework edited"
+    return "success+Hausaufgabe bearbeitet+Die Hausaufgabe wurde erfolgreich bearbeitet"
 
 @app.route('/deletehw', methods=['POST'])
 def deletehw():
     form_data = request.form
     if form_data:
+        if not form_data['id']:
+            return abort(403)
         user_id = get_user_id()
         conn = sqlite3.connect('homework.db')
         c = conn.cursor()
         c.execute("DELETE FROM homework WHERE id = ? AND user_id = ?", (form_data['id'], user_id))
         conn.commit()
         conn.close()
-    return "Homework deleted"
+    return "success+Hausaufgabe gelöscht+Die Hausaufgabe wurde erfolgreich gelöscht"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

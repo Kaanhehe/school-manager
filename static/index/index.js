@@ -67,7 +67,10 @@ $(document).ready(function(){
                 success: function(data) {
                     RequestHomeworkRefresh();
                     closehwform();
-                    sendNotification("success", "Hausaufgabe bearbeitet", "Die Hausaufgabe wurde erfolgreich bearbeitet.");
+                    type = data.split('+')[0];
+                    header = data.split('+')[1];
+                    message = data.split('+')[2];
+                    sendNotification(type, header, message);
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     // Handle the error
@@ -83,7 +86,10 @@ $(document).ready(function(){
             data: $(this).serialize(),
             success: function(data) {
                 RequestHomeworkRefresh();
-                sendNotification("success", "Hausaufgabe hinzugefügt", "Die Hausaufgabe wurde erfolgreich hinzugefügt.");
+                type = data.split('+')[0];
+                header = data.split('+')[1];
+                message = data.split('+')[2];
+                sendNotification(type, header, message);
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 // Handle the error
@@ -645,7 +651,10 @@ function deleteHomework(event) {
         data: "id=" + id,
         success: function(data) {
             RequestHomeworkRefresh();
-            sendNotification("success", "Hausaufgabe gelöscht", "Die Hausaufgabe wurde erfolgreich gelöscht.");
+            type = data.split('+')[0];
+            header = data.split('+')[1];
+            message = data.split('+')[2];
+            sendNotification(type, header, message);
         },
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error

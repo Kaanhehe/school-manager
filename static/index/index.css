@@ -205,6 +205,13 @@
     margin: 15px 0;
 }
 
+.timetablebreak {
+    text-align: center;
+    font-size: 1.25em;
+    font-weight: bold;
+    color: var(--main-white);
+}
+
 .hwactions {
     display: flex;
     flex-direction: row;
