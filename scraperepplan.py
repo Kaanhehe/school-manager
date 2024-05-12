@@ -138,17 +138,15 @@ def save_repplan_to_db(repplan_data, user_id):
         )
     ''')
 
+    # Get the unique dates from the repplan data
+    dates = list(set(entry['date'] for entry in repplan_data))
+    
+    # Delete entries with those dates
+    for date in dates:
+        cursor.execute("DELETE FROM repplan WHERE date = ?", (date,))
+    
     # Insert the data into the table
-    date1found = None
-    date2found = None
     for entry in repplan_data:
-        # Delete entries with the same date
-        if not date1found:
-            cursor.execute("DELETE FROM repplan WHERE date = ?", (entry['date'],))
-            date1found = entry['date']
-        if not date2found and date1found and date1found != entry['date']:
-            date2found = entry['date']
-            cursor.execute("DELETE FROM repplan WHERE date = ?", (entry['date'],))
         cursor.execute('''
         INSERT INTO repplan (user_id, date, hour, class, substitute, teacher, subject, room, info)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
