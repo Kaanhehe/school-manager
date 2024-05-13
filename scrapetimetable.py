@@ -8,18 +8,19 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import base64
 from datetime import date
-import sqlite3
+import psycopg2
 from bs4 import BeautifulSoup
 
 TIMETABLE_URL = 'https://start.schulportal.hessen.de/stundenplan.php?a=detail_klasse&e=1&k=09A'
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def get_data_from_db(user_id):
     # Connect to the SQLite database
-    conn = sqlite3.connect('users.db')
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
 
     # Get the data from the database
-    cursor.execute("SELECT * FROM scrape_data WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT * FROM scrape_data WHERE user_id = %s", (user_id,))
     scrape_data = cursor.fetchone()
 
     login_url = scrape_data[1]
@@ -165,14 +166,14 @@ def scrape_timetable(session, url):
     return timetable_data
 
 def store_timetable_data(timetable_data, user_id):
-    conn = sqlite3.connect('timetable.db')
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     c = conn.cursor()
-    c.execute("DELETE FROM timetable WHERE user_id = ?", (user_id,))
+    c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
 
     today = date.today().isoformat()  # Convert the date to a string in ISO 8601 format
     if timetable_data is not None:
         for class_day, class_num, class_time, class_name, class_loc, class_tea in timetable_data:
-            c.execute("INSERT INTO timetable VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (user_id, class_day, class_num, class_time, class_name, class_loc, class_tea, today))
+            c.execute("INSERT INTO timetable VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (user_id, class_day, class_num, class_time, class_name, class_loc, class_tea, today))
     else:
         print("No timetable data available to store in database.")
 

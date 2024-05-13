@@ -34,8 +34,7 @@
 
 .scrape_form_win {
     display: flex;
-    width: 28%;
-    height:57%;
+    width: 22%;
     transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
     flex-direction: column;
     align-items: center;
@@ -108,14 +107,12 @@
 
 .passwort_input_win {
     display: flex;
-    width: 28%;
-    height: 27%;
+    width: 22%;
     transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     background-color: var(--dark-grey);
-    padding: 20px;
     border-radius: 20px;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px -5px 15px rgba(255, 255, 255, 0.11);
 }
@@ -123,6 +120,7 @@
 .closePasswortInputbtn {
     align-self: flex-end;
     margin: 10px;
+    margin-right: 20px;
     color: #aaa;
     font-size: 1.75em;
     font-weight: bold;
@@ -141,6 +139,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-evenly;
+    padding: 20px;
 }
 
 .passwortinputform {
@@ -195,7 +194,7 @@
 }
 
 .scrape_btn:active {
-    background-color: var(--thrid-purple);
+    background-color: var(--third-purple);
 }
 
 #timetable, #homework-table{
@@ -238,7 +237,7 @@
 }
 
 .hwaction:active {
-    background-color: var(--thrid-purple);
+    background-color: var(--third-purple);
 }
 
 #hwdone {
@@ -309,7 +308,7 @@
 }
 
 #newhwbt:active {
-    background-color: var(--thrid-purple);
+    background-color: var(--third-purple);
 }
 
 .newhwwinbg {
@@ -335,12 +334,11 @@
 
 .newhwwin {
     display: flex;
-    width: 28%;
-    height: 63%;
+    width: 22%;
     transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     background-color: var(--dark-grey);
     padding: 20px;
     border-radius: 20px;
@@ -543,32 +541,32 @@
     background-color: var(--secondary-purple);
     color: var(--main-white);
     border: none;
-    padding: 15px 32px;
+    padding: 1em 2em;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 1em;
-    margin: 4px 2px;
+    margin: 0.188em 0.125em;
     cursor: pointer;
-    border-radius: 10px;
+    border-radius: 0.625em;
 }
 
 .clear:hover {
-    background-color: var(--thrid-purple);
+    background-color: var(--third-purple);
 }
 
 .submit {
     background-color: var(--main-purple);
     color: var(--main-white);
     border: none;
-    padding: 15px 32px;
+    padding: 1em 2em;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 1em;
-    margin: 4px 2px;
+    margin: 0.188em 0.125em;
     cursor: pointer;
-    border-radius: 10px;
+    border-radius: 0.625em;
 }
 
 .submit:hover {
@@ -579,14 +577,14 @@
     background-color: var(--main-purple);
     color: var(--main-white);
     width: 100%;
-    padding: 10px 32px;
+    padding: 1em 2em;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 1em;
     cursor: pointer;
     border: none;
-    border-radius: 20px;
+    border-radius: 1.25em;
 }
 
 #oldhwbtn:hover {
@@ -594,7 +592,17 @@
 }
 
 #oldhwbtn:active {
-    background-color: var(--thrid-purple);
+    background-color: var(--third-purple);
+}
+
+@media screen and (max-height: 1400px) {
+    .newhwwin.expanded {
+        height: 80%;
+    }
+    .newhwwin-cancel {
+        height: 20%;
+    }
+
 }
 
 @media screen and (max-width: 1400px) {

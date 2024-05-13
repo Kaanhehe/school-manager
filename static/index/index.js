@@ -329,43 +329,6 @@ function applyrepplan(repplanData, tableId) {
     }
 }
 
-// Change the active class in the navbar to the clicked one
-function changeActiveClass(event) {
-    var navbar = document.getElementsByClassName("navbar")[0];
-    var current = navbar.getElementsByClassName("active");
-    var timetable = document.getElementsByClassName("timetable")[0];
-    var homework = document.getElementsByClassName("homework")[0];
-    current[0].classList.remove("active");
-    event.target.className += " active";
-    // If the timetable link is clicked, show the timetable
-    if (event.target.id === "timetable-link") {
-        timetable.style.display = "block";
-        setTimeout(function() {
-            timetable.classList.add("visible");
-            RefreshTimetable();
-        }, 10);
-    // else hide the timetable
-    } else {
-        timetable.style.display = "none";
-        timetable.classList.remove("visible");
-    }
-    // If the homework link is clicked, show the homework overview
-    if (event.target.id === "homework-link") {
-        homework.style.display = "block";
-        setTimeout(function() {
-            homework.classList.add("visible");
-            // Color the classes in the homework overview
-            RequestHomeworkRefresh();
-            color_classes();
-            change_done_homeworks();
-        }, 10);
-    // else hide the homework overview
-    } else {
-        homework.style.display = "none";
-        homework.classList.remove("visible");
-    }
-}
-
 function change_done_homeworks() {
     var buttons = document.querySelectorAll(".hwaction#hwdone");
     for (var i = 0; i < buttons.length; i++) {
