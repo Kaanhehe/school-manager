@@ -14,6 +14,9 @@ function changeActiveClass(event) {
     var current = navbar.getElementsByClassName("active");
     var content = document.getElementsByClassName(event.target.id.replace("-link", ""))[0];
     var currentcontent = document.getElementsByClassName(current[0].id.replace("-link", ""))[0];
+    if (content === currentcontent) {
+        return;
+    }
     current[0].classList.remove("active");
     event.target.className += " active";
 
