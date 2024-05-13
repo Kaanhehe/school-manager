@@ -92,6 +92,20 @@ def scrape_repplan(session, url):
     if "Fehler" in soup.title.text:
         return sys.exit("error+Fehler+Schulportal-Login abgelehnt. Bitte überprüfen Sie Ihre Anmeldeinformationen.")
 
+    # Check for alerts
+    alert1 = soup.find('div', {'class': 'alert alert-danger'})
+    alert2 = soup.find('div', {'class': 'alert alert-warning'})
+    
+    # Only if there is no repplan data available it will error on repplan getting updated right now
+    if alert2 is not None: # alert 2 is typically telling that there is no repplan data available
+        if alert1 is not None: # alert 1 is typically telling that the repplan is getting updated right now
+            # Remove the button text from the alert
+            button = alert1.find('a')
+            if button is not None:
+                button.extract()
+            return sys.exit("error+Fehler+" + alert1.text.strip())
+        return sys.exit("error+Fehler+" + alert2.text.strip())
+
     # Find the repplan table
     panel_primary = soup.find('div', {'class': 'panel panel-primary'})
     if panel_primary is not None:

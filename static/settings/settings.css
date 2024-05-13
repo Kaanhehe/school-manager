@@ -107,10 +107,6 @@
     margin: 10px;
 }
 
-.account-info-element h2 {
-    font-weight: bold;
-}
-
 .account-button {
     color: var(--main-white);
     background-color: var(--main-purple);
@@ -121,4 +117,12 @@
     font-weight: bold;
     cursor: pointer;
     border-radius: 15px;
+}
+
+.account-button:hover {
+    background-color: var(--secondary-purple);
+}
+
+.account-button:active {
+    background-color: var(--third-purple);
 }

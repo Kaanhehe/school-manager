@@ -23,7 +23,9 @@
         <h1 class="error">{{ error }}</h1>
     </div>
     <div class="schoolhub">
-        <img src="{{url_for('static', filename='images/SchulHub (500 x 200 px).svg')}}" alt="logo">
+        <a href="/">
+            <img src="{{url_for('static', filename='images/SchulHub (500 x 200 px).svg')}}" alt="logo">
+        </a>
     </div>
     <div class="welcome">
         <h1 class="welcome">Willkommen, {{ username }}!</h1>

@@ -194,7 +194,7 @@
 }
 
 .scrape_btn:active {
-    background-color: var(--thrid-purple);
+    background-color: var(--third-purple);
 }
 
 #timetable, #homework-table{
@@ -237,7 +237,7 @@
 }
 
 .hwaction:active {
-    background-color: var(--thrid-purple);
+    background-color: var(--third-purple);
 }
 
 #hwdone {
@@ -308,7 +308,7 @@
 }
 
 #newhwbt:active {
-    background-color: var(--thrid-purple);
+    background-color: var(--third-purple);
 }
 
 .newhwwinbg {
@@ -552,7 +552,7 @@
 }
 
 .clear:hover {
-    background-color: var(--thrid-purple);
+    background-color: var(--third-purple);
 }
 
 .submit {
@@ -592,7 +592,7 @@
 }
 
 #oldhwbtn:active {
-    background-color: var(--thrid-purple);
+    background-color: var(--third-purple);
 }
 
 @media screen and (max-height: 1400px) {
