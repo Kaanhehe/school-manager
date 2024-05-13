@@ -274,27 +274,162 @@ def index():
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
 
-@app.route('/settings', methods=['GET', 'POST'])
+@app.route('/settings', methods=['GET'])
 def settings():
     if 'username' not in session:
         return redirect(url_for('login'))
-    if request.method == 'POST':
-        form_data = request.form
-        conn = sqlite3.connect('users.db')
-        c = conn.cursor()
-        if form_data['new_password']:
-            if not form_data['old_password']:
-                return jsonify({'error': '<i class="fa-solid fa-triangle-exclamation"></i> Bitte gib dein altes Passwort ein'})
-            if not check_password(get_user_id(), form_data['old_password']):
-                return jsonify({'error': '<i class="fa-solid fa-triangle-exclamation"></i> Altes Passwort falsch'})
-            hashed_password = generate_password_hash(form_data['new_password'], method='pbkdf2:sha256')
-            c.execute("UPDATE users SET password = ? WHERE user_id = ?", (hashed_password, get_user_id()))
-        if form_data['email']:
-            c.execute("UPDATE users SET email = ? WHERE user_id = ?", (form_data['email'], get_user_id()))
-        conn.commit()
-        conn.close()
-        return jsonify({'success': '<i class="fa-solid fa-check"></i> Einstellungen gespeichert'})
-    return render_template('settings.html')
+    
+    user_id = get_user_id()
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT email FROM users WHERE user_id = ?", (user_id,))
+    email = c.fetchone()[0]
+    conn.close()
+    
+    return render_template('settings.html', username=session['username'], email=email)
+
+@app.route('/settings/changeusername', methods=['POST'])
+def changeusername():
+    if 'username' not in session:
+        return abort(403)
+    
+    user_id = get_user_id()
+    form_data = request.form
+    if not form_data['username']:
+        return "error+Fehler+Bitte gib einen Benutzernamen ein."
+    
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE username = ?", (form_data['username'],))
+    user = c.fetchone()
+    if user:
+        return "error+Fehler+Der Benutzername ist bereits vergeben. Bitte wähle einen anderen Benutzernamen."
+    
+    c.execute("UPDATE users SET username = ? WHERE user_id = ?", (form_data['username'], user_id))
+    conn.commit()
+    conn.close()
+    session['username'] = form_data['username']
+    return "success+Benutzername geändert+Dein Benutzername wurde erfolgreich geändert"
+
+@app.route('/settings/changeemail', methods=['POST'])
+def changeemail():
+    if 'username' not in session:
+        return abort(403)
+    
+    user_id = get_user_id()
+    form_data = request.form
+    if not form_data['email']:
+        return "error+Fehler+Bitte gib eine Email-Adresse ein."
+    
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE email = ?", (form_data['email'],))
+    email = c.fetchone()
+    if email:
+        return "error+Fehler+Die Email-Adresse ist bereits vergeben. Bitte wähle eine andere Email-Adresse."
+    
+    c.execute("UPDATE users SET email = ? WHERE user_id = ?", (form_data['email'], user_id))
+    conn.commit()
+    conn.close()
+    return "success+Email-Adresse geändert+Deine Email-Adresse wurde erfolgreich geändert"
+
+@app.route('/settings/changepassword', methods=['POST'])
+def changepassword():
+    if 'username' not in session:
+        return abort(403)
+    
+    user_id = get_user_id()
+    form_data = request.form
+    if not form_data['old_password'] or not form_data['new_password']:
+        return "error+Fehler+Bitte fülle alle Felder aus."
+    
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+    user = c.fetchone()
+    if not check_password_hash(user[3], form_data['old_password']):
+        return "error+Fehler+Dein altes Passwort ist falsch. Bitte versuche es erneut."
+    
+    hashed_password = generate_password_hash(form_data['new_password'], method='pbkdf2:sha256')
+    c.execute("UPDATE users SET password = ? WHERE user_id = ?", (hashed_password, user_id))
+    conn.commit()
+    conn.close()
+    return "success+Passwort geändert+Dein Passwort wurde erfolgreich geändert"
+
+@app.route('/settings/deleteuserdata', methods=['POST'])
+def deleteuserdata():
+    if 'username' not in session:
+        return abort(403)
+    
+    user_id = get_user_id()
+    form_data = request.form
+    if not form_data['password']:
+        return "error+Fehler+Bitte gib dein Passwort ein."
+
+    if not check_password(user_id, form_data['password']):
+        return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
+    
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM scrape_data WHERE user_id = ?", (user_id,))
+    c.execute("UPDATE users SET entered_scrape_data = 0 WHERE user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+    conn = sqlite3.connect('timetable.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM timetable WHERE user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+    
+    conn = sqlite3.connect('repplan.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM repplan WHERE user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+    conn = sqlite3.connect('homework.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM homework WHERE user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+    return "success+Daten gelöscht+Deine Daten wurden erfolgreich gelöscht"
+
+@app.route('/settings/deleteaccount', methods=['POST'])
+def deleteaccount():
+    if 'username' not in session:
+        return abort(403)
+    
+    user_id = get_user_id()
+    form_data = request.form
+    if not form_data['password']:
+        return "error+Fehler+Bitte gib dein Passwort ein."
+
+    if not check_password(user_id, form_data['password']):
+        return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
+    
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
+    c.execute("DELETE FROM scrape_data WHERE user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+    conn = sqlite3.connect('timetable.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM timetable WHERE user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+    conn = sqlite3.connect('repplan.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM repplan WHERE user_id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+
+    session.pop('username', None)
+    return "success+Account gelöscht+Dein Account wurde erfolgreich gelöscht"
 
 @app.route('/sendscrapedata', methods=['POST'])
 def sendscrapedata():

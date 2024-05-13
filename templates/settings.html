@@ -36,9 +36,97 @@
         <div class="schoolbg brightbg" style="background-image: url(https://startcache.schulportal.hessen.de/exporteur.php?a=schoolbg&i=5202&s=lg);"></div>
         <img class="schoolbg darkbg" src="{{url_for('static', filename='images/3101702.jpg')}}" alt="background-image">
     </div>
+    <div class="notification" onclick="hideNotification()">
+        <h3 id="notification-header">Bla bla bla</h3>
+        <p id="notification-text">Bla bla bla</p>
+    </div>
     <div class="content">
         <div class="account visible">
-
+            <h1>Account</h1>
+            <div class="account-info">
+                <div class="input-window-bg" id="change-username-bg">
+                    <div class="input-window" id="change-username">
+                        <span class="closeChangebtn" id="closeUsernameChangebtn" onclick="closeUsernameChange()">&times;</span>
+                        <div class="change-content">
+                            <form class="change-form" id="change-username-form">
+                                <h2>Benutzernamen ändern</h2>
+                                <input type="text" name="username" placeholder="Neuer Benutzername" required>
+                                <button class="submit" type="submit">Ändern</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-window-bg" id="change-email-bg">
+                    <div class="input-window" id="change-email">
+                        <span class="closeChangebtn" id="closeEmailChangebtn" onclick="closeEmailChange()">&times;</span>
+                        <div class="change-content">
+                            <form class="change-form" id="change-email-form">
+                                <h2>E-Mail ändern</h2>
+                                <input type="email" name="email" placeholder="Neue E-Mail" required>
+                                <button class="submit" type="submit">Ändern</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-window-bg" id="change-password-bg">
+                    <div class="input-window" id="change-password">
+                        <span class="closeChangebtn" id="closePasswordChangebtn" onclick="closeChangePassword()">&times;</span>
+                        <div class="change-content">
+                            <form class="change-form" id="change-password-form">
+                                <h2>Passwort ändern</h2>
+                                <input type="password" name="old_password" placeholder="Altes Passwort" required>
+                                <input type="password" id="new_password" name="new_password" placeholder="Neues Passwort" required>
+                                <input type="password" id="confirm_new_password" name="confirm_new_password" placeholder="Neues Passwort wiederholen" required>
+                                <button class="submit" type="submit">Ändern</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-window-bg" id="delete-userdata-bg">
+                    <div class="input-window" id="delete-userdata">
+                        <span class="closeChangebtn" id="closeDeleteUserDatabtn" onclick="closeDeleteUserData()">&times;</span>
+                        <div class="change-content">
+                            <form class="change-form" id="delete-userdata-form">
+                                <h2>Daten löschen</h2>
+                                <input type="password" name="password" placeholder="Dein Passwort" required>
+                                <p>Willst du wirklich alle deine Daten löschen?</p>
+                                <button class="submit" type="submit">Ja</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-window-bg" id="delete-account-bg">
+                    <div class="input-window" id="delete-account">
+                        <span class="closeChangebtn" id="closeDeleteAccountbtn" onclick="closeDeleteAccount()">&times;</span>
+                        <div class="change-content">
+                            <form class="change-form" id="delete-account-form">
+                                <h2>Account löschen</h2>
+                                <input type="password" name="password" placeholder="Dein Passwort" required>
+                                <p>Willst du wirklich deinen Account löschen?</p>
+                                <button class="submit" type="submit">Ja</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="account-info-element">
+                    <h2>Benutzername</h2>
+                    <p>{{ username }} <button class="account-button" onclick="changeUsername()">Benutzernamen ändern</button></p>
+                </div>
+                <div class="account-info-element">
+                    <h2>E-Mail</h2>
+                    <p>{{ email }} <button class="account-button" onclick="changeEmail()">E-Mail ändern</button></p>
+                </div>
+                <div class="account-info-element">
+                    <h2>Passwort</h2>
+                    <p>******** <button class="account-button" onclick="changePassword()">Passwort ändern</button></p>
+                </div>
+            </div>
+            <h2>Account Aktionen</h2>
+            <div class="account-buttons">
+                <button class="account-button" onclick="changeScrapeData()">Schulportal Daten ändern</button>
+                <button class="account-button" onclick="deleteUserData()">Daten löschen</button>
+                <button class="account-button" onclick="deleteAccount()">Account löschen</button>
+            </div>
         </div>
         <div class="general">
             <h1>Penis</h1>
