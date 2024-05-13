@@ -8,18 +8,19 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 import base64
 from datetime import date
-import sqlite3
+import psycopg2
 from bs4 import BeautifulSoup
 
 REPPLAN_URL = 'https://start.schulportal.hessen.de/vertretungsplan.php'
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def get_data_from_db(user_id):
     # Connect to the SQLite database
-    conn = sqlite3.connect('users.db')
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
 
     # Get the data from the database
-    cursor.execute("SELECT * FROM scrape_data WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT * FROM scrape_data WHERE user_id = %s", (user_id,))
     scrape_data = cursor.fetchone()
 
     login_url = scrape_data[1]
@@ -133,7 +134,7 @@ def scrape_repplan(session, url):
 
 def save_repplan_to_db(repplan_data, user_id):
     # Connect to the SQLite database
-    conn = sqlite3.connect('repplan.db')
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
 
     # Create the table if it doesn't exist
@@ -157,13 +158,13 @@ def save_repplan_to_db(repplan_data, user_id):
     
     # Delete entries with those dates
     for date in dates:
-        cursor.execute("DELETE FROM repplan WHERE date = ?", (date,))
+        cursor.execute("DELETE FROM repplan WHERE date = %s", (date,))
     
     # Insert the data into the table
     for entry in repplan_data:
         cursor.execute('''
         INSERT INTO repplan (user_id, date, hour, class, substitute, teacher, subject, room, info)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         ''', (user_id, entry['date'], entry['hour'], entry['class'], entry['substitute'], entry['teacher'], entry['subject'], entry['room'], entry['info']))
 
     # Commit the changes and close the connection
