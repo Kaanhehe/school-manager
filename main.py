@@ -121,6 +121,14 @@ def get_user_id():
     conn.close()
     return user_id
 
+def check_entered_scrape_data(user_id):
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    c = conn.cursor()
+    c.execute("SELECT entered_scrape_data FROM users WHERE user_id = %s", (user_id,))
+    entered_scrape_data = c.fetchone()[0]
+    conn.close()
+    return entered_scrape_data
+
 def check_password(user_id, user_password):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     c = conn.cursor()
@@ -161,15 +169,15 @@ def store_scrape_data(user_id, login_url, schoolid, username, password):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     c = conn.cursor()
 
+    # Decode the password
+    password = password.decode()
     # Store the scrape data in the database
-    try:
+    if not check_entered_scrape_data(user_id):
         c.execute("INSERT INTO scrape_data (user_id, login_url, schoolid, username, password) VALUES (%s, %s, %s, %s, %s)", (user_id, login_url, schoolid, username, password))
-    except psycopg2.errors.UniqueViolation:
-        conn.rollback()
+        # Update the entered_scrape_data column in the users table
+        c.execute("UPDATE users SET entered_scrape_data = 1 WHERE user_id = %s", (user_id,))
+    else:
         c.execute("UPDATE scrape_data SET login_url = %s, schoolid = %s, username = %s, password = %s WHERE user_id = %s", (login_url, schoolid, username, password, user_id))
-
-    # Update the entered_scrape_data column in the users table
-    c.execute("UPDATE users SET entered_scrape_data = 1 WHERE user_id = %s", (user_id,))
 
     conn.commit()
     conn.close()
@@ -364,6 +372,8 @@ def changepassword():
     
     hashed_password = generate_password_hash(form_data['new_password'], method='pbkdf2:sha256')
     c.execute("UPDATE users SET password = %s WHERE user_id = %s", (hashed_password, user_id))
+    c.execute("DELETE FROM scrape_data WHERE user_id = %s", (user_id,))
+    c.execute("UPDATE users SET entered_scrape_data = 0 WHERE user_id = %s", (user_id,))
     conn.commit()
     conn.close()
     return "success+Passwort geändert+Dein Passwort wurde erfolgreich geändert"
@@ -472,6 +482,9 @@ def scrapett():
     if not check_password(user_id, user_password):
         return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
 
+    if not check_entered_scrape_data(user_id):
+        return "error+Fehler+Bitte gib zuerst deine Anmeldeinformationen für den Schulportal-Login an."
+
     # Run the scrapettplan.py script
     message = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password], capture_output=True, text=True)
     fullmessage = message.stderr
@@ -487,6 +500,9 @@ def scraperep():
     if not check_password(user_id, user_password):
         return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
     
+    if not check_entered_scrape_data(user_id):
+        return "error+Fehler+Bitte gib zuerst deine Anmeldeinformationen für den Schulportal-Login an."
+
     # Run the scraperepplan.py script
     message = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password], capture_output=True, text=True)
     fullmessage = message.stderr

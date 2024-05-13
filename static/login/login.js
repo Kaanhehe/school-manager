@@ -8,7 +8,7 @@ function SubmitLogin(e) {
             if (response["success"]) {
                 return window.location.href = "/";
             } if (response["warning"]) {
-                return window.location.href = "/?setscrapedata"
+                return window.location.href = "/?setscrapedata";
             } else {
                 errorelement = document.getElementsByClassName("form-error")[0];
                 errorelement.innerHTML = response["error"];
