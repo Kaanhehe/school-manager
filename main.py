@@ -296,6 +296,7 @@ def index():
     breaks_data = [entry[1:] for entry in breaks_data]
     breaks_data = sorted(breaks_data, key=lambda x: x[0])
     breaks_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in breaks_data]
+    print(breaks_data)
     
     homework_data = get_homework_data(user_id)
     homework_data = change_homework_data(homework_data)
@@ -322,7 +323,7 @@ def index():
         "Spanisch",
     }
     # Render the index.html template -> templates/index.html; with the grouped_data
-    return render_template('index.html', timetable_data=grouped_data, hours_data=hours_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
+    return render_template('index.html', timetable_data=grouped_data, hours_data=hours_data, breaks_data=breaks_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
 
 @app.route('/settings', methods=['GET'])
 def settings():

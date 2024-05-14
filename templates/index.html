@@ -127,6 +127,15 @@
                                     {% set _ = class_time.append(hour[1]) %}
                                 {% endif %}
                             {% endfor %}
+                            {% for break in breaks_data %}
+                                {% if break[1].split(' - ')[1] == class_time[-1].split(' - ')[0] %}
+                                    <tr>
+                                        <td></td>
+                                        <td>{{ break[1] }}</td>
+                                        <td colspan="7" class="timetablebreak">{{ break[0] }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
                             <tr>
                                 <td>{{ class_num }}</td>
                                 <td>{{ class_time[-1] }}</td>
@@ -135,13 +144,6 @@
                                     <td data-day="{{ class_day }}">{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
                                 {% endfor %}
                             </tr>
-                            {% if class_num == 6 %}
-                                <tr>
-                                    <td>7</td>
-                                    <td>13:00 - 13:45</td>
-                                    <td colspan="6" class="timetablebreak">Mittagspause</td>
-                                </tr>
-                            {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
@@ -219,6 +221,15 @@
                                                 {% set _ = class_time.append(hour[1]) %}
                                             {% endif %}
                                         {% endfor %}
+                                        {% for break in breaks_data %}
+                                            {% if break[1].split(' - ')[1] == class_time[-1].split(' - ')[0] %}
+                                                <tr>
+                                                    <td></td>
+                                                    <td>{{ break[1] }}</td>
+                                                    <td colspan="7" class="timetablebreak">{{ break[0] }}</td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
                                         <tr>
                                             <td>{{ class_num }}</td>
                                             <td>{{ class_time[-1] }}</td>
@@ -227,13 +238,6 @@
                                                 <td data-day="{{ class_day }}">{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
                                             {% endfor %}
                                         </tr>
-                                        {% if class_num == 6 %}
-                                            <tr>
-                                                <td>7</td>
-                                                <td>13:00 - 13:45</td>
-                                                <td colspan="6" class="timetablebreak">Mittagspause</td>
-                                            </tr>
-                                        {% endif %}
                                     {% endfor %}
                                     </tbody>
                                 </table>
