@@ -98,6 +98,15 @@ def sort_timetable_data(timetable_data):
     for key, group in groupby(timetable_data, key=itemgetter(1)):
         # Convert the weekdays back to their original names
         group = [(reverse_mapping[g[0]], *g[1:]) for g in group]
+        # check if there is every weekday in the group
+        if len(group) < 5:
+            # get the missing weekdays
+            missing_days = set(weekday_mapping.keys()) - set([entry[0] for entry in group])
+            # add the missing weekdays to the group
+            for day in missing_days:
+                group.append((day, key, "", "", "", "", ""))
+            # Sort the group by weekday
+            group.sort(key=lambda x: weekday_mapping[x[0]])
         grouped_data.append(group)
 
     return grouped_data
@@ -296,7 +305,6 @@ def index():
     breaks_data = [entry[1:] for entry in breaks_data]
     breaks_data = sorted(breaks_data, key=lambda x: x[0])
     breaks_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in breaks_data]
-    print(breaks_data)
     
     homework_data = get_homework_data(user_id)
     homework_data = change_homework_data(homework_data)
