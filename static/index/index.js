@@ -452,10 +452,17 @@ function applyTimetable(data, tableId) {
     data.forEach(function(group, index) {
         var class_day = group[0][0];
         var class_num = group[0][1];
-        var class_time = group[0][2];
-        var class_name = group[0][3];
-        var class_loc = group[0][4];
-        var class_tea = group[0][5];
+        var class_time = '';
+        hours_data.forEach(function(hour) {
+            if (hour[0] == class_num) {
+                class_time = hour[1];
+                console.log(hour[1])
+                console.log(class_time)
+            }
+        });
+        var class_name = group[0][2];
+        var class_loc = group[0][3];
+        var class_tea = group[0][4];
     
         var row = document.createElement('tr');
         row.innerHTML = `
@@ -467,10 +474,9 @@ function applyTimetable(data, tableId) {
         group.forEach(function(class_data) {
             var class_day = class_data[0];
             var class_num = class_data[1];
-            var class_time = class_data[2];
-            var class_name = class_data[3];
-            var class_loc = class_data[4];
-            var class_tea = class_data[5];
+            var class_name = class_data[2];
+            var class_loc = class_data[3];
+            var class_tea = class_data[4];
     
             var day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6};
     
