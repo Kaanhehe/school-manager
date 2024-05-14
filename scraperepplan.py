@@ -142,7 +142,7 @@ def save_repplan_to_db(repplan_data, user_id):
     
     # Delete entries with those dates
     for date in dates:
-        cursor.execute("DELETE FROM repplan WHERE date = %s", (date,))
+        cursor.execute("DELETE FROM repplan WHERE date = %s AND user_id = %s", (date, user_id))
     
     # Insert the data into the table
     for entry in repplan_data:
