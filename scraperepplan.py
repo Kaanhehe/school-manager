@@ -137,22 +137,6 @@ def save_repplan_to_db(repplan_data, user_id):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
 
-    # Create the table if it doesn't exist
-    #cursor.execute("DROP TABLE IF EXISTS repplan") # Uncomment this line to drop the table before creating a new one (for testing purposes)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS repplan (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            date TEXT,
-            hour INTEGER,
-            class TEXT,
-            substitute TEXT,
-            teacher TEXT,
-            subject TEXT,
-            room TEXT,
-            info TEXT
-        )
-    ''')
-
     # Get the unique dates from the repplan data
     dates = list(set(entry['date'] for entry in repplan_data))
     

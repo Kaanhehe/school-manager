@@ -146,7 +146,6 @@ async function ScrapeRepPlan() {
     }, 10);
     $(form).off('submit').on('submit', function(event){
         event.preventDefault();
-        console.log($(this).serialize());
         $.ajax({
             type: "POST",
             url: "/scraperep",
