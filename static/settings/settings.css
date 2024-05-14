@@ -132,3 +132,120 @@
 .account-button:active {
     background-color: var(--third-purple);
 }
+
+.general {
+    background-color: var(--background);
+    color: var(--main-white);
+    padding: 10px;
+}
+
+.timetable-breaks {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+}
+
+.break-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px;
+}
+
+.break {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.break input {
+    margin: 10px;
+}
+
+.breaks-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px;
+
+}
+
+.remove-break, .add-break, .save-breaks {
+    color: var(--main-white);
+    background-color: var(--main-purple);
+    border: none;
+    padding: 0.5em 1em;
+    margin: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 15px;
+}
+
+.remove-break:hover, .add-break:hover, .save-breaks:hover {
+    background-color: var(--secondary-purple);
+}
+
+.remove-break:active, .add-break:active, .save-breaks:active {
+    background-color: var(--third-purple);
+}
+
+.timetable-times {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+}
+
+.times-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+}
+
+.time {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.time input {
+    margin: 10px;
+}
+
+.times-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px;
+}
+
+.remove-time, .add-time, .save-times {
+    color: var(--main-white);
+    background-color: var(--main-purple);
+    border: none;
+    padding: 0.5em 1em;
+    margin: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 15px;
+}
+
+.remove-time:hover, .add-time:hover, .save-times:hover {
+    background-color: var(--secondary-purple);
+}
+
+.remove-time:active, .add-time:active, .save-times:active {
+    background-color: var(--third-purple);
+}

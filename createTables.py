@@ -58,10 +58,9 @@ CREATE TABLE "repplan" (
 )
 """)
     
-    c.execute("""
-    CREATE TABLE timetable 
-                 (user_id TEXT, class_day TEXT, class_num INTEGER, class_time TEXT, class_name TEXT, class_loc TEXT, class_tea TEXT, date TEXT)
-""")
+    c.execute("CREATE TABLE timetable (user_id TEXT, class_day TEXT, class_num INTEGER, class_time TEXT, class_name TEXT, class_loc TEXT, class_tea TEXT, date TEXT)")
+    
+    c.execute("CREATE TABLE IF NOT EXISTS timetable_breaks (user_id TEXT, break_name TEXT, break_start TEXT, break_end TEXT)")
     
     conn.commit()
     conn.close()

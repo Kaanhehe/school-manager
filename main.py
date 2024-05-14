@@ -32,6 +32,22 @@ def get_timetable_data(user_id):
     conn.close()
     return timetable_data
 
+def get_lesson_hours(user_id):
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    c = conn.cursor()
+    c.execute("SELECT * FROM timetable_times WHERE user_id = %s", (user_id,))
+    hours_data = c.fetchall()
+    conn.close()
+    return hours_data
+
+def get_breaks_data(user_id):
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    c = conn.cursor()
+    c.execute("SELECT * FROM timetable_breaks WHERE user_id = %s", (user_id,))
+    breaks_data = c.fetchall()
+    conn.close()
+    return breaks_data
+
 def get_homework_data(user_id):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     c = conn.cursor()
@@ -265,13 +281,28 @@ def index():
     if not user_id or user_id is None:
         session.pop('username', None)
         return redirect(url_for('login'))
+    
     timetable_data = get_timetable_data(user_id)
-    homework_data = get_homework_data(user_id)
-    repplan_data = get_repplan_data(user_id)
-    repplan_data = [entry[1:] for entry in repplan_data]
-    homework_data = change_homework_data(homework_data)
     # returns groups of which every group is 1 row of the timetable
     grouped_data = sort_timetable_data(timetable_data)
+    
+    hours_data = get_lesson_hours(user_id)
+    hours_data = [entry[1:] for entry in hours_data]
+    hours_data = sorted(hours_data, key=lambda x: x[0])
+    # Merge the entry 2 and 3 of the hours_data list to a string "class_start - class_end" and add the class_num infront of it
+    hours_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in hours_data]
+    
+    breaks_data = get_breaks_data(user_id)
+    breaks_data = [entry[1:] for entry in breaks_data]
+    breaks_data = sorted(breaks_data, key=lambda x: x[0])
+    breaks_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in breaks_data]
+    print(breaks_data)
+    
+    homework_data = get_homework_data(user_id)
+    homework_data = change_homework_data(homework_data)
+    
+    repplan_data = get_repplan_data(user_id)
+    repplan_data = [entry[1:] for entry in repplan_data]   
     
     classes_data = {
         "Mathematik",
@@ -292,7 +323,7 @@ def index():
         "Spanisch",
     }
     # Render the index.html template -> templates/index.html; with the grouped_data
-    return render_template('index.html', timetable_data=grouped_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
+    return render_template('index.html', timetable_data=grouped_data, hours_data=hours_data, breaks_data=breaks_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
 
 @app.route('/settings', methods=['GET'])
 def settings():
@@ -304,9 +335,16 @@ def settings():
     c = conn.cursor()
     c.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
     email = c.fetchone()[0]
+    c.execute("SELECT * FROM timetable_breaks WHERE user_id = %s", (user_id,))
+    breaks = c.fetchall()
+    c.execute("SELECT * FROM timetable_times WHERE user_id = %s", (user_id,))
+    times = c.fetchall()
     conn.close()
     
-    return render_template('settings.html', username=session['username'], email=email)
+    # Sort the breaks by name and the times by hour
+    breaks.sort(key=lambda x: x[1])
+    times.sort(key=lambda x: x[1])
+    return render_template('settings.html', username=session['username'], email=email, breaks=breaks, times=times)
 
 @app.route('/settings/changeusername', methods=['POST'])
 def changeusername():
@@ -432,6 +470,55 @@ def deleteaccount():
 
     session.pop('username', None)
     return "success+Account gelöscht+Dein Account wurde erfolgreich gelöscht"
+
+@app.route('/settings/savebreaks', methods=['POST'])
+def savebreaks():
+    if 'username' not in session:
+        return abort(403)
+    
+    user_id = get_user_id()
+    form_data = request.form
+    if not form_data['breaks']:
+        return "error+Fehler+Bitte gib die Pausen ein."
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    c = conn.cursor()
+    breaks = json.loads(form_data['breaks'])
+    c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
+    for sg_break in breaks:
+        if not sg_break['name'] or not sg_break['start'] or not sg_break['end']:
+            return "error+Fehler+Bitte fülle alle Felder aus."
+        break_name = sg_break['name']
+        break_start = sg_break['start']
+        break_end = sg_break['end']
+        c.execute("INSERT INTO timetable_breaks (user_id, break_name, break_start, break_end) VALUES (%s, %s, %s, %s)", (user_id, break_name, break_start, break_end))
+    conn.commit()
+    conn.close()
+    return "success+Pausen gespeichert+Die Pausen wurden erfolgreich gespeichert"
+
+@app.route('/settings/savetimes', methods=['POST'])
+def savetimes():
+    if 'username' not in session:
+        return abort(403)
+    
+    user_id = get_user_id()
+    form_data = request.form
+    if not form_data['times']:
+        return "error+Fehler+Bitte gib die Zeiten ein."
+    
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    c = conn.cursor()
+    times = json.loads(form_data['times'])
+    c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
+    for sg_time in times:
+        if not sg_time['hour'] or not sg_time['start'] or not sg_time['end']:
+            return "error+Fehler+Bitte fülle alle Felder aus."
+        lesson_hour = sg_time['hour']
+        lesson_start = sg_time['start']
+        lesson_end = sg_time['end']
+        c.execute("INSERT INTO timetable_times (user_id, lesson_hour, lesson_start, lesson_end) VALUES (%s, %s, %s, %s)", (user_id, lesson_hour, lesson_start, lesson_end))
+    conn.commit()
+    conn.close()
+    return "success+Zeiten gespeichert+Die Zeiten wurden erfolgreich gespeichert"
 
 @app.route('/sendscrapedata', methods=['POST'])
 def sendscrapedata():

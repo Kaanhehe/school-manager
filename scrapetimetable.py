@@ -173,7 +173,15 @@ def store_timetable_data(timetable_data, user_id):
     today = date.today().isoformat()  # Convert the date to a string in ISO 8601 format
     if timetable_data is not None:
         for class_day, class_num, class_time, class_name, class_loc, class_tea in timetable_data:
-            c.execute("INSERT INTO timetable VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (user_id, class_day, class_num, class_time, class_name, class_loc, class_tea, today))
+            c.execute("INSERT INTO timetable VALUES (%s, %s, %s, %s, %s, %s, %s)", (user_id, class_day, class_num, class_name, class_loc, class_tea, today))
+            # insert class_time with the class_num into the timetable_times table
+            class_time = class_time.split(" - ")
+            class_start = class_time[0]
+            class_end = class_time[1]
+            c.execute("SELECT * FROM timetable_times WHERE user_id = %s AND lesson_hour = %s", (user_id, class_num))
+            if c.fetchone() is None:
+                c.execute("INSERT INTO timetable_times VALUES (%s, %s, %s, %s)", (user_id, class_num, class_start, class_end))
+
     else:
         print("No timetable data available to store in database.")
 

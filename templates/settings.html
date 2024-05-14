@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="{{url_for('static', filename='settings/settings.css')}}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://kit.fontawesome.com/bbd4622928.js" crossorigin="anonymous"></script>
+    <script>
+        var breaks = JSON.parse('{{ breaks|tojson|safe }}');
+        var times = JSON.parse('{{ times|tojson|safe }}');
+    </script>
 </head>
 <body>
     <div class="siteerror" style="display:none">
@@ -130,7 +134,37 @@
             </div>
         </div>
         <div class="general">
-            <h1>Noch nichts hier...</h1>
+            <h1>Allgemein</h1>
+            <div class="timetable-breaks">
+                <h2>Stundenplan Pause</h2>
+                <div class="breaks-container">
+                    <!-- <div class="break">
+                        <input type="text" name="break-name" placeholder="Pausen Name" required>
+                        <input type="text" name="break-start" placeholder="Pausen Start" required>
+                        <input type="text" name="break-end" placeholder="Pausen Ende" required>
+                        <button class="remove-break" onclick="removeBreak(this)">Entfernen</button>
+                    </div> -->
+                </div>
+                <div class="breaks-buttons">
+                    <button class="add-break" onclick="addBreak()">Pause Hinzufügen</button>
+                    <button class="save-breaks" onclick="saveBreaks()">Speichern</button>
+                </div>
+            </div>
+            <div class="timetable-times">
+                <h2>Stundenplan Stunden Zeiten</h2>
+                <div class="times-container">
+                    <!-- <div class="time">
+                        <input type="text" name="lesson-hour" placeholder="Stunde" required>
+                        <input type="text" name="lesson-start" placeholder="Stunden Start" required>
+                        <input type="text" name="lesson-end" placeholder="Stunden Ende" required>
+                        <button class="remove-time" onclick="removeTime(this)">Entfernen</button>
+                    </div> -->
+                </div>
+                <div class="times-buttons">
+                    <button class="add-time" onclick="addTime()">Zeit Hinzufügen</button>
+                    <button class="save-times" onclick="saveTimes()">Speichern</button>
+                </div>
+            </div>
         </div>
     </div>
 </body>
