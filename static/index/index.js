@@ -3,8 +3,10 @@
 var editinghw = null;
 var oldhw = false;
 var submited = false;
+var break_rows = [];
 
 $(document).ready(function(){
+    RefreshTimetable(true);
     var urlParams = new URLSearchParams(window.location.search);
     var urlTab = window.location.hash === "#homework" ? "homework" : "timetable";
     if (urlParams.has("setscrapedata")) {
@@ -98,10 +100,6 @@ $(document).ready(function(){
             }
         });
     });
-    applyrepplan(repplan_data, 'timetable');
-    applyrepplan(repplan_data, 'mini-timetable');
-    applyhomework(homework_data, 'timetable');
-    applyhomework(homework_data, 'mini-timetable');
 });
 
 function ScrapeTimeTable() {
@@ -250,6 +248,12 @@ function applyrepplan(repplanData, tableId) {
         info = modifiedData[i][8];
         cell = day + 1;
         row = hour;
+        // Add 1 to the row if there is a break row before the current row and redo if there are multiple breaks
+        break_rows.forEach(function(break_row) {
+            if (break_row <= row) {
+                row++;
+            }
+        });
         // check if the cell exists
         if (!table.rows[row] || !table.rows[row].cells[cell]) {
             continue;
@@ -324,6 +328,12 @@ function applyrepplan(repplanData, tableId) {
         info = modifiedData[i][8];
         cell = day + 1;
         row = hour;
+        // Add 1 to the row if there is a break row before the current row and redo if there are multiple breaks
+        break_rows.forEach(function(break_row) {
+            if (break_row <= row) {
+                row++;
+            }
+        });
         // check if the cell exists
         if (!table.rows[row] || !table.rows[row].cells[cell]) {
             continue;
@@ -456,14 +466,29 @@ function applyTimetable(data, tableId) {
         hours_data.forEach(function(hour) {
             if (hour[0] == class_num) {
                 class_time = hour[1];
-                console.log(hour[1])
-                console.log(class_time)
             }
         });
         var class_name = group[0][2];
         var class_loc = group[0][3];
         var class_tea = group[0][4];
-    
+        
+        breaks_data.forEach(function(sg_break) {
+            if (sg_break[1].split(' - ')[1] == class_time.split(' - ')[0]) {
+                var breakRow = document.createElement('tr');
+                breakRow.innerHTML = `
+                    <td></td>
+                    <td>${sg_break[1]}</td>
+                    <td colspan="7" class="timetablebreak">${sg_break[0]}</td>
+                `;
+                tableBody.appendChild(breakRow);
+                // Get the row number of the break row
+                tablerow = tableBody.rows.length;
+                // Add the row number to the break_rows array so it can be avoided when adding the repplan
+                if (!break_rows.includes(tablerow)) {
+                    break_rows.push(tablerow);
+                }
+            }
+        });
         var row = document.createElement('tr');
         row.innerHTML = `
             <td>${class_num}</td>
@@ -488,21 +513,19 @@ function applyTimetable(data, tableId) {
         });
     
         tableBody.appendChild(row);
-        
-        // Add a break row after the 6th class
-        if (class_num == 6) {
-            var breakRow = document.createElement('tr');
-            breakRow.innerHTML = `
-                <td>7</td>
-                <td>13:00 - 13:45</td>
-                <td colspan="6" style="text-align: center; font-size: 1.25em; font-weight: bold;" class="special-font">Mittagspause</td>
-            `;
-            tableBody.appendChild(breakRow);
-        }
     });
 }
 
-async function RefreshTimetable() {
+async function RefreshTimetable(first = false) {
+    if (first) {
+        applyTimetable(timetable_data, 'timetable');
+        applyTimetable(timetable_data, 'mini-timetable');
+        applyrepplan(repplan_data, 'timetable');
+        applyrepplan(repplan_data, 'mini-timetable');
+        applyhomework(homework_data, 'timetable');
+        applyhomework(homework_data, 'mini-timetable');
+        return;
+    }
     await $.ajax({
         type: "GET",
         url: "/gettt",

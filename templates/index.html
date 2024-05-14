@@ -15,6 +15,7 @@
     <script type="text/javascript">
         var timetable_data = JSON.parse('{{ timetable_data|tojson|safe }}'); // Needed to use the timetable data in the script.js
         var hours_data = JSON.parse('{{ hours_data|tojson|safe }}'); // Needed to use the hours data in the script.js
+        var breaks_data = JSON.parse('{{ breaks_data|tojson|safe }}'); // Needed to use the breaks data in the script.js
         var homework_data = JSON.parse('{{ homework_data|tojson|safe }}'); // Needed to use the homework data in the script.js
         var repplan_data = JSON.parse('{{ repplan_data|tojson|safe }}'); // Needed to use the repplan data in the script.js
     </script>
@@ -119,32 +120,7 @@
                         </tr>
                     </thead> 
                     <tbody>
-                        {% for group in timetable_data %}
-                            {% set class_day, class_num, class_name, class_loc, class_tea = group[0][:5] %}
-                            {% set class_time = [''] %}
-                            {% for hour in hours_data %}
-                                {% if hour[0] == class_num %}
-                                    {% set _ = class_time.append(hour[1]) %}
-                                {% endif %}
-                            {% endfor %}
-                            {% for break in breaks_data %}
-                                {% if break[1].split(' - ')[1] == class_time[-1].split(' - ')[0] %}
-                                    <tr>
-                                        <td></td>
-                                        <td>{{ break[1] }}</td>
-                                        <td colspan="7" class="timetablebreak">{{ break[0] }}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                            <tr>
-                                <td>{{ class_num }}</td>
-                                <td>{{ class_time[-1] }}</td>
-                                {% for class_data in group %}
-                                    {% set class_day, class_num, class_name, class_loc, class_tea = class_data[:5] %}
-                                    <td data-day="{{ class_day }}">{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
+                        <!-- Timetable gets applied in javascript -->
                     </tbody>
                 </table>
         </div>
@@ -213,32 +189,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for group in timetable_data %}
-                                        {% set class_day, class_num, class_name, class_loc, class_tea = group[0][:5] %}
-                                        {% set class_time = [''] %}
-                                        {% for hour in hours_data %}
-                                            {% if hour[0] == class_num %}
-                                                {% set _ = class_time.append(hour[1]) %}
-                                            {% endif %}
-                                        {% endfor %}
-                                        {% for break in breaks_data %}
-                                            {% if break[1].split(' - ')[1] == class_time[-1].split(' - ')[0] %}
-                                                <tr>
-                                                    <td></td>
-                                                    <td>{{ break[1] }}</td>
-                                                    <td colspan="7" class="timetablebreak">{{ break[0] }}</td>
-                                                </tr>
-                                            {% endif %}
-                                        {% endfor %}
-                                        <tr>
-                                            <td>{{ class_num }}</td>
-                                            <td>{{ class_time[-1] }}</td>
-                                            {% for class_data in group %}
-                                                {% set class_day, class_num, class_name, class_loc, class_tea = class_data[:5] %}
-                                                <td data-day="{{ class_day }}">{{ class_name ~ ' ' ~ class_loc ~ ' ' ~ class_tea }}</td>
-                                            {% endfor %}
-                                        </tr>
-                                    {% endfor %}
+                                        <!-- Timetable gets applied in javascript -->
                                     </tbody>
                                 </table>
                             </div>
