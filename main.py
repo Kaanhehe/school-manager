@@ -534,7 +534,7 @@ def getoldhw():
     user_id = get_user_id()
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     c = conn.cursor()
-    today = datetime.date.today()
+    today = datetime.date.today().isoformat()
     c.execute("SELECT * FROM homework WHERE due_date < %s AND user_id = %s", (today, user_id))
     homework_data = c.fetchall()
     conn.close()
