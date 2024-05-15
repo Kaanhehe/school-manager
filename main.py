@@ -445,6 +445,12 @@ def deleteuserdata():
     c.execute("DELETE FROM repplan WHERE user_id = %s", (user_id,))
 
     c.execute("DELETE FROM homework WHERE user_id = %s", (user_id,))
+
+    c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
+
+    c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
+
+    c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
     conn.commit()
     conn.close()
 
@@ -471,6 +477,14 @@ def deleteaccount():
     c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
 
     c.execute("DELETE FROM repplan WHERE user_id = %s", (user_id,))
+
+    c.execute("DELETE FROM homework WHERE user_id = %s", (user_id,))
+
+    c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
+
+    c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
+
+    c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
     conn.commit()
     conn.close()
 
@@ -660,6 +674,13 @@ def getoldhw():
     conn.close()
     homework_data = change_homework_data(homework_data)
     return homework_data
+
+@app.route('/getclasses', methods=['GET'])
+def getclasses():
+    user_id = get_user_id()
+    classes_data = get_classes_data(user_id)
+    classes_data = [entry[1:] for entry in classes_data]
+    return jsonify(classes_data)
 
 @app.route('/newhw', methods=['POST'])
 def newhw():

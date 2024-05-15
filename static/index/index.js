@@ -7,7 +7,7 @@ var break_rows = [];
 
 $(document).ready(function(){
     RefreshTimetable(true);
-    setupclasses();
+    setupclasses(classes_data);
     var urlParams = new URLSearchParams(window.location.search);
     var urlTab = window.location.hash === "#homework" ? "homework" : "timetable";
     if (urlParams.has("setscrapedata")) {
@@ -30,6 +30,7 @@ $(document).ready(function(){
                     sendNotification(type, header, message);
                     if (type === "success") {
                         RefreshTimetable();
+                        Refreshclasses();
                         formbg.style.opacity = "0";
                         setTimeout(function() {
                             formbg.style.display = "none";
@@ -571,10 +572,10 @@ async function RefreshTimetable(first = false) {
 function RequestHomeworkRefresh() {
     if (oldhw) {
         refreshOldHomeworks();
-        setupclasses();
+        setupclasses(classes_data);
     } else {
         refreshHomeworks();
-        setupclasses();
+        setupclasses(classes_data);
     }
 }
 
@@ -654,7 +655,11 @@ function refreshOldHomeworks() {
     });
 }
 
-function setupclasses() {
+function setupclasses(classes_data) {
+    if (!classes_data) {
+        Refreshclasses();
+        return
+    }
     var select = document.getElementById("class");
     while (select.options.length > 1) {
         select.remove(1);
@@ -670,6 +675,20 @@ function setupclasses() {
         option.classList.add("class-option");
         option.style.backgroundColor = class_data[2];
         select.appendChild(option);
+    });
+}
+
+function Refreshclasses() {
+    $.ajax({
+        type: "GET",
+        url: "/getclasses",
+        success: function(data) {
+            setupclasses(data);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
     });
 }
 
