@@ -579,6 +579,16 @@ def sendscrapedata():
     if not check_password(user_id, user_password):
         return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
     
+    # sometimes login_url looks like this: https://login.schulportal.hessen.de/?url=aHR0cHM6Ly9jb25uZWN0LnNjaHVscG9ydGFsLmhlc3Nlbi5kZS8=&skin=sp&i=5202
+    # Remove every parameter except the i parameter
+    domain = login_url.split('?')[0]
+    parameters = login_url.split('?')[1]
+    i_parameter = [param for param in parameters.split('&') if param.startswith('i=')][0]
+
+    # Construct the new URL
+    new_url = f"{domain}?{i_parameter}"
+    login_url = new_url
+
     # login url: https://login.schulportal.hessen.de/?i=5202
     schoolid = login_url.split('=')[-1]
 
@@ -617,7 +627,7 @@ def scrapett():
         return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
 
     if not check_entered_scrape_data(user_id):
-        return "error+Fehler+Bitte gib zuerst deine Anmeldeinformationen für den Schulportal-Login an."
+        return "error+Fehler+Bitte gib zuerst deine Anmeldeinformationen für den Schulportal-Login an. -> Einstellungen"
 
     # Run the scrapettplan.py script
     message = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password], capture_output=True, text=True)
@@ -635,7 +645,7 @@ def scraperep():
         return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
     
     if not check_entered_scrape_data(user_id):
-        return "error+Fehler+Bitte gib zuerst deine Anmeldeinformationen für den Schulportal-Login an."
+        return "error+Fehler+Bitte gib zuerst deine Anmeldeinformationen für den Schulportal-Login an. -> Einstellungen"
 
     # Run the scraperepplan.py script
     message = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password], capture_output=True, text=True)

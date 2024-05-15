@@ -29,13 +29,12 @@ $(document).ready(function(){
                     message = data.split('+')[2];
                     sendNotification(type, header, message);
                     if (type === "success") {
-                        RefreshTimetable();
-                        Refreshclasses();
                         formbg.style.opacity = "0";
                         setTimeout(function() {
                             formbg.style.display = "none";
                         }, 500);
                         history.replaceState(null, null, window.location.pathname + '#timetable');
+                        location.reload();
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
