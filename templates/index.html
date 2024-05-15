@@ -16,6 +16,7 @@
         var timetable_data = JSON.parse('{{ timetable_data|tojson|safe }}'); // Needed to use the timetable data in the script.js
         var hours_data = JSON.parse('{{ hours_data|tojson|safe }}'); // Needed to use the hours data in the script.js
         var breaks_data = JSON.parse('{{ breaks_data|tojson|safe }}'); // Needed to use the breaks data in the script.js
+        var classes_data = JSON.parse('{{ classes_data|tojson|safe }}'); // Needed to use the classes data in the script.js
         var homework_data = JSON.parse('{{ homework_data|tojson|safe }}'); // Needed to use the homework data in the script.js
         var repplan_data = JSON.parse('{{ repplan_data|tojson|safe }}'); // Needed to use the repplan data in the script.js
     </script>
@@ -35,7 +36,7 @@
     <div class="navbar">
         <div class="navbar-elements navbar-start">
             <a id="timetable-link" class="active" onclick="changeActiveClass(event); RefreshTimetable();" href="#timetable">Stundenplan</a>
-            <a id="homework-link" onclick="changeActiveClass(event); RequestHomeworkRefresh(); color_classes(); change_done_homeworks();" href="#homework">Hausaufgaben</a>
+            <a id="homework-link" onclick="changeActiveClass(event); RequestHomeworkRefresh(); change_done_homeworks();" href="#homework">Hausaufgaben</a>
         </div>
         <div class="navbar-elements navbar-end">
             <label class="darkmode-switch">
@@ -138,10 +139,8 @@
                                 <div class="hwformitem">
                                     <label for="class">Fach *</label>
                                     <select required id="class" name="class" onchange="autogetDate()">
-                                        <option value="">Wähle ein Fach</option>
-                                        {% for class in classes_data %}
-                                            <option value="{{ class }}" class="class-option">{{ class }}</option>
-                                        {% endfor %}
+                                        <option value="" class="class-option">Wähle das Fach</option>
+                                        <!-- Gets set in JS -->
                                     </select>
                                 </div>
                                 

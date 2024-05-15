@@ -334,7 +334,7 @@
 
 .newhwwin {
     display: flex;
-    width: 22%;
+    width: 25%;
     transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
     flex-direction: column;
     align-items: center;
@@ -455,7 +455,8 @@
 .class-option {
     font-size: 1.25em;
     font-weight: bold;
-    color: var(--light-grey);
+    color: var(--user-input-text);
+    background-color: var(--light-grey);
 }
 
 .class-option:hover {
