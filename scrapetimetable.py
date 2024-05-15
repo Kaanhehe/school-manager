@@ -187,7 +187,7 @@ def store_timetable_data(timetable_data, user_id):
             # get every class_name once and insert it into the timetable_classes table
             c.execute("SELECT * FROM timetable_classes WHERE user_id = %s AND class_name = %s", (user_id, class_name))
             if c.fetchone() is None:
-                c.execute("INSERT INTO timetable_classes VALUES (%s, %s, %s, %s)", (user_id, class_name, "", "#333"))
+                c.execute("INSERT INTO timetable_classes VALUES (%s, %s, %s, %s)", (user_id, class_name, "", "#333333"))
     else:
         print("No timetable data available to store in database.")
 
