@@ -7,6 +7,7 @@ var break_rows = [];
 
 $(document).ready(function(){
     RefreshTimetable(true);
+    setupclasses();
     var urlParams = new URLSearchParams(window.location.search);
     var urlTab = window.location.hash === "#homework" ? "homework" : "timetable";
     if (urlParams.has("setscrapedata")) {
@@ -570,8 +571,10 @@ async function RefreshTimetable(first = false) {
 function RequestHomeworkRefresh() {
     if (oldhw) {
         refreshOldHomeworks();
+        setupclasses();
     } else {
         refreshHomeworks();
+        setupclasses();
     }
 }
 
@@ -604,7 +607,6 @@ function refreshHomeworks() {
                 return row.outerHTML;
             });
             tableBody.innerHTML = rows.join("");
-            color_classes();
             change_done_homeworks();
         },
         error: function(jqXHR, textStatus, errorThrown) {
@@ -635,21 +637,39 @@ function refreshOldHomeworks() {
                 var actionCell = document.createElement("td");
                 actionCell.className = "hwactions";
                 actionCell.innerHTML = `
-                <button class="hwaction" id="hwdone" data-id=${done}><i class="fa-solid fa-check"></i></button> <!-- onclick gets added in change_done_homeworks() -->
-                <button class="hwaction" id="hwedit" onclick="editHomework(event)"><i class="fa-regular fa-pen-to-square"></i></button>
-                <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)"><i class="fa-solid fa-trash-can"></i></button>
-            `;
+                    <button class="hwaction" id="hwdone" data-id=${done}><i class="fa-solid fa-check"></i></button> <!-- onclick gets added in change_done_homeworks() -->
+                    <button class="hwaction" id="hwedit" onclick="editHomework(event)"><i class="fa-regular fa-pen-to-square"></i></button>
+                    <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)"><i class="fa-solid fa-trash-can"></i></button>
+                `;
                 row.appendChild(actionCell);
                 return row.outerHTML;
             });
             tableBody.innerHTML = rows.join("");
-            color_classes();
             change_done_homeworks();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error
             console.error(textStatus, errorThrown);
         }
+    });
+}
+
+function setupclasses() {
+    var select = document.getElementById("class");
+    while (select.options.length > 1) {
+        select.remove(1);
+    }
+    classes_data.forEach(function(class_data) {
+        var option = document.createElement("option");
+        option.value = class_data[0];
+        if (class_data[1] != "") {
+            option.text = class_data[1]
+        } else {
+            option.text = class_data[0];
+        }
+        option.classList.add("class-option");
+        option.style.backgroundColor = class_data[2];
+        select.appendChild(option);
     });
 }
 
@@ -771,7 +791,6 @@ function displayEdithwForm(homework) {
         window.style.opacity = "1";
     }, 10);
     window.style.display = "flex";
-    sortClassesByColor();
     markinTimetable();
 }
 
@@ -783,7 +802,6 @@ function displayhwform() {
         window.style.opacity = "1";
     }, 10);
     window.style.display = "flex";
-    sortClassesByColor();
     submited = false;
 }
 
@@ -833,29 +851,6 @@ function closecancelwin() {
     }, 500);
 }
 
-// Color the classes in the homework form -> select class !!! NOT USED FOR SORTING ANYMORE !!!
-function get_class_color (class_name) {
-    var colors = {
-            'Mathematik': '#6495ED',
-            'Deutsch': '#D04848',
-            'Englisch': '#EEC759',
-            'Biologie': '#99BC85',
-            'Geschichte': '#F57D1F',
-            'Geographie': '#808080',
-            'Physik': '#7BD3EA',
-            'Chemie': '#FF00FF',
-            'Informatik': '#A52A2A',
-            'Sport': '#AAD7D9',
-            'Musik': '#00FFFF',
-            'Kunst': '#C23373',
-            'Ethik': '#A9A9A9',
-            'Religion': '#FBF9F1',
-            'PoWi': '#FF90BC',
-            'Spanisch': '#9BCF53',
-        };
-    return colors[class_name];
-}
-
 // Order of the classes in the homework form
 function get_class_order (class_name) {
     var order = {
@@ -879,31 +874,6 @@ function get_class_order (class_name) {
     return order[class_name];
 }
 
-// Convert RGB to HSL for sorting the classes in the homework form !!! NOT USED ANYMORE !!!
-function rgbToHsl(rgb) {
-    var r = parseInt(rgb.slice(1, 3), 16) / 255;
-    var g = parseInt(rgb.slice(3, 5), 16) / 255;
-    var b = parseInt(rgb.slice(5, 7), 16) / 255;
-
-    var max = Math.max(r, g, b), min = Math.min(r, g, b);
-    var h, s, l = (max + min) / 2;
-
-    if(max == min){
-        h = s = 0;
-    } else {
-        var d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch(max){
-            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-            case g: h = (b - r) / d + 2; break;
-            case b: h = (r - g) / d + 4; break;
-        }
-        h /= 6;
-    }
-
-    return [h, s, l];
-}
-
 // Sort the classes in the homework form by color so it looks nice :)
 function sortClassesByColor() {
     var selectElement = document.getElementById('class');
@@ -923,16 +893,6 @@ function sortClassesByColor() {
         selectElement.appendChild(option);
     });
 }
-
-// Color the classes in the homework overview
-function color_classes(){
-    var elements = document.getElementsByClassName('class-option');
-    for (var i = 0; i < elements.length; i++) {
-        var classElement = elements[i];
-        var className = classElement.textContent || classElement.innerText;
-        classElement.style.backgroundColor = get_class_color(className);
-    }
-};
 
 // Show the timetable in the homework form for better orientation
 var showingtimetable = false;

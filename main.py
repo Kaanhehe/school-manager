@@ -48,6 +48,14 @@ def get_breaks_data(user_id):
     conn.close()
     return breaks_data
 
+def get_classes_data(user_id):
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    c = conn.cursor()
+    c.execute("SELECT * FROM timetable_classes WHERE user_id = %s", (user_id,))
+    classes_data = c.fetchall()
+    conn.close()
+    return classes_data
+
 def get_homework_data(user_id):
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     c = conn.cursor()
@@ -306,30 +314,15 @@ def index():
     breaks_data = sorted(breaks_data, key=lambda x: x[0])
     breaks_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in breaks_data]
     
+    classes_data = get_classes_data(user_id)
+    classes_data = [entry[1:] for entry in classes_data]
+
     homework_data = get_homework_data(user_id)
     homework_data = change_homework_data(homework_data)
     
     repplan_data = get_repplan_data(user_id)
     repplan_data = [entry[1:] for entry in repplan_data]   
     
-    classes_data = {
-        "Mathematik",
-        "Deutsch",
-        "Englisch",
-        "Biologie",
-        "Geschichte",
-        "Geographie",
-        "Physik",
-        "Chemie",
-        "Informatik",
-        "Sport",
-        "Musik",
-        "Kunst",
-        "Ethik",
-        "Religion",
-        "PoWi",
-        "Spanisch",
-    }
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, hours_data=hours_data, breaks_data=breaks_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
 
@@ -345,14 +338,19 @@ def settings():
     email = c.fetchone()[0]
     c.execute("SELECT * FROM timetable_breaks WHERE user_id = %s", (user_id,))
     breaks = c.fetchall()
+    breaks = [entry[1:] for entry in breaks]
     c.execute("SELECT * FROM timetable_times WHERE user_id = %s", (user_id,))
     times = c.fetchall()
+    times = [entry[1:] for entry in times]
+    c.execute("SELECT * FROM timetable_classes WHERE user_id = %s", (user_id,))
+    classes = c.fetchall()
+    classes = [entry[1:] for entry in classes]
     conn.close()
     
     # Sort the breaks by name and the times by hour
     breaks.sort(key=lambda x: x[1])
     times.sort(key=lambda x: x[1])
-    return render_template('settings.html', username=session['username'], email=email, breaks=breaks, times=times)
+    return render_template('settings.html', username=session['username'], email=email, breaks=breaks, times=times, classes=classes)
 
 @app.route('/settings/changeusername', methods=['POST'])
 def changeusername():
@@ -478,6 +476,33 @@ def deleteaccount():
 
     session.pop('username', None)
     return "success+Account gelöscht+Dein Account wurde erfolgreich gelöscht"
+
+@app.route('/settings/saveclasses', methods=['POST'])
+def saveclasses():
+    if 'username' not in session:
+        return abort(403)
+    
+    user_id = get_user_id()
+    form_data = request.form
+    if not form_data['classes']:
+        return "error+Fehler+Bitte gib die Klassen ein."
+    
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    c = conn.cursor()
+    classes = json.loads(form_data['classes'])
+    c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
+    for sg_class in classes:
+        # Check if the class name and color are given
+        # Dont check for custom_name because it is optional
+        if not sg_class['name'] or not sg_class['color']:
+            return "error+Fehler+Bitte fülle alle Felder aus."
+        class_name = sg_class['name']
+        custom_name = sg_class['custom_name']
+        class_color = sg_class['color']
+        c.execute("INSERT INTO timetable_classes (user_id, class_name, custom_name, class_color) VALUES (%s, %s, %s, %s)", (user_id, class_name, custom_name, class_color))
+    conn.commit()
+    conn.close()
+    return "success+Klassen gespeichert+Die Klassen wurden erfolgreich gespeichert"
 
 @app.route('/settings/savebreaks', methods=['POST'])
 def savebreaks():

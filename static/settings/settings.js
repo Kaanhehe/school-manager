@@ -1,8 +1,8 @@
 $(document).ready(function() {
     breaks.forEach(sg_break => {
-        break_name = sg_break[1];
-        start = sg_break[2];
-        end = sg_break[3];
+        break_name = sg_break[0];
+        start = sg_break[1];
+        end = sg_break[2];
         var break_container = document.getElementsByClassName("breaks-container")[0];
         var break_element = document.createElement("div");
         break_element.classList.add("break");
@@ -14,9 +14,9 @@ $(document).ready(function() {
     });
 
     times.forEach(time => {
-        lesson_hour = time[1];
-        lesson_start = time[2];
-        lesson_end = time[3];
+        lesson_hour = time[0];
+        lesson_start = time[1];
+        lesson_end = time[2];
         var time_container = document.getElementsByClassName("times-container")[0];
         var time_element = document.createElement("div");
         time_element.classList.add("time");
@@ -25,6 +25,20 @@ $(document).ready(function() {
         time_element.innerHTML += `<input type="time" name="lesson-end" placeholder="Stunden Ende" required value="${lesson_end}">`;
         time_element.innerHTML += `<button class="remove-time" onclick="removeTime(this)">Entfernen</button>`;
         time_container.appendChild(time_element);
+    });
+
+    classes.forEach(sg_class => {
+        class_name = sg_class[0];
+        custom_name = sg_class[1];
+        class_color = sg_class[2];
+        var class_container = document.getElementsByClassName("classes-container")[0];
+        var class_element = document.createElement("div");
+        class_element.classList.add("class");
+        class_element.innerHTML = `<input type="text" name="class_name" placeholder="Name" required disabled value="${class_name}">`;
+        class_element.innerHTML += `<input type="text" name="custom_name" placeholder="Name" required value="${custom_name}">`;
+        class_element.innerHTML += `<input type="color" name="class_color" placeholder="Farbe" required value="${class_color}">`;
+        class_element.innerHTML += `<button class="remove-class" onclick="removeClass(this)">Entfernen</button>`;
+        class_container.appendChild(class_element);
     });
 });
 
@@ -232,6 +246,54 @@ function deleteAccount() {
 function closeDeleteAccount() {
     var window = document.getElementById("delete-account-bg");
     window.classList.remove("visible");
+}
+
+function removeClass(element) {
+    element.parentNode.remove();
+}
+
+function addClass() {
+    var class_container = document.getElementsByClassName("classes-container")[0];
+    var class_element = document.createElement("div");
+    class_element.classList.add("class");
+    class_element.innerHTML = `<input type="text" name="class_name" placeholder="Name" required>`;
+    class_element.innerHTML += `<input type="text" name="custom_name" placeholder="Name" required>`;
+    class_element.innerHTML += `<input type="color" name="class_color" placeholder="Farbe" required>`;
+    class_element.innerHTML += `<button class="remove-class" onclick="removeClass(this)">Entfernen</button>`;
+    class_container.appendChild(class_element);
+}
+
+function saveClasses() {
+    var classes = document.getElementsByClassName("class");
+    var data = [];
+    for (var i = 0; i < classes.length; i++) {
+        var class_name = classes[i].getElementsByTagName("input")[0].value;
+        var custom_name = classes[i].getElementsByTagName("input")[1].value;
+        var class_color = classes[i].getElementsByTagName("input")[2].value;
+        console.log(class_name, custom_name, class_color)
+        data.push({
+            "name": class_name,
+            "custom_name": custom_name,
+            "color": class_color
+        });
+    }
+    $.ajax({
+        type: "POST",
+        url: "/settings/saveclasses",
+        data: {
+            classes: JSON.stringify(data)
+        },
+        success: function(data) {
+            type = data.split('+')[0];
+            header = data.split('+')[1];
+            message = data.split('+')[2];
+            console.log(type, header, message);
+            sendNotification(type, header, message);
+        },
+        error: function(error) {
+            sendNotification("error", "Fehler", "Ein Fehler ist aufgetreten! Bitte versuche es später erneut.");
+        }
+    });
 }
 
 function removeBreak(element) {

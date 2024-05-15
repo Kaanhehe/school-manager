@@ -12,6 +12,7 @@
     <script>
         var breaks = JSON.parse('{{ breaks|tojson|safe }}');
         var times = JSON.parse('{{ times|tojson|safe }}');
+        var classes = JSON.parse('{{ classes|tojson|safe }}');
     </script>
 </head>
 <body>
@@ -135,6 +136,21 @@
         </div>
         <div class="general">
             <h1>Allgemein</h1>
+            <div class="classes">
+                <h2>Klassen</h2>
+                <div class="classes-container">
+                        <!-- <div class="class">
+                            <input type="text" name="class_name" placeholder="Name" required disabled>
+                            <input type="text" name="custom_name" placeholder="Name" required>
+                            <input type="color" name="class_color" placeholder="Farbe" required>
+                            <button class="remove-class" onclick="removeClass(this)">Entfernen</button>
+                        </div> -->
+                </div>
+                <div class="classes-buttons">
+                    <button class="add-class" onclick="addClass()">Klasse Hinzufügen</button>
+                    <button class="save-classes" onclick="saveClasses()">Speichern</button>
+                </div>
+            </div>
             <div class="timetable-breaks">
                 <h2>Stundenplan Pause</h2>
                 <div class="breaks-container">
