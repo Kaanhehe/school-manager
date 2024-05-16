@@ -13,6 +13,7 @@
         var breaks = JSON.parse('{{ breaks|tojson|safe }}');
         var times = JSON.parse('{{ times|tojson|safe }}');
         var classes = JSON.parse('{{ classes|tojson|safe }}');
+        var timetable_data = JSON.parse('{{ timetable_data|tojson|safe }}');
     </script>
 </head>
 <body>
@@ -28,6 +29,7 @@
         <div class="navbar-elements navbar-start">
             <a id="account-link" class="active" onclick="changeActiveClass(event)" href="#account">Account</a>
             <a id="general-link" onclick="changeActiveClass(event)" href="#general">Allgemein</a>
+            <a id="timetable-link" onclick="changeActiveClass(event)" href="#timetable">Stundenplan</a>
         </div>
         <div class="navbar-elements navbar-end">
             <label class="darkmode-switch">
@@ -179,6 +181,31 @@
                 <div class="times-buttons">
                     <button class="add-time" onclick="addTime()">Zeit Hinzufügen</button>
                     <button class="save-times" onclick="saveTimes()">Speichern</button>
+                </div>
+            </div>
+        </div>
+        <div class="timetable">
+            <h1>Stundenplan</h1>
+            <div class="timetable-container">
+                <div class="timetable-headers">
+                    <h2>Tag</h2>
+                    <h2>Stunde</h2>
+                    <h2>Fach</h2>
+                    <h2>Raum</h2>
+                    <h2>Lehrer</h2>
+                </div>
+                <div class="timetable-classes">
+                    <!-- <div class="timetable-class">
+                        <input type="text" name="class_day" placeholder="Mittwoch" required>
+                        <input type="text" name="class_hour" placeholder="1" required>
+                        <input type="text" name="class_subject" placeholder="BIO" required>
+                        <input type="text" name="class_room" placeholder="1-132" required>
+                        <input type="text" name="class_teacher" placeholder="XXX" required>
+                    </div> -->
+                </div>
+                <div class="timetable-buttons">
+                    <button class="add-timetable-class" onclick="addTimetable()">Stunde Hinzufügen</button>
+                    <button class="save-timetable" onclick="saveTimetable()">Speichern</button>
                 </div>
             </div>
         </div>

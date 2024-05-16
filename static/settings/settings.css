@@ -1,4 +1,4 @@
-.account, .general {
+.account, .general, .timetable {
     width: 100%;
     display: none;
     opacity: 0;
@@ -6,7 +6,7 @@
     overflow-x: auto;
 }
 
-.account.visible, .general.visible {
+.account.visible, .general.visible, .timetable.visible {
     display: block;
     opacity: 1;
 }
@@ -163,10 +163,6 @@
     justify-content: space-between;
 }
 
-.class input {
-    margin: 10px;
-}
-
 .classes-buttons {
     display: flex;
     flex-direction: row;
@@ -217,10 +213,6 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-}
-
-.break input {
-    margin: 10px;
 }
 
 .breaks-buttons {
@@ -276,10 +268,6 @@
     justify-content: space-between;
 }
 
-.time input {
-    margin: 10px;
-}
-
 .times-buttons {
     display: flex;
     flex-direction: row;
@@ -305,5 +293,73 @@
 }
 
 .remove-time:active, .add-time:active, .save-times:active {
+    background-color: var(--third-purple);
+}
+
+.timetable {
+    background-color: var(--background);
+    color: var(--main-white);
+    padding: 10px;
+}
+
+.timetable-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+    border: 2px solid var(--main-purple);
+}
+
+.timetable-headers {
+    display: flex;
+    width: 100%;
+    align-self: start;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 10px;
+}
+
+.timetable-classes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px;
+}
+
+.timetable-class {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.timetable-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px;
+}
+
+.remove-timetable-class, .add-timetable-class, .save-timetable {
+    color: var(--main-white);
+    background-color: var(--main-purple);
+    border: none;
+    padding: 0.5em 1em;
+    margin: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 15px;
+}
+
+.remove-timetable-class:hover, .add-timetable-class:hover, .save-timetable:hover {
+    background-color: var(--secondary-purple);
+}
+
+.remove-timetable-class:active, .add-timetable-class:active, .save-timetable:active {
     background-color: var(--third-purple);
 }

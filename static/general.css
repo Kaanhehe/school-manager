@@ -153,8 +153,7 @@ body {
 }
 
 input:not([type="color"]):not([type="submit"]), select {
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin: 8px;
     display: inline-block;
     padding: 6px;
     border: 1px solid var(--border);

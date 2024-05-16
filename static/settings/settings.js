@@ -40,6 +40,29 @@ $(document).ready(function() {
         class_element.innerHTML += `<button class="remove-class" onclick="removeClass(this)">Entfernen</button>`;
         class_container.appendChild(class_element);
     });
+
+    timetable_data.forEach(group => {
+        group.forEach(data => {
+            var day = data[0];
+            var hour = data[1];
+            var subject = data[2];
+            var room = data[3];
+            var teacher = data[4];
+            if (subject == "" || room == "" || teacher == "") {
+                return;
+            }
+            var timetable_classes = document.getElementsByClassName("timetable-classes")[0];
+            var timetable_class = document.createElement("div");
+            timetable_class.classList.add("timetable-class");
+            timetable_class.innerHTML = `<input type="text" name="class_day" placeholder="Tag" required value="${day}">`;
+            timetable_class.innerHTML += `<input type="text" name="class_hour" placeholder="Stunde" required value="${hour}">`;
+            timetable_class.innerHTML += `<input type="text" name="class_subject" placeholder="Fach" required value="${subject}">`;
+            timetable_class.innerHTML += `<input type="text" name="class_room" placeholder="Raum" required value="${room}">`;
+            timetable_class.innerHTML += `<input type="text" name="class_teacher" placeholder="Lehrer" required value="${teacher}">`;
+            timetable_class.innerHTML += `<button class="remove-timetable-class" onclick="removeTimetableClass(this)">Entfernen</button>`;
+            timetable_classes.appendChild(timetable_class);
+        });
+    });
 });
 
 function changeUsername() {
@@ -376,6 +399,59 @@ function saveTimes() {
         url: "/settings/savetimes",
         data: {
             times: JSON.stringify(data)
+        },
+        success: function(data) {
+            type = data.split('+')[0];
+            header = data.split('+')[1];
+            message = data.split('+')[2];
+            console.log(type, header, message);
+            sendNotification(type, header, message);
+        },
+        error: function(error) {
+            sendNotification("error", "Fehler", "Ein Fehler ist aufgetreten! Bitte versuche es später erneut.");
+        }
+    });
+}
+
+function removeTimetableClass(element) {
+    element.parentNode.remove();
+}
+
+function addTimetableClass() {
+    var timetable_classes = document.getElementsByClassName("timetable-classes")[0];
+    var timetable_class = document.createElement("div");
+    timetable_class.classList.add("timetable-class");
+    timetable_class.innerHTML = `<input type="text" name="class_day" placeholder="Tag" required>`;
+    timetable_class.innerHTML += `<input type="text" name="class_hour" placeholder="Stunde" required>`;
+    timetable_class.innerHTML += `<input type="text" name="class_subject" placeholder="Fach" required>`;
+    timetable_class.innerHTML += `<input type="text" name="class_room" placeholder="Raum" required>`;
+    timetable_class.innerHTML += `<input type="text" name="class_teacher" placeholder="Lehrer" required>`;
+    timetable_class.innerHTML += `<button class="remove-timetable-class" onclick="removeTimetableClass(this)">Entfernen</button>`;
+    timetable_classes.appendChild(timetable_class);
+}
+
+function saveTimetable() {
+    var timetable_classes = document.getElementsByClassName("timetable-class");
+    var data = [];
+    for (var i = 0; i < timetable_classes.length; i++) {
+        var day = timetable_classes[i].getElementsByTagName("input")[0].value;
+        var hour = timetable_classes[i].getElementsByTagName("input")[1].value;
+        var subject = timetable_classes[i].getElementsByTagName("input")[2].value;
+        var room = timetable_classes[i].getElementsByTagName("input")[3].value;
+        var teacher = timetable_classes[i].getElementsByTagName("input")[4].value;
+        data.push({
+            "day": day,
+            "hour": hour,
+            "subject": subject,
+            "room": room,
+            "teacher": teacher
+        });
+    }
+    $.ajax({
+        type: "POST",
+        url: "/settings/savetimetable",
+        data: {
+            timetable: JSON.stringify(data)
         },
         success: function(data) {
             type = data.split('+')[0];
