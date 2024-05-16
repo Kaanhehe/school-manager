@@ -19,6 +19,7 @@ import json
 app = Flask(__name__)
 app.secret_key = os.environ.get('Flask_secret_key')
 DATABASE_URL = os.environ.get('DATABASE_URL')
+DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
 
 #subprocess.run(['python', 'D:\ME\Privat\Projekte\Python\school-manager\createTables.py'])
 
@@ -346,11 +347,14 @@ def settings():
     classes = c.fetchall()
     classes = [entry[1:] for entry in classes]
     conn.close()
+
+    timetable_data = get_timetable_data(user_id)
+    grouped_data = sort_timetable_data(timetable_data)
     
     # Sort the breaks by name and the times by hour
     breaks.sort(key=lambda x: x[1])
     times.sort(key=lambda x: x[1])
-    return render_template('settings.html', username=session['username'], email=email, breaks=breaks, times=times, classes=classes)
+    return render_template('settings.html', username=session['username'], email=email, breaks=breaks, times=times, classes=classes, timetable_data=grouped_data)
 
 @app.route('/settings/changeusername', methods=['POST'])
 def changeusername():
@@ -567,6 +571,33 @@ def savetimes():
     conn.close()
     return "success+Zeiten gespeichert+Die Zeiten wurden erfolgreich gespeichert"
 
+@app.route('/settings/savetimetable', methods=['POST'])
+def savetimetable():
+    if 'username' not in session:
+        return abort(403)
+    
+    user_id = get_user_id()
+    form_data = request.form
+    if not form_data['timetable']:
+        return "error+Fehler+Bitte gib den Stundenplan ein."
+    
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    c = conn.cursor()
+    timetable = json.loads(form_data['timetable'])
+    c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
+    for sg_timetable in timetable:
+        if not sg_timetable['day'] or not sg_timetable['hour'] or not sg_timetable['subject'] or not sg_timetable['room'] or not sg_timetable['teacher']:
+            return "error+Fehler+Bitte fülle alle Felder aus."
+        class_day = sg_timetable['day']
+        class_num = sg_timetable['hour']
+        class_name = sg_timetable['subject']
+        class_room = sg_timetable['room']
+        class_teacher = sg_timetable['teacher']
+        c.execute("INSERT INTO timetable (user_id, class_day, class_num, class_name, class_loc, class_tea) VALUES (%s, %s, %s, %s, %s, %s)", (user_id, class_day, class_num, class_name, class_room, class_teacher))
+    conn.commit()
+    conn.close()
+    return "success+Stundenplan gespeichert+Der Stundenplan wurde erfolgreich gespeichert"
+
 @app.route('/sendscrapedata', methods=['POST'])
 def sendscrapedata():
     login_url = request.form['login_url']
@@ -763,4 +794,4 @@ def deletehw():
     return "success+Hausaufgabe gelöscht+Die Hausaufgabe wurde erfolgreich gelöscht"
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=DEBUG_MODE)
