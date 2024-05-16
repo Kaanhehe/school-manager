@@ -1,3 +1,8 @@
+input {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
 .timetable, .homework {
     width: 100%;
     display: none;
