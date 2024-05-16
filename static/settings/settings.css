@@ -145,6 +145,7 @@
     align-items: center;
     justify-content: center;
     margin: 10px;
+    border: 2px solid var(--main-purple);
 }
 
 .classes-container {
@@ -200,6 +201,7 @@
     align-items: center;
     justify-content: center;
     margin: 10px;
+    border: 2px solid var(--main-purple);
 }
 
 .breaks-container {
@@ -256,6 +258,7 @@
     align-items: center;
     justify-content: center;
     margin: 10px;
+    border: 2px solid var(--main-purple);
 }
 
 .times-container {
