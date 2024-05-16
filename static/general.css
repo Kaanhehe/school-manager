@@ -259,7 +259,7 @@ tr:nth-child(odd) {
 }
 
 .notification {
-    position: sticky;
+    position: fixed;
     top: 50px;
     z-index: 2;
     display: flex;
