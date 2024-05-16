@@ -19,6 +19,7 @@ import json
 app = Flask(__name__)
 app.secret_key = os.environ.get('Flask_secret_key')
 DATABASE_URL = os.environ.get('DATABASE_URL')
+DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
 
 #subprocess.run(['python', 'D:\ME\Privat\Projekte\Python\school-manager\createTables.py'])
 
@@ -793,4 +794,4 @@ def deletehw():
     return "success+Hausaufgabe gelöscht+Die Hausaufgabe wurde erfolgreich gelöscht"
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=DEBUG_MODE)
