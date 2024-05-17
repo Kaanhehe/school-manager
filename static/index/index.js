@@ -1112,8 +1112,6 @@ function RefreshOldRepPlan() {
         type: "GET",
         url: "/getoldrp",
         success: function(data) {
-            applyrepplan(data, 'timetable');
-            applyrepplan(data, 'mini-timetable');
             applyrepplan_to_table(data, 'repplan-table');
         },
         error: function(jqXHR, textStatus, errorThrown) {
