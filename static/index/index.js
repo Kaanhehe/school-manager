@@ -8,6 +8,7 @@ var break_rows = [];
 
 $(document).ready(function(){
     RefreshTimetable(true);
+    RequestHomeworkRefresh();
     RefreshRepPlan(true);
     setupclasses(classes_data);
     var urlParams = new URLSearchParams(window.location.search);
