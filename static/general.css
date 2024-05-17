@@ -74,7 +74,11 @@ body {
 }
 
 .darkbg {
-    user-select: none;
+    background: linear-gradient(to right, var(--main-purple), var(--secondary-purple), var(--third-purple), var(--background));
+    height: 100vh;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 .welcome {
