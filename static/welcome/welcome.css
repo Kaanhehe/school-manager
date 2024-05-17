@@ -1,0 +1,151 @@
+:root {
+    --primary-color: #6a0dad;
+    --secondary-color: #4a0072;
+    --background-gradient: linear-gradient(135deg, #6a0dad, #4a0072);
+    --text-color: #ffffff;
+    --btn-primary-bg: #6a0dad;
+    --btn-secondary-bg: #4a0072;
+}
+
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: #121212;
+    color: var(--text-color);
+}
+
+header {
+    background: var(--background-gradient);
+    padding: 1em 2em;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo {
+    height: 50px;
+}
+
+header ul {
+    list-style: none;
+    display: flex;
+    gap: 1em;
+}
+
+header ul li {
+    display: inline;
+}
+
+header ul li a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 1.2em;
+}
+
+.hero {
+    text-align: center;
+    width: 100%;
+    padding: 5em 2em;
+    background: var(--background-gradient);
+    color: var(--text-color);
+}
+
+.hero h1 {
+    font-size: 3em;
+}
+
+.hero p {
+    font-size: 1.5em;
+    margin: 1em 0;
+}
+
+.cta-buttons {
+    margin: 2em 0;
+}
+
+.btn {
+    padding: 0.8em 2em;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    margin: 0 0.5em;
+    text-decoration: none;
+}
+
+.btn.primary {
+    background: var(--btn-primary-bg);
+    color: var(--text-color);
+}
+
+.btn.secondary {
+    background: var(--btn-secondary-bg);
+    color: var(--text-color);
+}
+
+.hero .carousel { 
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+    margin-top: 2em;
+}
+
+.hero img {
+    width: 90%;
+    aspect-ratio: auto;
+}
+
+.features, .how-it-works, .updates, .cta {
+    padding: 4em 2em;
+    text-align: center;
+}
+
+.features h2, .how-it-works h2, .updates h2, .cta h2 {
+    font-size: 2.5em;
+    margin-bottom: 1em;
+}
+
+.features .feature, .how-it-works .step, .updates .update {
+    display: inline-block;
+    width: 30%;
+    margin: 1em;
+    padding: 2em;
+    background: #1e1e1e;
+    border-radius: 10px;
+}
+
+.features .feature img, .how-it-works .step img {
+    height: 50px;
+    margin-bottom: 1em;
+}
+
+.cta .btn.primary, .cta .btn.secondary {
+    display: inline-block;
+    margin-top: 1em;
+}
+
+footer {
+    background: #1e1e1e;
+    padding: 2em;
+    width: 100%;
+    text-align: center;
+    color: var(--text-color);
+}
+
+footer .footer-links a, footer .social-media a {
+    color: var(--text-color);
+    text-decoration: none;
+    margin: 0 1em;
+}
+
+footer .social-media {
+    margin-top: 1em;
+}
+
+.social-media a {
+    font-size: 1.5em;
+}
+
+footer p {
+    margin-top: 1em;
+}

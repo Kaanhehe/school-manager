@@ -281,6 +281,10 @@ def login():
         return redirect(url_for('index'))
     return render_template('login.html')
 
+@app.route('/welcome', methods=['GET'])
+def welcome():
+    return render_template('welcome.html')
+
 @app.route('/logout')
 def logout():
     session.pop('username', None)
@@ -292,13 +296,13 @@ def index():
     if 'username' in session:
         username = session['username']
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for('welcome'))
     
     user_id = get_user_id()
     # It is possible that the user_id got changed, so we have to check if the user_id that we got is valid in the database
     if not user_id or user_id is None:
         session.pop('username', None)
-        return redirect(url_for('login'))
+        return redirect(url_for('welcome'))
     
     timetable_data = get_timetable_data(user_id)
     # returns groups of which every group is 1 row of the timetable
@@ -330,7 +334,7 @@ def index():
 @app.route('/settings', methods=['GET'])
 def settings():
     if 'username' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('welcome'))
     
     user_id = get_user_id()
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')

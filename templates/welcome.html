@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchulHub</title>
+    <link rel="icon" href="{{url_for('static', filename='images/SchulHub_trans (500 x 200 px).svg')}}" type="image/x-icon">
+    <link rel="stylesheet" href="{{url_for('static', filename='general.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='welcome/welcome.css')}}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://kit.fontawesome.com/bbd4622928.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <img src="{{url_for('static', filename='images/SchulHub_trans (500 x 200 px).svg')}}" alt="SchulHub Logo" class="logo">
+            <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#updates">Updates</a></li>
+                <li><a href="/register">Registrieren</a></li>
+                <li><a href="/login">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="home" class="hero">
+        <h1>Vereinfache deinen Schultag mit SchulHub</h1>
+        <p>Integriere deinen Stundenplan, Vertretungsplan und Hausaufgaben in einer einfachen Ansicht</p>
+        <div class="cta-buttons">
+            <a href="/register" class="btn primary">Registrieren</a>
+            <a href="/login" class="btn secondary">Login</a>
+        </div>
+        <div class="demoimg">
+            <img src="{{url_for('static', filename='images/schulhub_demo.png')}}" alt="Demo Bild">
+        </div>
+        </section>
+
+    <section id="features" class="features">
+        <h2>Warum SchulHub verwenden?</h2>
+        <div class="feature">
+            <i class="fa-regular fa-calendar-days"></i>
+            <h3>Vereinheitlichter Stundenplan</h3>
+            <p>Integriere nahtlos deinen Vertretungsplan und Hausaufgaben mit dem Stundenplan.</p>
+        </div>
+        <div class="feature">
+            <i class="fa-solid fa-toilet-paper"></i>
+            <h3>Verwalte deine Hausaufgaben</h3>
+            <p>Behalte deine Aufgaben und Fristen mühelos im Blick.</p>
+        </div>
+        <div class="feature">
+            <i class="fa-solid fa-display"></i>
+            <h3>Benutzerfreundlich</h3>
+            <p>Navigieren Sie durch eine einfache, intuitive Benutzeroberfläche, die speziell für Schüler entwickelt wurde.</p>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="how-it-works">
+        <h2>Wie es funktioniert</h2>
+        <div class="step">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            <h3>Registrieren</h3>
+            <p>Erstelle dein Konto in nur wenigen Klicks<br>und gebe deine Daten für Lanis ein.</p>
+        </div>
+        <div class="step">
+            <i class="fa-solid fa-rotate"></i>
+            <h3>Synchronisiere deine Daten</h3>
+            <p>Integriere deinen Stundenplan und Vertretungsplan von Lanis.</p>
+        </div>
+        <div class="step">
+            <i class="fa-solid fa-list-check"></i>
+            <h3>Organisiert bleiben</h3>
+            <p>Verwalte deine Hausaufgaben und behalte deinen Zeitplan im Blick.</p>
+        </div>
+    </section>
+
+    <section id="updates" class="updates">
+        <h2>Recent Updates</h2>
+        <div class="update">
+            <h3>May 2024</h3>
+            <p>Hausaufgaben hinzugefügt; Vertretungsplan hat nun eigenen Tab; Einstellungen hinzugefügt;</p>
+        </div>
+        <div class="update">
+            <h3>April 2024</h3>
+        </div>
+    </section>
+
+    <section id="cta" class="cta">
+        <h2>Bereit dein Schulaltag aufs nächste Level zu heben?</h2>
+        <p>Trete tausenden Schülern die SchulHub bereits verwenden bei.</p>
+        <a href="/register" class="btn primary">Registriere dich jetzt</a>
+        <a href="/login" class="btn secondary">Logge dich ein</a>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#updates">Updates</a>
+            <a href="/register">Registrieren</a>
+            <a href="/login">Einloggen</a>
+        </div>
+        <div class="social-media">
+            <a href="https://discord.gg/z3hX62uPsC" target="_blank"><i class="fa-brands fa-discord"></i></a>
+        </div>
+        <p>&copy; 2024 SchulHub. All rights reserved.</p>
+    </footer>
+</body>
+</html>
