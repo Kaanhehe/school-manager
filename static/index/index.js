@@ -880,49 +880,6 @@ function closecancelwin() {
     }, 500);
 }
 
-// Order of the classes in the homework form
-function get_class_order (class_name) {
-    var order = {
-            'Mathematik': 12,
-            'Deutsch': 5,
-            'Englisch': 7,
-            'Biologie': 8,
-            'Geschichte': 6,
-            'Geographie': 3,
-            'Physik': 11,
-            'Chemie': 13,
-            'Informatik': 4,
-            'Sport': 10,
-            'Musik': 9,
-            'Kunst': 14,
-            'Ethik': 2,
-            'Religion': 1,
-            'PoWi': 15,
-            'Spanisch': 8.5,
-        };
-    return order[class_name];
-}
-
-// Sort the classes in the homework form by color so it looks nice :)
-function sortClassesByColor() {
-    var selectElement = document.getElementById('class');
-    var classes = Array.from(selectElement.options);
-
-    classes.sort(function(a, b) {
-        if (a.text === 'Wähle ein Fach' || b.text === 'Wähle ein Fach') {
-            return 999;
-        }
-        //var hslA = rgbToHsl(get_class_color(a.text)); Didnt work so well so using manual order for now
-        //var hslB = rgbToHsl(get_class_color(b.text));
-        //return hslA[0] - hslB[0];
-        return get_class_order(a.text) - get_class_order(b.text);
-    });
-
-    classes.forEach(function(option) {
-        selectElement.appendChild(option);
-    });
-}
-
 // Show the timetable in the homework form for better orientation
 var showingtimetable = false;
 function showTimetableinForm() {
@@ -946,28 +903,6 @@ function showTimetableinForm() {
         }, 250);
         showingtimetable = true;
     }
-}
-
-function classLabels(subject) {
-    labels = {
-        'Englisch' : 'E1',
-        'Deutsch' : 'D',
-        'Mathematik' : 'M',
-        'Biologie' : 'BIO',
-        'Geographie' : 'GEO',
-        'Geschichte' : 'G',
-        'Physik' : 'PH',
-        'Chemie' : 'CH',
-        'Informatik' : 'WU-INFO01',
-        'Sport' : 'SPO',
-        'Musik' : 'MU',
-        'Kunst' : 'KU',
-        'Ethik' : 'ETHI01',
-        'Religion' : 'REL',
-        'PoWi' : 'POWI',
-        'Spanisch' : 'SP2-02',
-    }
-    return labels[subject];
 }
 
 function cleanMarkedCells() {
@@ -1024,8 +959,7 @@ function markinTimetable() {
         ColorAllColumns(day);
         return;
     }
-    // Convert subject from "Fach" to the label used in the timetable
-    var subject = classLabels(subject);
+
     var cell = checkColumnsMatch(timetable, subject, day);
     // If no cell on that day has the subject, mark all cells of the day
     if (!cell) {
@@ -1040,7 +974,6 @@ function autogetDate() {
     let form = document.querySelector('.hwform');
     let due_date = form.querySelector('#due_date');
     var subject = form.querySelector('#class').value;
-    subject = classLabels(subject);
     var currentDate = new Date();
     var currentDay = currentDate.getDay();
     // Add one to search from tomorrow on
