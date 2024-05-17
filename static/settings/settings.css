@@ -1,3 +1,7 @@
+input {
+    margin: 10px !important;
+}
+
 .account, .general, .timetable {
     width: 100%;
     display: none;
