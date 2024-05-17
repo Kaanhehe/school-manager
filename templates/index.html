@@ -37,6 +37,7 @@
         <div class="navbar-elements navbar-start">
             <a id="timetable-link" class="active" onclick="changeActiveClass(event); RefreshTimetable();" href="#timetable">Stundenplan</a>
             <a id="homework-link" onclick="changeActiveClass(event); RequestHomeworkRefresh(); change_done_homeworks();" href="#homework">Hausaufgaben</a>
+            <a id="repplan-link" onclick="changeActiveClass(event); RefreshRepPlan();" href="#repplan">Vertretungsplan</a>
         </div>
         <div class="navbar-elements navbar-end">
             <label class="darkmode-switch">
@@ -56,6 +57,25 @@
         <p id="notification-text">Die Hausaufgabe wurde erfolgreich hinzugefügt</p>
     </div>
     <div class="content">
+        <div class="password_input">
+            <div class="passwort_input_bg">
+                <div class="passwort_input_win">
+                    <span id="closePasswortInputButton" class="closePasswortInputbtn" onclick="ClosePasswortForm()">&times;</span>
+                    <div class="passwort_input-content">
+                        <form class="passwortinputform" action="/passwort" method="post">
+                            <h1 id="passwortinputform-header">Passwort benötigt</h1>
+                            <div class="passwortinputformitem">
+                                <label for="passwort_input">Dein Passwort <i class="fa-solid fa-circle-info" title="Hier wird dein Passwort für diese Seite (SchulHub) benötigt"></i></label>
+                                <input required type="password" id="passwort_input" name="passwort_input" placeholder="Passwort">
+                            </div>
+                            <div class="passwortinputformbuttons">
+                                <input class="submit" id="passwortsub" type="submit" value="Absenden">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="timetable visible">
                 <div class="scrape_form_bg">
                     <div class="scrape_form_win">
@@ -81,23 +101,6 @@
                                 </div>
                                 <div class="scrapeformbuttons">
                                     <input class="submit" id="scrapesub" type="submit" value="Absenden">
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="passwort_input_bg">
-                    <div class="passwort_input_win">
-                        <span id="closePasswortInputButton" class="closePasswortInputbtn" onclick="ClosePasswortForm()">&times;</span>
-                        <div class="passwort_input-content">
-                            <form class="passwortinputform" action="/passwort" method="post">
-                                <h1 id="passwortinputform-header">Passwort benötigt</h1>
-                                <div class="passwortinputformitem">
-                                    <label for="passwort_input">Dein Passwort <i class="fa-solid fa-circle-info" title="Hier wird dein Passwort für diese Seite (SchulHub) benötigt"></i></label>
-                                    <input required type="password" id="passwort_input" name="passwort_input" placeholder="Passwort">
-                                </div>
-                                <div class="passwortinputformbuttons">
-                                    <input class="submit" id="passwortsub" type="submit" value="Absenden">
                                 </div>
                             </form>
                         </div>
@@ -237,6 +240,32 @@
                     </tbody>
                 </table>
                 <button id="oldhwbtn" onclick="toggle_old_homework()">Ältere Hausaufgaben ansehen</button>
+        </div>
+        <div class="repplan">
+            <h1>Vertretungsplan</h1>
+            <div class="scrape_btns">
+                <button class="scrape_btn" id="scrapetimetable_btn" onclick="ScrapeTimeTable()">Stundenplan von Schulportal beziehen</button>
+                <button class="scrape_btn" id="scraperepplan_btn" onclick="ScrapeRepPlan()">Vertretungsplan von Schulportal beziehen</button>
+            </div>
+            <table id="repplan-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Zeit</th>
+                        <th>Stunde</th>
+                        <th>Klasssen</th>
+                        <th>Lehrer</th>
+                        <th>Vertreter</th>
+                        <th>Fach</th>
+                        <th>Raum</th>
+                        <th>Info</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- RepPlan gets applied in javascript -->
+                </tbody>
+            </table>
+            <button id="oldrepbtn" onclick="toggle_old_repplan()">Alte Vertretungsplan Einträge ansehen</button>
         </div>
     </div>
 </body>
