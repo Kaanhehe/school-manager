@@ -1096,8 +1096,6 @@ function RefreshRepPlan(first = false) {
         type: "GET",
         url: "/getrp",
         success: function(data) {
-            applyrepplan(data, 'timetable');
-            applyrepplan(data, 'mini-timetable');
             applyrepplan_to_table(data, 'repplan-table');
         },
         error: function(jqXHR, textStatus, errorThrown) {
