@@ -536,6 +536,7 @@ async function RefreshTimetable(first = false) {
         applyhomework(homework_data, 'mini-timetable');
         return;
     }
+    // Refresh the timetable first, cuz its also used to reset the repplan and homework from the timetable
     await $.ajax({
         type: "GET",
         url: "/gettt",
