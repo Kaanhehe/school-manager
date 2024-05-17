@@ -695,6 +695,26 @@ def getrp():
     user_id = get_user_id()
     repplan_data = get_repplan_data(user_id)
     repplan_data = [entry[1:] for entry in repplan_data]
+    repplan_data.sort(key=lambda x: x[0], reverse=True)
+    return jsonify(repplan_data)
+
+@app.route('/getoldrp', methods=['GET'])
+def getoldrp():
+    user_id = get_user_id()
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    c = conn.cursor()
+    c.execute("CREATE OR REPLACE FUNCTION convert_date(date_str text) RETURNS date AS $$ \
+                BEGIN \
+                    RETURN TO_DATE(date_str, 'DD.MM.YYYY'); \
+                END; \
+                $$ LANGUAGE plpgsql;")
+    today = datetime.date.today().isoformat()
+    c.execute("SELECT * FROM repplan WHERE convert_date(date) < %s AND user_id = %s", (today, user_id))
+    repplan_data = c.fetchall()
+    conn.close()
+    repplan_data = [entry[1:] for entry in repplan_data]
+    # Sort them by id in descending order to get the newest data first -> also sorts them by date
+    repplan_data.sort(key=lambda x: x[0], reverse=True)
     return jsonify(repplan_data)
 
 @app.route('/gethw', methods=['GET'])

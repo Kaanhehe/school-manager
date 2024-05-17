@@ -2,11 +2,13 @@
 
 var editinghw = null;
 var oldhw = false;
+var oldrep = false;
 var submited = false;
 var break_rows = [];
 
 $(document).ready(function(){
     RefreshTimetable(true);
+    RefreshRepPlan(true);
     setupclasses(classes_data);
     var urlParams = new URLSearchParams(window.location.search);
     var urlTab = window.location.hash === "#homework" ? "homework" : "timetable";
@@ -104,8 +106,10 @@ $(document).ready(function(){
 });
 
 function ScrapeTimeTable() {
+    var div = document.querySelector('.password_input');
     var formbg = document.querySelector('.passwort_input_bg');
     var form = document.querySelector('.passwortinputform');
+    div.classList.add("visible");
     formbg.style.display = "flex";
     setTimeout(function() {
         formbg.style.opacity = "1";
@@ -132,14 +136,17 @@ function ScrapeTimeTable() {
         formbg.style.opacity = "0";
         setTimeout(function() {
             formbg.style.display = "none";
+            div.classList.remove("visible");
         }, 500);
     });
 }
 
 async function ScrapeRepPlan() {
+    var div = document.querySelector('.password_input');
     var formbg = document.querySelector('.passwort_input_bg');
     var form = document.querySelector('.passwortinputform');
     formbg.style.display = "flex";
+    div.classList.add("visible");
     setTimeout(function() {
         formbg.style.opacity = "1";
     }, 10);
@@ -165,6 +172,7 @@ async function ScrapeRepPlan() {
         formbg.style.opacity = "0";
         setTimeout(function() {
             formbg.style.display = "none";
+            div.classList.remove("visible");
         }, 500);
     });
 }
@@ -546,6 +554,7 @@ async function RefreshTimetable(first = false) {
         success: function(data) {
             applyrepplan(data, 'timetable');
             applyrepplan(data, 'mini-timetable');
+            applyrepplan_to_table(data, 'repplan-table');
         },
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error
@@ -1074,5 +1083,68 @@ function toggle_old_homework() {
         document.getElementById("oldhwbtn").innerHTML = "Ältere Hausaufgaben ansehen";
         oldhw = false;
         RequestHomeworkRefresh();
+    }
+}
+
+function RefreshRepPlan(first = false) {
+    if (first) {
+        applyrepplan_to_table(repplan_data, 'repplan-table');
+        return;
+    }
+    $.ajax({
+        type: "GET",
+        url: "/getrp",
+        success: function(data) {
+            applyrepplan(data, 'timetable');
+            applyrepplan(data, 'mini-timetable');
+            applyrepplan_to_table(data, 'repplan-table');
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
+}
+
+function RefreshOldRepPlan() {
+    $.ajax({
+        type: "GET",
+        url: "/getoldrp",
+        success: function(data) {
+            applyrepplan(data, 'timetable');
+            applyrepplan(data, 'mini-timetable');
+            applyrepplan_to_table(data, 'repplan-table');
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
+}
+
+function applyrepplan_to_table(data, tableId) {
+    var table = document.getElementById(tableId);
+    var tableBody = table.getElementsByTagName("tbody")[0];
+    tableBody.innerHTML = '';
+    for (var i = 0; i < data.length; i++) {
+        var row = document.createElement("tr");
+        for (var j = 0; j < data[i].length; j++) {
+            var cell = document.createElement("td");
+            cell.textContent = data[i][j];
+            row.appendChild(cell);
+        }
+        tableBody.appendChild(row);
+    }
+}
+
+function toggle_old_repplan() {
+    if (!oldrep) {
+        document.getElementById("oldrepbtn").innerHTML = "Aktuelle Vertretungsplan Einträge ansehen";
+        oldrep = true;
+        RefreshOldRepPlan();
+    } else {
+        document.getElementById("oldrepbtn").innerHTML = "Ältere Vertretungsplan Einträge ansehen";
+        oldrep = false;
+        RefreshRepPlan();
     }
 }
