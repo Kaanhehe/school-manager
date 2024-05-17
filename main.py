@@ -282,7 +282,7 @@ def login():
     return render_template('login.html')
 
 @app.route('/welcome', methods=['GET'])
-def schulhub():
+def welcome():
     return render_template('welcome.html')
 
 @app.route('/logout')

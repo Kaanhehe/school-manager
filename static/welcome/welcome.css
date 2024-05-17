@@ -91,7 +91,8 @@ header ul li a {
 }
 
 .hero img {
-    height: 700px;
+    width: 90%;
+    aspect-ratio: auto;
 }
 
 .features, .how-it-works, .updates, .cta {
