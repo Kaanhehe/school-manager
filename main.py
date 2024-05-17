@@ -326,7 +326,8 @@ def index():
     homework_data = change_homework_data(homework_data)
     
     repplan_data = get_repplan_data(user_id)
-    repplan_data = [entry[1:] for entry in repplan_data]   
+    repplan_data = [entry[1:] for entry in repplan_data]
+    repplan_data.sort(key=lambda x: x[0], reverse=True)
     
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, hours_data=hours_data, breaks_data=breaks_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
