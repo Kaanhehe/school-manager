@@ -1,5 +1,3 @@
-// Author: Kaanhehe
-
 var editinghw = null;
 var oldhw = false;
 var oldrep = false;
@@ -49,6 +47,8 @@ $(document).ready(function(){
             });
         });
     }
+
+    // Makes you stay in the same tab on site refresh
     var urlTab = window.location.hash;
     if (urlTab === "#homework") {
         var timetable = document.getElementsByClassName("timetable")[0];
@@ -69,6 +69,7 @@ $(document).ready(function(){
         timetable.classList.remove("visible");
         repplan.classList.add("visible");
     }
+
     // Submit the homework form
     $(".hwform").submit(function(event){
         event.preventDefault();
@@ -117,6 +118,7 @@ $(document).ready(function(){
         });
     });
 });
+
  // Password input stuff
  function ClosePasswortForm() {
     var formbg = document.querySelector('.passwort_input_bg');
@@ -353,7 +355,6 @@ function applyhomework(homework_data, tableId) {
         date = new Date(getdateinISO(date));
         day = date.getDay();
         subject = homework_data[i][1];
-        subject = classLabels(subject);
         amount = homework_data[i][3];
         task = homework_data[i][2];
         done = homework_data[i][5];
@@ -546,12 +547,12 @@ function applyrepplan(repplanData, tableId) {
 }
 
 // Homework stuff
-function RequestHomeworkRefresh() {
+async function RequestHomeworkRefresh() {
     if (oldhw) {
-        refreshOldHomeworks();
+        await done == refreshOldHomeworks();
         setupclasses(classes_data);
     } else {
-        refreshHomeworks();
+        await done == refreshHomeworks();
         setupclasses(classes_data);
     }
 }
@@ -586,6 +587,7 @@ function refreshHomeworks() {
             });
             tableBody.innerHTML = rows.join("");
             change_done_homeworks();
+            replaceSubject();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error
@@ -624,6 +626,7 @@ function refreshOldHomeworks() {
             });
             tableBody.innerHTML = rows.join("");
             change_done_homeworks();
+            replaceSubject();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle the error
@@ -676,6 +679,21 @@ function change_done_homeworks() {
         }
     }
 }
+
+// Replaces the subject with the class label
+// checks in the classes_data array for the subject and returns the class label if it is given
+function replaceSubject() {
+    var table = document.getElementById("homework-table");
+    for (var i = 1; i < table.rows.length; i++) {
+        var subject = table.rows[i].cells[1].innerText;
+        classes_data.forEach(function(class_data) {
+            if (class_data[0] === subject && class_data[1] !== "") {
+                table.rows[i].cells[1].innerText = class_data[1];
+            }
+        });
+    }
+}
+
 
 function setupclasses(classes_data) {
     if (!classes_data) {

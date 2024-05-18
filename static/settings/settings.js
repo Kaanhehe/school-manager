@@ -80,7 +80,6 @@ function changeUsername() {
                 type = data.split('+')[0];
                 header = data.split('+')[1];
                 message = data.split('+')[2];
-                console.log(type, header, message);
                 sendNotification(type, header, message);
                 if (type == "success") {
                     location.reload();
@@ -112,7 +111,6 @@ function changeEmail() {
                 type = data.split('+')[0];
                 header = data.split('+')[1];
                 message = data.split('+')[2];
-                console.log(type, header, message);
                 sendNotification(type, header, message);
                 if (type == "success") {
                     location.reload();
@@ -184,7 +182,6 @@ function changePassword() {
                 type = data.split('+')[0];
                 header = data.split('+')[1];
                 message = data.split('+')[2];
-                console.log(type, header, message);
                 sendNotification(type, header, message);
                 if (type == "success") {
                     location.reload();
@@ -220,7 +217,6 @@ function deleteUserData() {
                 type = data.split('+')[0];
                 header = data.split('+')[1];
                 message = data.split('+')[2];
-                console.log(type, header, message);
                 sendNotification(type, header, message);
                 if (type == "success") {
                     location.reload();
@@ -252,7 +248,6 @@ function deleteAccount() {
                 type = data.split('+')[0];
                 header = data.split('+')[1];
                 message = data.split('+')[2];
-                console.log(type, header, message);
                 sendNotification(type, header, message);
                 if (type == "success") {
                     window.location.href = "/logout";
@@ -293,7 +288,6 @@ function saveClasses() {
         var class_name = classes[i].getElementsByTagName("input")[0].value;
         var custom_name = classes[i].getElementsByTagName("input")[1].value;
         var class_color = classes[i].getElementsByTagName("input")[2].value;
-        console.log(class_name, custom_name, class_color)
         data.push({
             "name": class_name,
             "custom_name": custom_name,
@@ -310,7 +304,6 @@ function saveClasses() {
             type = data.split('+')[0];
             header = data.split('+')[1];
             message = data.split('+')[2];
-            console.log(type, header, message);
             sendNotification(type, header, message);
         },
         error: function(error) {
@@ -357,7 +350,6 @@ function saveBreaks() {
             type = data.split('+')[0];
             header = data.split('+')[1];
             message = data.split('+')[2];
-            console.log(type, header, message);
             sendNotification(type, header, message);
         },
         error: function(error) {
@@ -404,7 +396,6 @@ function saveTimes() {
             type = data.split('+')[0];
             header = data.split('+')[1];
             message = data.split('+')[2];
-            console.log(type, header, message);
             sendNotification(type, header, message);
         },
         error: function(error) {
@@ -457,7 +448,6 @@ function saveTimetable() {
             type = data.split('+')[0];
             header = data.split('+')[1];
             message = data.split('+')[2];
-            console.log(type, header, message);
             sendNotification(type, header, message);
         },
         error: function(error) {
