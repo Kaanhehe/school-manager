@@ -60,6 +60,10 @@ header ul li a {
     margin: 1em 0;
 }
 
+.hero p.subtext {
+    font-size: 1em;
+}
+
 .cta-buttons {
     margin: 2em 0;
 }

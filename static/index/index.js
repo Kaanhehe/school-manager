@@ -1,5 +1,3 @@
-// Author: Kaanhehe
-
 var editinghw = null;
 var oldhw = false;
 var oldrep = false;
@@ -7,12 +5,13 @@ var submited = false;
 var break_rows = [];
 
 $(document).ready(function(){
+    // Setup all the data
     RefreshTimetable(true);
     RequestHomeworkRefresh();
     RefreshRepPlan(true);
     setupclasses(classes_data);
+    // Check if the user wants to set the scrape data
     var urlParams = new URLSearchParams(window.location.search);
-    var urlTab = window.location.hash === "#homework" ? "homework" : "timetable";
     if (urlParams.has("setscrapedata")) {
         var formbg = document.querySelector('.scrape_form_bg');
         var form = document.querySelector('.scrapeform');
@@ -48,7 +47,10 @@ $(document).ready(function(){
             });
         });
     }
-    if (urlTab === "homework") {
+
+    // Makes you stay in the same tab on site refresh
+    var urlTab = window.location.hash;
+    if (urlTab === "#homework") {
         var timetable = document.getElementsByClassName("timetable")[0];
         var homework = document.getElementsByClassName("homework")[0];
         var timetablelink = document.getElementById("timetable-link");
@@ -57,7 +59,18 @@ $(document).ready(function(){
         timetablelink.classList.remove("active");
         timetable.classList.remove("visible");
         homework.classList.add("visible");
+    } else if (urlTab === "#repplan") {
+        var timetable = document.getElementsByClassName("timetable")[0];
+        var repplan = document.getElementsByClassName("repplan")[0];
+        var timetablelink = document.getElementById("timetable-link");
+        var repplanlink = document.getElementById("repplan-link");
+        repplanlink.classList.add("active");
+        timetablelink.classList.remove("active");
+        timetable.classList.remove("visible");
+        repplan.classList.add("visible");
     }
+
+    // Submit the homework form
     $(".hwform").submit(function(event){
         event.preventDefault();
         // Just get the date if it is not set; Not used right now -> make settings with this as option
@@ -106,7 +119,26 @@ $(document).ready(function(){
     });
 });
 
-function ScrapeTimeTable() {
+ // Password input stuff
+ function ClosePasswortForm() {
+    var formbg = document.querySelector('.passwort_input_bg');
+    formbg.style.opacity = "0";
+    setTimeout(function() {
+        formbg.style.display = "none";
+    }, 500);
+}
+
+// Scrape form stuff
+function CloseScrapeForm() {
+    var formbg = document.querySelector('.scrape_form_bg');
+    formbg.style.opacity = "0";
+    setTimeout(function() {
+        formbg.style.display = "none";
+    }, 500);
+}
+
+// Scrape Buttons stuff
+function ScrapeTimetable() {
     var div = document.querySelector('.password_input');
     var formbg = document.querySelector('.passwort_input_bg');
     var form = document.querySelector('.passwortinputform');
@@ -142,7 +174,7 @@ function ScrapeTimeTable() {
     });
 }
 
-async function ScrapeRepPlan() {
+async function ScrapeRepplan() {
     var div = document.querySelector('.password_input');
     var formbg = document.querySelector('.passwort_input_bg');
     var form = document.querySelector('.passwortinputform');
@@ -178,22 +210,140 @@ async function ScrapeRepPlan() {
     });
 }
 
-function CloseScrapeForm() {
-    var formbg = document.querySelector('.scrape_form_bg');
-    formbg.style.opacity = "0";
-    setTimeout(function() {
-        formbg.style.display = "none";
-    }, 500);
+// Timetable stuff
+async function RefreshTimetable(first = false) {
+    if (first) {
+        applyTimetable(timetable_data, 'timetable');
+        applyTimetable(timetable_data, 'mini-timetable');
+        applyrepplan(repplan_data, 'timetable');
+        applyrepplan(repplan_data, 'mini-timetable');
+        applyhomework(homework_data, 'timetable');
+        applyhomework(homework_data, 'mini-timetable');
+        return;
+    }
+    // Refresh the timetable first, cuz its also used to reset the repplan and homework from the timetable
+    await $.ajax({
+        type: "GET",
+        url: "/gettt",
+        success: function(data) {
+            applyTimetable(data, 'timetable');
+            applyTimetable(data, 'mini-timetable');
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+            sendNotification("error", "Fehler", "Der Stundenplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: "/getrp",
+        success: function(data) {
+            applyrepplan(data, 'timetable');
+            applyrepplan(data, 'mini-timetable');
+            applyrepplan_to_table(data, 'repplan-table');
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+            sendNotification("error", "Fehler", "Der Vertretungsplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
+        }
+    });
+    $.ajax({
+        type: "GET",
+        url: "/gethw",
+        success: function(data) {
+            applyhomework(data, 'timetable');
+            applyhomework(data, 'mini-timetable');
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+            sendNotification("error", "Fehler", "Die Hausaufgaben konnten nicht aktualisiert werden. Versuche die Seite neu zu laden.");
+        }
+    });
 }
 
-function ClosePasswortForm() {
-    var formbg = document.querySelector('.passwort_input_bg');
-    formbg.style.opacity = "0";
-    setTimeout(function() {
-        formbg.style.display = "none";
-    }, 500);
-}
+// Apply the timetable to the table
+function applyTimetable(data, tableId) {
+    var tableHead = document.querySelector("#" + tableId + " thead");
+    var tableBody = document.querySelector("#" + tableId + " tbody");
+    // Clear the table
+    tableHead.innerHTML = '';
+    tableBody.innerHTML = '';
 
+    // Add the column headers
+    var headerRow = document.createElement('tr');
+    headerRow.innerHTML = `
+        <th>Stunde</th>
+        <th>Zeit</th>
+        <th>Montag</th>
+        <th>Dienstag</th>
+        <th>Mittwoch</th>
+        <th>Donnerstag</th>
+        <th>Freitag</th>
+    `;
+
+    tableHead.appendChild(headerRow);
+
+    // Takes only the number and the time of the first class of the row
+    // Applys that to the first two cells of the row
+    data.forEach(function(group, index) {
+        var class_day = group[0][0];
+        var class_num = group[0][1];
+        var class_time = '';
+        hours_data.forEach(function(hour) {
+            if (hour[0] == class_num) {
+                class_time = hour[1];
+            }
+        });
+        var class_name = group[0][2];
+        var class_loc = group[0][3];
+        var class_tea = group[0][4];
+        
+        breaks_data.forEach(function(sg_break) {
+            if (sg_break[1].split(' - ')[1] == class_time.split(' - ')[0]) {
+                var breakRow = document.createElement('tr');
+                breakRow.innerHTML = `
+                    <td></td>
+                    <td>${sg_break[1]}</td>
+                    <td colspan="7" class="timetablebreak">${sg_break[0]}</td>
+                `;
+                tableBody.appendChild(breakRow);
+                // Get the row number of the break row
+                tablerow = tableBody.rows.length;
+                // Add the row number to the break_rows array so it can be avoided when adding the repplan
+                if (!break_rows.includes(tablerow)) {
+                    break_rows.push(tablerow);
+                }
+            }
+        });
+        var row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${class_num}</td>
+            <td>${class_time}</td>
+        `;
+        
+        // Then loops over all the classes of the row and adds them to the row
+        group.forEach(function(class_data) {
+            var class_day = class_data[0];
+            var class_num = class_data[1];
+            var class_name = class_data[2];
+            var class_loc = class_data[3];
+            var class_tea = class_data[4];
+    
+            var day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6};
+    
+            if (class_day in day_columns) {
+                var cell = document.createElement('td');
+                cell.textContent = class_name + ' ' + class_loc + ' ' + class_tea;
+                row.appendChild(cell);
+            }
+        });
+    
+        tableBody.appendChild(row);
+    });
+}
 // Used to apply the homework to the timetable
 // Adds a little icon to the cell if there is a homework with the amount of homeworks that are due
 // Also adds a icon the the column header with the amount of homeworks that are due in the whole day
@@ -205,7 +355,6 @@ function applyhomework(homework_data, tableId) {
         date = new Date(getdateinISO(date));
         day = date.getDay();
         subject = homework_data[i][1];
-        subject = classLabels(subject);
         amount = homework_data[i][3];
         task = homework_data[i][2];
         done = homework_data[i][5];
@@ -397,6 +546,95 @@ function applyrepplan(repplanData, tableId) {
     }
 }
 
+// Homework stuff
+async function RequestHomeworkRefresh() {
+    if (oldhw) {
+        await done == refreshOldHomeworks();
+        setupclasses(classes_data);
+    } else {
+        await done == refreshHomeworks();
+        setupclasses(classes_data);
+    }
+}
+
+function refreshHomeworks() {
+    $.ajax({
+        type: "GET",
+        url: "/gethw",
+        success: function(data) {
+            var tableBody = document.querySelector("#homework-table tbody");
+            var rows = eval(data).map(function(rowData) {
+                var row = document.createElement("tr");
+                rowData.forEach(function(cellData, index) {
+                    if (index !== 5) { // Skip the done column
+                        var cell = document.createElement("td");
+                        cell.textContent = cellData;
+                        row.appendChild(cell);
+                    } else {
+                        done = cellData;
+                    }
+                });
+                // Add action buttons to the last cell
+                var actionCell = document.createElement("td");
+                actionCell.className = "hwactions";
+                actionCell.innerHTML = `
+                    <button class="hwaction" id="hwdone" data-id=${done}><i class="fa-solid fa-check"></i></button> <!-- onclick gets added in change_done_homeworks() -->
+                    <button class="hwaction" id="hwedit" onclick="editHomework(event)"><i class="fa-regular fa-pen-to-square"></i></button>
+                    <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)"><i class="fa-solid fa-trash-can"></i></button>
+                `;
+                row.appendChild(actionCell);
+                return row.outerHTML;
+            });
+            tableBody.innerHTML = rows.join("");
+            change_done_homeworks();
+            replaceSubject();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
+}
+
+function refreshOldHomeworks() {
+    $.ajax({
+        type: "GET",
+        url: "/getoldhw",
+        success: function(data) {
+            var tableBody = document.querySelector("#homework-table tbody");
+            var rows = eval(data).map(function(rowData) {
+                var row = document.createElement("tr");
+                rowData.forEach(function(cellData, index) {
+                    if (index !== 5) { // Skip the done column
+                        var cell = document.createElement("td");
+                        cell.textContent = cellData;
+                        row.appendChild(cell);
+                    } else {
+                        done = cellData;
+                    }
+                });
+                // Add action buttons to the last cell
+                var actionCell = document.createElement("td");
+                actionCell.className = "hwactions";
+                actionCell.innerHTML = `
+                    <button class="hwaction" id="hwdone" data-id=${done}><i class="fa-solid fa-check"></i></button> <!-- onclick gets added in change_done_homeworks() -->
+                    <button class="hwaction" id="hwedit" onclick="editHomework(event)"><i class="fa-regular fa-pen-to-square"></i></button>
+                    <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)"><i class="fa-solid fa-trash-can"></i></button>
+                `;
+                row.appendChild(actionCell);
+                return row.outerHTML;
+            });
+            tableBody.innerHTML = rows.join("");
+            change_done_homeworks();
+            replaceSubject();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle the error
+            console.error(textStatus, errorThrown);
+        }
+    });
+}
+
 function change_done_homeworks() {
     var buttons = document.querySelectorAll(".hwaction#hwdone");
     for (var i = 0; i < buttons.length; i++) {
@@ -442,228 +680,20 @@ function change_done_homeworks() {
     }
 }
 
-// Its done very complicated and should be done better
-// Maybe with a better data structure
-// And not being applied in the html code at first
-// Apply the timetable to the table
-function applyTimetable(data, tableId) {
-    var tableHead = document.querySelector("#" + tableId + " thead");
-    var tableBody = document.querySelector("#" + tableId + " tbody");
-    // Clear the table
-    tableHead.innerHTML = '';
-    tableBody.innerHTML = '';
-
-    // Add the column headers
-    var headerRow = document.createElement('tr');
-    headerRow.innerHTML = `
-        <th>Stunde</th>
-        <th>Zeit</th>
-        <th>Montag</th>
-        <th>Dienstag</th>
-        <th>Mittwoch</th>
-        <th>Donnerstag</th>
-        <th>Freitag</th>
-    `;
-
-    tableHead.appendChild(headerRow);
-
-    // Takes only the number and the time of the first class of the row
-    // Applys that to the first two cells of the row
-    data.forEach(function(group, index) {
-        var class_day = group[0][0];
-        var class_num = group[0][1];
-        var class_time = '';
-        hours_data.forEach(function(hour) {
-            if (hour[0] == class_num) {
-                class_time = hour[1];
+// Replaces the subject with the class label
+// checks in the classes_data array for the subject and returns the class label if it is given
+function replaceSubject() {
+    var table = document.getElementById("homework-table");
+    for (var i = 1; i < table.rows.length; i++) {
+        var subject = table.rows[i].cells[1].innerText;
+        classes_data.forEach(function(class_data) {
+            if (class_data[0] === subject && class_data[1] !== "") {
+                table.rows[i].cells[1].innerText = class_data[1];
             }
         });
-        var class_name = group[0][2];
-        var class_loc = group[0][3];
-        var class_tea = group[0][4];
-        
-        breaks_data.forEach(function(sg_break) {
-            if (sg_break[1].split(' - ')[1] == class_time.split(' - ')[0]) {
-                var breakRow = document.createElement('tr');
-                breakRow.innerHTML = `
-                    <td></td>
-                    <td>${sg_break[1]}</td>
-                    <td colspan="7" class="timetablebreak">${sg_break[0]}</td>
-                `;
-                tableBody.appendChild(breakRow);
-                // Get the row number of the break row
-                tablerow = tableBody.rows.length;
-                // Add the row number to the break_rows array so it can be avoided when adding the repplan
-                if (!break_rows.includes(tablerow)) {
-                    break_rows.push(tablerow);
-                }
-            }
-        });
-        var row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${class_num}</td>
-            <td>${class_time}</td>
-        `;
-        
-        // Then loops over all the classes of the row and adds them to the row
-        group.forEach(function(class_data) {
-            var class_day = class_data[0];
-            var class_num = class_data[1];
-            var class_name = class_data[2];
-            var class_loc = class_data[3];
-            var class_tea = class_data[4];
-    
-            var day_columns = {'Montag': 2, 'Dienstag': 3, 'Mittwoch': 4, 'Donnerstag': 5, 'Freitag': 6};
-    
-            if (class_day in day_columns) {
-                var cell = document.createElement('td');
-                cell.textContent = class_name + ' ' + class_loc + ' ' + class_tea;
-                row.appendChild(cell);
-            }
-        });
-    
-        tableBody.appendChild(row);
-    });
-}
-
-async function RefreshTimetable(first = false) {
-    if (first) {
-        applyTimetable(timetable_data, 'timetable');
-        applyTimetable(timetable_data, 'mini-timetable');
-        applyrepplan(repplan_data, 'timetable');
-        applyrepplan(repplan_data, 'mini-timetable');
-        applyhomework(homework_data, 'timetable');
-        applyhomework(homework_data, 'mini-timetable');
-        return;
-    }
-    // Refresh the timetable first, cuz its also used to reset the repplan and homework from the timetable
-    await $.ajax({
-        type: "GET",
-        url: "/gettt",
-        success: function(data) {
-            applyTimetable(data, 'timetable');
-            applyTimetable(data, 'mini-timetable');
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            // Handle the error
-            console.error(textStatus, errorThrown);
-            sendNotification("error", "Fehler", "Der Stundenplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
-        }
-    });
-    $.ajax({
-        type: "GET",
-        url: "/getrp",
-        success: function(data) {
-            applyrepplan(data, 'timetable');
-            applyrepplan(data, 'mini-timetable');
-            applyrepplan_to_table(data, 'repplan-table');
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            // Handle the error
-            console.error(textStatus, errorThrown);
-            sendNotification("error", "Fehler", "Der Vertretungsplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
-        }
-    });
-    $.ajax({
-        type: "GET",
-        url: "/gethw",
-        success: function(data) {
-            applyhomework(data, 'timetable');
-            applyhomework(data, 'mini-timetable');
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            // Handle the error
-            console.error(textStatus, errorThrown);
-            sendNotification("error", "Fehler", "Die Hausaufgaben konnten nicht aktualisiert werden. Versuche die Seite neu zu laden.");
-        }
-    });
-}
-
-function RequestHomeworkRefresh() {
-    if (oldhw) {
-        refreshOldHomeworks();
-        setupclasses(classes_data);
-    } else {
-        refreshHomeworks();
-        setupclasses(classes_data);
     }
 }
 
-function refreshHomeworks() {
-    $.ajax({
-        type: "GET",
-        url: "/gethw",
-        success: function(data) {
-            var tableBody = document.querySelector("#homework-table tbody");
-            var rows = eval(data).map(function(rowData) {
-                var row = document.createElement("tr");
-                rowData.forEach(function(cellData, index) {
-                    if (index !== 5) { // Skip the done column
-                        var cell = document.createElement("td");
-                        cell.textContent = cellData;
-                        row.appendChild(cell);
-                    } else {
-                        done = cellData;
-                    }
-                });
-                // Add action buttons to the last cell
-                var actionCell = document.createElement("td");
-                actionCell.className = "hwactions";
-                actionCell.innerHTML = `
-                    <button class="hwaction" id="hwdone" data-id=${done}><i class="fa-solid fa-check"></i></button> <!-- onclick gets added in change_done_homeworks() -->
-                    <button class="hwaction" id="hwedit" onclick="editHomework(event)"><i class="fa-regular fa-pen-to-square"></i></button>
-                    <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)"><i class="fa-solid fa-trash-can"></i></button>
-                `;
-                row.appendChild(actionCell);
-                return row.outerHTML;
-            });
-            tableBody.innerHTML = rows.join("");
-            change_done_homeworks();
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            // Handle the error
-            console.error(textStatus, errorThrown);
-        }
-    });
-}
-
-function refreshOldHomeworks() {
-    $.ajax({
-        type: "GET",
-        url: "/getoldhw",
-        success: function(data) {
-            var tableBody = document.querySelector("#homework-table tbody");
-            var rows = eval(data).map(function(rowData) {
-                var row = document.createElement("tr");
-                rowData.forEach(function(cellData, index) {
-                    if (index !== 5) { // Skip the done column
-                        var cell = document.createElement("td");
-                        cell.textContent = cellData;
-                        row.appendChild(cell);
-                    } else {
-                        done = cellData;
-                    }
-                });
-                // Add action buttons to the last cell
-                var actionCell = document.createElement("td");
-                actionCell.className = "hwactions";
-                actionCell.innerHTML = `
-                    <button class="hwaction" id="hwdone" data-id=${done}><i class="fa-solid fa-check"></i></button> <!-- onclick gets added in change_done_homeworks() -->
-                    <button class="hwaction" id="hwedit" onclick="editHomework(event)"><i class="fa-regular fa-pen-to-square"></i></button>
-                    <button class="hwaction" id="hwdelete" onclick="deleteHomework(event)"><i class="fa-solid fa-trash-can"></i></button>
-                `;
-                row.appendChild(actionCell);
-                return row.outerHTML;
-            });
-            tableBody.innerHTML = rows.join("");
-            change_done_homeworks();
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            // Handle the error
-            console.error(textStatus, errorThrown);
-        }
-    });
-}
 
 function setupclasses(classes_data) {
     if (!classes_data) {
@@ -702,6 +732,7 @@ function Refreshclasses() {
     });
 }
 
+// Homework actions stuff
 function doneHomework(event) {
     var row = event.target.closest("tr");
     var id = row.cells[0].innerText;
@@ -765,42 +796,17 @@ function deleteHomework(event) {
     });
 }
 
-function resetForm() {
+// Homework form stuff
+// Opens the form to add a new homework
+function displayhwform() {
     var window = document.getElementsByClassName("newhwwinbg")[0];
-    var values = window.getElementsByTagName("input");
-    var selects = window.getElementsByTagName("select");
-    var formHeader = document.getElementById("hwform-header");
-    var submit = window.querySelector('input[type="submit"]');
-    submit.value = "Hinzufügen";
-    formHeader.innerText = "Neue Hausaufgabe";
-    for (var i = 0; i < values.length; i++) {
-        if (values[i].type != "submit" && values[i].type != "checkbox") {
-            values[i].value = "";
-        }
-    }
-    for (var i = 0; i < selects.length; i++) {
-        selects[i].selectedIndex = 0;
-    }
-    editinghw = null;
+    var win = document.getElementsByClassName("newhwwin")[0];
+    setTimeout(function() {
+        window.style.opacity = "1";
+    }, 10);
+    window.style.display = "flex";
+    submited = false;
 }
-
-function getworkamountINT(workamount) {
-    if (workamount === "Einfach😀") {
-        return 1;
-    } else if (workamount === "Normal🙂") {
-        return 2;
-    } else if (workamount === "Schwer🥵") {
-        return 3;
-    }
-    return 0;
-}
-
-function getdateinISO(date) {
-    // date is in format dd.mm.yyyy
-    var parts = date.split(".");
-    return parts[2] + "-" + parts[1] + "-" + parts[0];
-}
-
 
 function displayEdithwForm(homework) {
     var window = document.getElementsByClassName("newhwwinbg")[0];
@@ -823,15 +829,16 @@ function displayEdithwForm(homework) {
     markinTimetable();
 }
 
-// Opens the form to add a new homework
-function displayhwform() {
-    var window = document.getElementsByClassName("newhwwinbg")[0];
-    var win = document.getElementsByClassName("newhwwin")[0];
-    setTimeout(function() {
-        window.style.opacity = "1";
-    }, 10);
-    window.style.display = "flex";
-    submited = false;
+function toggle_old_homework() {
+    if (!oldhw) {
+        document.getElementById("oldhwbtn").innerHTML = "Aktuelle Hausaufgaben ansehen";
+        oldhw = true;
+        RequestHomeworkRefresh();
+    } else {
+        document.getElementById("oldhwbtn").innerHTML = "Ältere Hausaufgaben ansehen";
+        oldhw = false;
+        RequestHomeworkRefresh();
+    }
 }
 
 function tryclosehwform() {
@@ -880,6 +887,43 @@ function closecancelwin() {
     }, 500);
 }
 
+function resetForm() {
+    var window = document.getElementsByClassName("newhwwinbg")[0];
+    var values = window.getElementsByTagName("input");
+    var selects = window.getElementsByTagName("select");
+    var formHeader = document.getElementById("hwform-header");
+    var submit = window.querySelector('input[type="submit"]');
+    submit.value = "Hinzufügen";
+    formHeader.innerText = "Neue Hausaufgabe";
+    for (var i = 0; i < values.length; i++) {
+        if (values[i].type != "submit" && values[i].type != "checkbox") {
+            values[i].value = "";
+        }
+    }
+    for (var i = 0; i < selects.length; i++) {
+        selects[i].selectedIndex = 0;
+    }
+    editinghw = null;
+}
+
+function getworkamountINT(workamount) {
+    if (workamount === "Einfach😀") {
+        return 1;
+    } else if (workamount === "Normal🙂") {
+        return 2;
+    } else if (workamount === "Schwer🥵") {
+        return 3;
+    }
+    return 0;
+}
+
+function getdateinISO(date) {
+    // date is in format dd.mm.yyyy
+    var parts = date.split(".");
+    return parts[2] + "-" + parts[1] + "-" + parts[0];
+}
+
+
 // Show the timetable in the homework form for better orientation
 var showingtimetable = false;
 function showTimetableinForm() {
@@ -903,71 +947,6 @@ function showTimetableinForm() {
         }, 250);
         showingtimetable = true;
     }
-}
-
-function cleanMarkedCells() {
-    var timetable = document.getElementById("mini-timetable");
-    var cells = timetable.getElementsByClassName("marked");
-    while (cells.length > 0) {
-        cells[0].classList.remove("marked");
-    }
-}
-
-function checkColumnsMatch(timetable, subject, day) {
-    var rows = timetable.rows;
-    for (var i = 0; i < rows.length; i++) {
-       var cell = rows[i].cells[day + 1];
-       if (!cell) {
-          continue;
-       }
-       if (cell.innerText.split(' ')[0] === subject) {
-          return cell;
-       }
-    }
-    return false;
- }
-
- function ColorAllColumns(day) {
-    var timetable = document.getElementById("mini-timetable");
-    var rows = timetable.rows;
-    for (var i = 0; i < rows.length; i++) {
-       var cell = rows[i].cells[day + 1];
-    if (!cell || cell.colSpan > 2) { // Skip the first cell and the cells with colspan > 2 (Mittagspause)
-          continue;
-       }
-       cell.classList.add("marked");
-    }
- }
-
-function markinTimetable() {
-    // Clean up the timetable from previous marks
-    cleanMarkedCells();
-    var timetable = document.getElementById("mini-timetable");
-    var date = document.getElementById("due_date").value;
-    if (date === "") {
-        return;
-    }
-    var day = new Date(date).getDay();
-    // If the day is Saturday or Sunday, do not mark anything
-    if (day === 6 || day === 0) {
-        return;
-    }
-    let form = document.querySelector('.hwform');
-    var subject = form.querySelector('#class').value;
-    // If no subject is selected, mark all cells of the day
-    if (subject === "") {
-        ColorAllColumns(day);
-        return;
-    }
-
-    var cell = checkColumnsMatch(timetable, subject, day);
-    // If no cell on that day has the subject, mark all cells of the day
-    if (!cell) {
-        ColorAllColumns(day);
-        return;
-    }
-    // Mark the cell with the subject
-    cell.classList.add("marked");
 }
 
 function autogetDate() {
@@ -1009,18 +988,73 @@ function autogetDate() {
     return null;
 }
 
-function toggle_old_homework() {
-    if (!oldhw) {
-        document.getElementById("oldhwbtn").innerHTML = "Aktuelle Hausaufgaben ansehen";
-        oldhw = true;
-        RequestHomeworkRefresh();
-    } else {
-        document.getElementById("oldhwbtn").innerHTML = "Ältere Hausaufgaben ansehen";
-        oldhw = false;
-        RequestHomeworkRefresh();
+function markinTimetable() {
+    // Clean up the timetable from previous marks
+    cleanMarkedCells();
+    var timetable = document.getElementById("mini-timetable");
+    var date = document.getElementById("due_date").value;
+    if (date === "") {
+        return;
+    }
+    var day = new Date(date).getDay();
+    // If the day is Saturday or Sunday, do not mark anything
+    if (day === 6 || day === 0) {
+        return;
+    }
+    let form = document.querySelector('.hwform');
+    var subject = form.querySelector('#class').value;
+    // If no subject is selected, mark all cells of the day
+    if (subject === "") {
+        ColorAllColumns(day);
+        return;
+    }
+
+    var cell = checkColumnsMatch(timetable, subject, day);
+    // If no cell on that day has the subject, mark all cells of the day
+    if (!cell) {
+        ColorAllColumns(day);
+        return;
+    }
+    // Mark the cell with the subject
+    cell.classList.add("marked");
+}
+
+function checkColumnsMatch(timetable, subject, day) {
+    var rows = timetable.rows;
+    for (var i = 0; i < rows.length; i++) {
+       var cell = rows[i].cells[day + 1];
+       if (!cell) {
+          continue;
+       }
+       if (cell.innerText.split(' ')[0] === subject) {
+          return cell;
+       }
+    }
+    return false;
+ }
+
+ function ColorAllColumns(day) {
+    var timetable = document.getElementById("mini-timetable");
+    var rows = timetable.rows;
+    for (var i = 0; i < rows.length; i++) {
+       var cell = rows[i].cells[day + 1];
+    if (!cell || cell.colSpan > 2) { // Skip the first cell and the cells with colspan > 2 (Mittagspause)
+          continue;
+       }
+       cell.classList.add("marked");
+    }
+ }
+
+// Clears the marked cells in the mini timetable
+function cleanMarkedCells() {
+    var timetable = document.getElementById("mini-timetable");
+    var cells = timetable.getElementsByClassName("marked");
+    while (cells.length > 0) {
+        cells[0].classList.remove("marked");
     }
 }
 
+// RepPlan stuff
 function RefreshRepPlan(first = false) {
     if (first) {
         applyrepplan_to_table(repplan_data, 'repplan-table');
