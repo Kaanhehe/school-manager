@@ -31,7 +31,7 @@ def conntect_to_db() -> tuple:
 
 # Functions to get the data from the database
 # Function to retrieve timetable data from the database
-def get_timetable_data(user_id):
+def get_timetable_data(user_id) -> list:
     conn, c = conntect_to_db()
     # Select all data from the table called user_id
     c.execute("SELECT * FROM timetable WHERE user_id = %s", (user_id,))
@@ -39,7 +39,7 @@ def get_timetable_data(user_id):
     conn.close()
     return timetable_data
 
-def get_lesson_hours(user_id):
+def get_lesson_hours(user_id) -> list:
     conn, c = conntect_to_db()
     c.execute("SELECT * FROM timetable_times WHERE user_id = %s", (user_id,))
     hours_data = c.fetchall()
@@ -51,7 +51,7 @@ def get_lesson_hours(user_id):
     hours_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in hours_data]
     return hours_data
 
-def get_breaks_data(user_id):
+def get_breaks_data(user_id) -> list:
     conn, c = conntect_to_db()
     c.execute("SELECT * FROM timetable_breaks WHERE user_id = %s", (user_id,))
     breaks_data = c.fetchall()
@@ -61,7 +61,7 @@ def get_breaks_data(user_id):
     breaks_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in breaks_data]
     return breaks_data
 
-def get_classes_data(user_id):
+def get_classes_data(user_id) -> list:
     conn, c = conntect_to_db()
     c.execute("SELECT * FROM timetable_classes WHERE user_id = %s", (user_id,))
     classes_data = c.fetchall()
@@ -69,7 +69,7 @@ def get_classes_data(user_id):
     classes_data = [entry[1:] for entry in classes_data]
     return classes_data
 
-def get_homework_data(user_id):
+def get_homework_data(user_id) -> list:
     conn, c = conntect_to_db()
     today = datetime.date.today().isoformat()
     c.execute("SELECT * FROM homework WHERE due_date >= %s AND user_id = %s", (today, user_id))
@@ -77,7 +77,7 @@ def get_homework_data(user_id):
     conn.close()
     return homework_data
 
-def get_old_homework_data(user_id):
+def get_old_homework_data(user_id) -> list:
     conn, c = conntect_to_db()
     today = datetime.date.today().isoformat()
     c.execute("SELECT * FROM homework WHERE due_date < %s AND user_id = %s", (today, user_id))
@@ -85,7 +85,7 @@ def get_old_homework_data(user_id):
     conn.close()
     return homework_data
 
-def get_repplan_data(user_id):
+def get_repplan_data(user_id) -> list:
     def convert_date(date_str):
         # Convert date from DD.MM.YYYY to YYYY-MM-DD
         return datetime.datetime.strptime(date_str, '%d.%m.%Y').strftime('%Y-%m-%d')
@@ -106,7 +106,7 @@ def get_repplan_data(user_id):
     repplan_data.sort(key=lambda x: x[0], reverse=True)
     return repplan_data
 
-def get_old_repplan_data(user_id):
+def get_old_repplan_data(user_id) -> list:
     def convert_date(date_str):
         # Convert date from DD.MM.YYYY to YYYY-MM-DD
         return datetime.datetime.strptime(date_str, '%d.%m.%Y').strftime('%Y-%m-%d')
@@ -128,7 +128,7 @@ def get_old_repplan_data(user_id):
     return repplan_data
 
 # Functions to save the data in the database
-def save_timetable_data(user_id, timetable_data):
+def save_timetable_data(user_id, timetable_data) -> None:
     conn, c = conntect_to_db()
     c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
     for sg_timetable in timetable_data:
@@ -143,7 +143,7 @@ def save_timetable_data(user_id, timetable_data):
     conn.commit()
     conn.close()
 
-def save_lesson_hours(user_id, hours_data):
+def save_lesson_hours(user_id, hours_data) -> None:
     conn, c = conntect_to_db()
     c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
     for sg_time in hours_data:
@@ -156,7 +156,7 @@ def save_lesson_hours(user_id, hours_data):
     conn.commit()
     conn.close()
 
-def save_breaks_data(user_id, breaks_data):
+def save_breaks_data(user_id, breaks_data) -> None:
     conn, c = conntect_to_db()
     c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
     for sg_break in breaks_data:
@@ -169,7 +169,7 @@ def save_breaks_data(user_id, breaks_data):
     conn.commit()
     conn.close()
 
-def save_classes_data(user_id, classes_data):
+def save_classes_data(user_id, classes_data) -> None:
     conn, c = conntect_to_db()
     c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
     for sg_class in classes_data:
@@ -184,7 +184,7 @@ def save_classes_data(user_id, classes_data):
     conn.close()
 
 # Function to sort the timetable data
-def sort_timetable_data(timetable_data):
+def sort_timetable_data(timetable_data) -> list:
     # Define the weekday mapping
     weekday_mapping = {
         'Montag': 1,
@@ -221,7 +221,7 @@ def sort_timetable_data(timetable_data):
     return grouped_data
 
 # Function to change the homework data
-def change_homework_data(homework_data):
+def change_homework_data(homework_data) -> list:
     modified_homework_data = []
     for homework in homework_data:
         homework_list = list(homework)[1:]  # Remove the first column
@@ -244,7 +244,7 @@ def change_homework_data(homework_data):
     return modified_homework_data
 
 # Function to get the user_id from the database
-def get_user_id():
+def get_user_id() -> str:
     if 'username' not in session:
         return abort(403)
     conn, c = conntect_to_db()
@@ -257,7 +257,7 @@ def get_user_id():
     return user_id
 
 # Function to check if the user has entered the scrape data already
-def check_entered_scrape_data(user_id):
+def check_entered_scrape_data(user_id) -> bool:
     conn, c = conntect_to_db()
     c.execute("SELECT entered_scrape_data FROM users WHERE user_id = %s", (user_id,))
     entered_scrape_data = c.fetchone()[0]
@@ -265,7 +265,7 @@ def check_entered_scrape_data(user_id):
     return entered_scrape_data
 
 # Function to check if the password is correct
-def check_password(user_id, user_password):
+def check_password(user_id, user_password) -> bool:
     conn, c = conntect_to_db()
     c.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
     user = c.fetchone()
@@ -277,7 +277,7 @@ def check_password(user_id, user_password):
     return False
 
 # Function to encrypt the password for the school website
-def encrypt_password(user_password, target_password):
+def encrypt_password(user_password, target_password) -> bytes:
     # Derive a key from the user's password
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
@@ -302,7 +302,7 @@ def encrypt_password(user_password, target_password):
     return base64.b64encode(encrypted_data)
 
 # Function to store the scrape data in the database
-def store_scrape_data(user_id, login_url, schoolid, username, password):
+def store_scrape_data(user_id, login_url, schoolid, username, password) -> None:
     conn, c = conntect_to_db()
 
     # Decode the password
@@ -319,7 +319,7 @@ def store_scrape_data(user_id, login_url, schoolid, username, password):
     conn.close()
 
 # Function to delete the user data from the database
-def delete_user_data(user_id):
+def delete_user_data(user_id) -> None:
     conn, c = conntect_to_db()
     c.execute("DELETE FROM scrape_data WHERE user_id = %s", (user_id,))
     c.execute("UPDATE users SET entered_scrape_data = 0 WHERE user_id = %s", (user_id,))
@@ -333,7 +333,7 @@ def delete_user_data(user_id):
     conn.close()
 
 # Function to delete the user account from the database
-def delete_user_account(user_id):
+def delete_user_account(user_id) -> None:
     conn, c = conntect_to_db()
     c.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
     conn.commit()
