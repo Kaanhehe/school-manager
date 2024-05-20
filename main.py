@@ -24,15 +24,15 @@ DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
 #subprocess.run(['python', 'D:\ME\Privat\Projekte\Python\school-manager\createTables.py'])
 
 # Function to connect to the database
-def conntect_to_db() -> tuple:
+def connect_to_db() -> tuple[psycopg2.extensions.connection, psycopg2.extensions.cursor]:
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     c = conn.cursor()
     return conn, c
 
 # Functions to get the data from the database
 # Function to retrieve timetable data from the database
-def get_timetable_data(user_id) -> list:
-    conn, c = conntect_to_db()
+def get_timetable_data(user_id) -> list[tuple]:
+    conn, c = connect_to_db()
     # Select all data from the table called user_id
     c.execute("SELECT * FROM timetable WHERE user_id = %s", (user_id,))
     timetable_data = c.fetchall()
@@ -40,7 +40,7 @@ def get_timetable_data(user_id) -> list:
     return timetable_data
 
 def get_lesson_hours(user_id) -> list:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("SELECT * FROM timetable_times WHERE user_id = %s", (user_id,))
     hours_data = c.fetchall()
     conn.close()
@@ -52,7 +52,7 @@ def get_lesson_hours(user_id) -> list:
     return hours_data
 
 def get_breaks_data(user_id) -> list:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("SELECT * FROM timetable_breaks WHERE user_id = %s", (user_id,))
     breaks_data = c.fetchall()
     conn.close()
@@ -62,7 +62,7 @@ def get_breaks_data(user_id) -> list:
     return breaks_data
 
 def get_classes_data(user_id) -> list:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("SELECT * FROM timetable_classes WHERE user_id = %s", (user_id,))
     classes_data = c.fetchall()
     conn.close()
@@ -70,7 +70,7 @@ def get_classes_data(user_id) -> list:
     return classes_data
 
 def get_homework_data(user_id) -> list:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     today = datetime.date.today().isoformat()
     c.execute("SELECT * FROM homework WHERE due_date >= %s AND user_id = %s", (today, user_id))
     homework_data = c.fetchall()
@@ -78,7 +78,7 @@ def get_homework_data(user_id) -> list:
     return homework_data
 
 def get_old_homework_data(user_id) -> list:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     today = datetime.date.today().isoformat()
     c.execute("SELECT * FROM homework WHERE due_date < %s AND user_id = %s", (today, user_id))
     homework_data = c.fetchall()
@@ -90,7 +90,7 @@ def get_repplan_data(user_id) -> list:
         # Convert date from DD.MM.YYYY to YYYY-MM-DD
         return datetime.datetime.strptime(date_str, '%d.%m.%Y').strftime('%Y-%m-%d')
 
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("CREATE OR REPLACE FUNCTION convert_date(date_str text) RETURNS date AS $$ \
                 BEGIN \
                     RETURN TO_DATE(date_str, 'DD.MM.YYYY'); \
@@ -111,7 +111,7 @@ def get_old_repplan_data(user_id) -> list:
         # Convert date from DD.MM.YYYY to YYYY-MM-DD
         return datetime.datetime.strptime(date_str, '%d.%m.%Y').strftime('%Y-%m-%d')
 
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("CREATE OR REPLACE FUNCTION convert_date(date_str text) RETURNS date AS $$ \
                 BEGIN \
                     RETURN TO_DATE(date_str, 'DD.MM.YYYY'); \
@@ -129,7 +129,7 @@ def get_old_repplan_data(user_id) -> list:
 
 # Functions to save the data in the database
 def save_timetable_data(user_id, timetable_data) -> None:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
     for sg_timetable in timetable_data:
         if not sg_timetable['day'] or not sg_timetable['hour'] or not sg_timetable['subject'] or not sg_timetable['room'] or not sg_timetable['teacher']:
@@ -144,7 +144,7 @@ def save_timetable_data(user_id, timetable_data) -> None:
     conn.close()
 
 def save_lesson_hours(user_id, hours_data) -> None:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
     for sg_time in hours_data:
         if not sg_time['hour'] or not sg_time['start'] or not sg_time['end']:
@@ -157,7 +157,7 @@ def save_lesson_hours(user_id, hours_data) -> None:
     conn.close()
 
 def save_breaks_data(user_id, breaks_data) -> None:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
     for sg_break in breaks_data:
         if not sg_break['name'] or not sg_break['start'] or not sg_break['end']:
@@ -170,7 +170,7 @@ def save_breaks_data(user_id, breaks_data) -> None:
     conn.close()
 
 def save_classes_data(user_id, classes_data) -> None:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
     for sg_class in classes_data:
         # Check if the class name and color are given
@@ -247,7 +247,7 @@ def change_homework_data(homework_data) -> list:
 def get_user_id() -> str:
     if 'username' not in session:
         return abort(403)
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("SELECT * FROM users WHERE username = %s", (session['username'],))
     try: 
         user_id = c.fetchone()[0]
@@ -258,7 +258,7 @@ def get_user_id() -> str:
 
 # Function to check if the user has entered the scrape data already
 def check_entered_scrape_data(user_id) -> bool:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("SELECT entered_scrape_data FROM users WHERE user_id = %s", (user_id,))
     entered_scrape_data = c.fetchone()[0]
     conn.close()
@@ -266,7 +266,7 @@ def check_entered_scrape_data(user_id) -> bool:
 
 # Function to check if the password is correct
 def check_password(user_id, user_password) -> bool:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
     user = c.fetchone()
     conn.close()
@@ -303,7 +303,7 @@ def encrypt_password(user_password, target_password) -> bytes:
 
 # Function to store the scrape data in the database
 def store_scrape_data(user_id, login_url, schoolid, username, password) -> None:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
 
     # Decode the password
     password = password.decode()
@@ -320,7 +320,7 @@ def store_scrape_data(user_id, login_url, schoolid, username, password) -> None:
 
 # Function to delete the user data from the database
 def delete_user_data(user_id) -> None:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("DELETE FROM scrape_data WHERE user_id = %s", (user_id,))
     c.execute("UPDATE users SET entered_scrape_data = 0 WHERE user_id = %s", (user_id,))
     c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
@@ -334,7 +334,7 @@ def delete_user_data(user_id) -> None:
 
 # Function to delete the user account from the database
 def delete_user_account(user_id) -> None:
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
     conn.commit()
     conn.close()
@@ -343,7 +343,7 @@ def delete_user_account(user_id) -> None:
 def register():
     if request.method == 'POST':
         form_data = request.form
-        conn, c = conntect_to_db()
+        conn, c = connect_to_db()
         # check if username or email is already in use
         c.execute("SELECT * FROM users WHERE username = %s", (form_data['username'],))
         user = c.fetchone()
@@ -374,7 +374,7 @@ def register():
 def login():
     if request.method == 'POST':
         form_data = request.form
-        conn, c = conntect_to_db()
+        conn, c = connect_to_db()
 
         # check if username and password are given
         if not form_data['password'] or not form_data['username']:
@@ -478,7 +478,7 @@ def changeusername():
     if not form_data['username']:
         return "error+Fehler+Bitte gib einen Benutzernamen ein."
     
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("SELECT * FROM users WHERE username = %s", (form_data['username'],))
     user = c.fetchone()
     if user:
@@ -500,7 +500,7 @@ def changeemail():
     if not form_data['email']:
         return "error+Fehler+Bitte gib eine Email-Adresse ein."
     
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("SELECT * FROM users WHERE email = %s", (form_data['email'],))
     email = c.fetchone()
     if email:
@@ -521,7 +521,7 @@ def changepassword():
     if not form_data['old_password'] or not form_data['new_password']:
         return "error+Fehler+Bitte fülle alle Felder aus."
     
-    conn, c = conntect_to_db()
+    conn, c = connect_to_db()
     c.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
     user = c.fetchone()
     if not check_password_hash(user[3], form_data['old_password']):
@@ -757,7 +757,7 @@ def newhw():
         if not form_data['class'] or not form_data['homework_task'] or not form_data['work_amount'] or not form_data['due_date']:
             return abort(403)
         user_id = get_user_id()
-        conn, c = conntect_to_db()
+        conn, c = connect_to_db()
         c.execute("INSERT INTO homework (user_id, class, homework_task, work_amount, due_date) VALUES (%s, %s, %s, %s, %s)", (user_id, form_data['class'], form_data['homework_task'], form_data['work_amount'], form_data['due_date']))
         conn.commit()
         conn.close()
@@ -770,7 +770,7 @@ def donehw():
         if not form_data['id']:
             return abort(403)
         user_id = get_user_id()
-        conn, c = conntect_to_db()
+        conn, c = connect_to_db()
         c.execute("UPDATE homework SET done = 1 WHERE id = %s AND user_id = %s", (form_data['id'], user_id))
         conn.commit()
         conn.close()
@@ -783,7 +783,7 @@ def undonehw():
         if not form_data['id']:
             return abort(403)
         user_id = get_user_id()
-        conn, c = conntect_to_db()
+        conn, c = connect_to_db()
         c.execute("UPDATE homework SET done = 0 WHERE id = %s AND user_id = %s", (form_data['id'], user_id))
         conn.commit()
         conn.close()
@@ -796,7 +796,7 @@ def edithw():
         if not form_data['class'] or not form_data['homework_task'] or not form_data['work_amount'] or not form_data['due_date']:
             return abort(403)
         user_id = get_user_id()
-        conn, c = conntect_to_db()
+        conn, c = connect_to_db()
         c.execute("UPDATE homework SET user_id = %s, class = %s, homework_task = %s, work_amount = %s, due_date = %s WHERE id = %s", (user_id, form_data['class'], form_data['homework_task'], form_data['work_amount'], form_data['due_date'], form_data['id']))
         conn.commit()
         conn.close()
@@ -809,7 +809,7 @@ def deletehw():
         if not form_data['id']:
             return abort(403)
         user_id = get_user_id()
-        conn, c = conntect_to_db()
+        conn, c = connect_to_db()
         c.execute("DELETE FROM homework WHERE id = %s AND user_id = %s", (form_data['id'], user_id))
         conn.commit()
         conn.close()
