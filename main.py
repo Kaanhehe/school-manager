@@ -23,10 +23,16 @@ DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
 
 #subprocess.run(['python', 'D:\ME\Privat\Projekte\Python\school-manager\createTables.py'])
 
-# Function to retrieve timetable data from the database
-def get_timetable_data(user_id):
+# Function to connect to the database
+def conntect_to_db() -> tuple:
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     c = conn.cursor()
+    return conn, c
+
+# Functions to get the data from the database
+# Function to retrieve timetable data from the database
+def get_timetable_data(user_id):
+    conn, c = conntect_to_db()
     # Select all data from the table called user_id
     c.execute("SELECT * FROM timetable WHERE user_id = %s", (user_id,))
     timetable_data = c.fetchall()
@@ -34,34 +40,47 @@ def get_timetable_data(user_id):
     return timetable_data
 
 def get_lesson_hours(user_id):
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     c.execute("SELECT * FROM timetable_times WHERE user_id = %s", (user_id,))
     hours_data = c.fetchall()
     conn.close()
+    # Remove user_id from the data
+    hours_data = [entry[1:] for entry in hours_data]
+    hours_data = sorted(hours_data, key=lambda x: x[0])
+    # Merge the entry 2 and 3 of the hours_data list to a string "class_start - class_end" and add the class_num infront of it
+    hours_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in hours_data]
     return hours_data
 
 def get_breaks_data(user_id):
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     c.execute("SELECT * FROM timetable_breaks WHERE user_id = %s", (user_id,))
     breaks_data = c.fetchall()
     conn.close()
+    breaks_data = [entry[1:] for entry in breaks_data]
+    breaks_data = sorted(breaks_data, key=lambda x: x[0])
+    breaks_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in breaks_data]
     return breaks_data
 
 def get_classes_data(user_id):
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     c.execute("SELECT * FROM timetable_classes WHERE user_id = %s", (user_id,))
     classes_data = c.fetchall()
     conn.close()
+    classes_data = [entry[1:] for entry in classes_data]
     return classes_data
 
 def get_homework_data(user_id):
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     today = datetime.date.today().isoformat()
     c.execute("SELECT * FROM homework WHERE due_date >= %s AND user_id = %s", (today, user_id))
+    homework_data = c.fetchall()
+    conn.close()
+    return homework_data
+
+def get_old_homework_data(user_id):
+    conn, c = conntect_to_db()
+    today = datetime.date.today().isoformat()
+    c.execute("SELECT * FROM homework WHERE due_date < %s AND user_id = %s", (today, user_id))
     homework_data = c.fetchall()
     conn.close()
     return homework_data
@@ -71,8 +90,7 @@ def get_repplan_data(user_id):
         # Convert date from DD.MM.YYYY to YYYY-MM-DD
         return datetime.datetime.strptime(date_str, '%d.%m.%Y').strftime('%Y-%m-%d')
 
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     c.execute("CREATE OR REPLACE FUNCTION convert_date(date_str text) RETURNS date AS $$ \
                 BEGIN \
                     RETURN TO_DATE(date_str, 'DD.MM.YYYY'); \
@@ -82,8 +100,90 @@ def get_repplan_data(user_id):
     c.execute("SELECT * FROM repplan WHERE convert_date(date) >= %s AND user_id = %s", (today, user_id))
     repplan_data = c.fetchall()
     conn.close()
+    # Remove user_id from the data
+    repplan_data = [entry[1:] for entry in repplan_data]
+    # Sort by homework ID in descending order to get the newest data first
+    repplan_data.sort(key=lambda x: x[0], reverse=True)
     return repplan_data
 
+def get_old_repplan_data(user_id):
+    def convert_date(date_str):
+        # Convert date from DD.MM.YYYY to YYYY-MM-DD
+        return datetime.datetime.strptime(date_str, '%d.%m.%Y').strftime('%Y-%m-%d')
+
+    conn, c = conntect_to_db()
+    c.execute("CREATE OR REPLACE FUNCTION convert_date(date_str text) RETURNS date AS $$ \
+                BEGIN \
+                    RETURN TO_DATE(date_str, 'DD.MM.YYYY'); \
+                END; \
+                $$ LANGUAGE plpgsql;")
+    today = datetime.date.today().isoformat()
+    c.execute("SELECT * FROM repplan WHERE convert_date(date) < %s AND user_id = %s", (today, user_id))
+    repplan_data = c.fetchall()
+    conn.close()
+    # Remove user_id from the data
+    repplan_data = [entry[1:] for entry in repplan_data]
+    # Sort by homework ID in descending order to get the newest data first
+    repplan_data.sort(key=lambda x: x[0], reverse=True)
+    return repplan_data
+
+# Functions to save the data in the database
+def save_timetable_data(user_id, timetable_data):
+    conn, c = conntect_to_db()
+    c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
+    for sg_timetable in timetable_data:
+        if not sg_timetable['day'] or not sg_timetable['hour'] or not sg_timetable['subject'] or not sg_timetable['room'] or not sg_timetable['teacher']:
+            return "error+Fehler+Bitte fülle alle Felder aus."
+        class_day = sg_timetable['day']
+        class_num = sg_timetable['hour']
+        class_name = sg_timetable['subject']
+        class_room = sg_timetable['room']
+        class_teacher = sg_timetable['teacher']
+        c.execute("INSERT INTO timetable (user_id, class_day, class_num, class_name, class_loc, class_tea) VALUES (%s, %s, %s, %s, %s, %s)", (user_id, class_day, class_num, class_name, class_room, class_teacher))
+    conn.commit()
+    conn.close()
+
+def save_lesson_hours(user_id, hours_data):
+    conn, c = conntect_to_db()
+    c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
+    for sg_time in hours_data:
+        if not sg_time['hour'] or not sg_time['start'] or not sg_time['end']:
+            return "error+Fehler+Bitte fülle alle Felder aus."
+        lesson_hour = sg_time['hour']
+        lesson_start = sg_time['start']
+        lesson_end = sg_time['end']
+        c.execute("INSERT INTO timetable_times (user_id, lesson_hour, lesson_start, lesson_end) VALUES (%s, %s, %s, %s)", (user_id, lesson_hour, lesson_start, lesson_end))
+    conn.commit()
+    conn.close()
+
+def save_breaks_data(user_id, breaks_data):
+    conn, c = conntect_to_db()
+    c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
+    for sg_break in breaks_data:
+        if not sg_break['name'] or not sg_break['start'] or not sg_break['end']:
+            return "error+Fehler+Bitte fülle alle Felder aus."
+        break_name = sg_break['name']
+        break_start = sg_break['start']
+        break_end = sg_break['end']
+        c.execute("INSERT INTO timetable_breaks (user_id, break_name, break_start, break_end) VALUES (%s, %s, %s, %s)", (user_id, break_name, break_start, break_end))
+    conn.commit()
+    conn.close()
+
+def save_classes_data(user_id, classes_data):
+    conn, c = conntect_to_db()
+    c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
+    for sg_class in classes_data:
+        # Check if the class name and color are given
+        # Dont check for custom_name because it is optional
+        if not sg_class['name'] or not sg_class['color']:
+            return "error+Fehler+Bitte fülle alle Felder aus."
+        class_name = sg_class['name']
+        class_color = sg_class['color']
+        c.execute("INSERT INTO timetable_classes (user_id, class_name, class_color) VALUES (%s, %s, %s)", (user_id, class_name, class_color))
+    conn.commit()
+    conn.close()
+
+# Function to sort the timetable data
 def sort_timetable_data(timetable_data):
     # Define the weekday mapping
     weekday_mapping = {
@@ -120,6 +220,7 @@ def sort_timetable_data(timetable_data):
 
     return grouped_data
 
+# Function to change the homework data
 def change_homework_data(homework_data):
     modified_homework_data = []
     for homework in homework_data:
@@ -142,11 +243,11 @@ def change_homework_data(homework_data):
         modified_homework_data = sorted(modified_homework_data, key=lambda x: x[4])
     return modified_homework_data
 
+# Function to get the user_id from the database
 def get_user_id():
     if 'username' not in session:
         return abort(403)
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     c.execute("SELECT * FROM users WHERE username = %s", (session['username'],))
     try: 
         user_id = c.fetchone()[0]
@@ -155,17 +256,17 @@ def get_user_id():
     conn.close()
     return user_id
 
+# Function to check if the user has entered the scrape data already
 def check_entered_scrape_data(user_id):
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     c.execute("SELECT entered_scrape_data FROM users WHERE user_id = %s", (user_id,))
     entered_scrape_data = c.fetchone()[0]
     conn.close()
     return entered_scrape_data
 
+# Function to check if the password is correct
 def check_password(user_id, user_password):
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     c.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
     user = c.fetchone()
     conn.close()
@@ -175,6 +276,7 @@ def check_password(user_id, user_password):
         return True
     return False
 
+# Function to encrypt the password for the school website
 def encrypt_password(user_password, target_password):
     # Derive a key from the user's password
     kdf = PBKDF2HMAC(
@@ -199,9 +301,9 @@ def encrypt_password(user_password, target_password):
     # Encode the encrypted data as base64 for storage
     return base64.b64encode(encrypted_data)
 
+# Function to store the scrape data in the database
 def store_scrape_data(user_id, login_url, schoolid, username, password):
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
 
     # Decode the password
     password = password.decode()
@@ -216,13 +318,33 @@ def store_scrape_data(user_id, login_url, schoolid, username, password):
     conn.commit()
     conn.close()
 
+# Function to delete the user data from the database
+def delete_user_data(user_id):
+    conn, c = conntect_to_db()
+    c.execute("DELETE FROM scrape_data WHERE user_id = %s", (user_id,))
+    c.execute("UPDATE users SET entered_scrape_data = 0 WHERE user_id = %s", (user_id,))
+    c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
+    c.execute("DELETE FROM repplan WHERE user_id = %s", (user_id,))
+    c.execute("DELETE FROM homework WHERE user_id = %s", (user_id,))
+    c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
+    c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
+    c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
+    conn.commit()
+    conn.close()
+
+# Function to delete the user account from the database
+def delete_user_account(user_id):
+    conn, c = conntect_to_db()
+    c.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+    conn.commit()
+    conn.close()
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         form_data = request.form
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        conn, c = conntect_to_db()
         # check if username or email is already in use
-        c = conn.cursor()
         c.execute("SELECT * FROM users WHERE username = %s", (form_data['username'],))
         user = c.fetchone()
         c.execute("SELECT * FROM users WHERE email = %s", (form_data['email'],))
@@ -252,8 +374,7 @@ def register():
 def login():
     if request.method == 'POST':
         form_data = request.form
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        c = conn.cursor()
+        conn, c = conntect_to_db()
 
         # check if username and password are given
         if not form_data['password'] or not form_data['username']:
@@ -309,25 +430,15 @@ def index():
     grouped_data = sort_timetable_data(timetable_data)
     
     hours_data = get_lesson_hours(user_id)
-    hours_data = [entry[1:] for entry in hours_data]
-    hours_data = sorted(hours_data, key=lambda x: x[0])
-    # Merge the entry 2 and 3 of the hours_data list to a string "class_start - class_end" and add the class_num infront of it
-    hours_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in hours_data]
     
     breaks_data = get_breaks_data(user_id)
-    breaks_data = [entry[1:] for entry in breaks_data]
-    breaks_data = sorted(breaks_data, key=lambda x: x[0])
-    breaks_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in breaks_data]
     
     classes_data = get_classes_data(user_id)
-    classes_data = [entry[1:] for entry in classes_data]
 
     homework_data = get_homework_data(user_id)
     homework_data = change_homework_data(homework_data)
     
     repplan_data = get_repplan_data(user_id)
-    repplan_data = [entry[1:] for entry in repplan_data]
-    repplan_data.sort(key=lambda x: x[0], reverse=True)
     
     # Render the index.html template -> templates/index.html; with the grouped_data
     return render_template('index.html', timetable_data=grouped_data, hours_data=hours_data, breaks_data=breaks_data, classes_data=classes_data, homework_data=homework_data, repplan_data=repplan_data, username=username)
@@ -342,16 +453,12 @@ def settings():
     c = conn.cursor()
     c.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
     email = c.fetchone()[0]
-    c.execute("SELECT * FROM timetable_breaks WHERE user_id = %s", (user_id,))
-    breaks = c.fetchall()
-    breaks = [entry[1:] for entry in breaks]
-    c.execute("SELECT * FROM timetable_times WHERE user_id = %s", (user_id,))
-    times = c.fetchall()
-    times = [entry[1:] for entry in times]
-    c.execute("SELECT * FROM timetable_classes WHERE user_id = %s", (user_id,))
-    classes = c.fetchall()
-    classes = [entry[1:] for entry in classes]
     conn.close()
+    breaks = get_breaks_data(user_id)
+    
+    times = get_lesson_hours(user_id)
+    
+    classes = get_classes_data(user_id)
 
     timetable_data = get_timetable_data(user_id)
     grouped_data = sort_timetable_data(timetable_data)
@@ -371,8 +478,7 @@ def changeusername():
     if not form_data['username']:
         return "error+Fehler+Bitte gib einen Benutzernamen ein."
     
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     c.execute("SELECT * FROM users WHERE username = %s", (form_data['username'],))
     user = c.fetchone()
     if user:
@@ -394,8 +500,7 @@ def changeemail():
     if not form_data['email']:
         return "error+Fehler+Bitte gib eine Email-Adresse ein."
     
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     c.execute("SELECT * FROM users WHERE email = %s", (form_data['email'],))
     email = c.fetchone()
     if email:
@@ -416,8 +521,7 @@ def changepassword():
     if not form_data['old_password'] or not form_data['new_password']:
         return "error+Fehler+Bitte fülle alle Felder aus."
     
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
+    conn, c = conntect_to_db()
     c.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
     user = c.fetchone()
     if not check_password_hash(user[3], form_data['old_password']):
@@ -444,24 +548,7 @@ def deleteuserdata():
     if not check_password(user_id, form_data['password']):
         return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
     
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
-    c.execute("DELETE FROM scrape_data WHERE user_id = %s", (user_id,))
-    c.execute("UPDATE users SET entered_scrape_data = 0 WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
-    
-    c.execute("DELETE FROM repplan WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM homework WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
-    conn.commit()
-    conn.close()
+    delete_user_data(user_id)
 
     return "success+Daten gelöscht+Deine Daten wurden erfolgreich gelöscht"
 
@@ -478,24 +565,8 @@ def deleteaccount():
     if not check_password(user_id, form_data['password']):
         return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
     
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
-    c.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
-    c.execute("DELETE FROM scrape_data WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM repplan WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM homework WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
-
-    c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
-    conn.commit()
-    conn.close()
+    delete_user_account(user_id)
+    delete_user_data(user_id)
 
     session.pop('username', None)
     return "success+Account gelöscht+Dein Account wurde erfolgreich gelöscht"
@@ -510,21 +581,8 @@ def saveclasses():
     if not form_data['classes']:
         return "error+Fehler+Bitte gib die Klassen ein."
     
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
     classes = json.loads(form_data['classes'])
-    c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
-    for sg_class in classes:
-        # Check if the class name and color are given
-        # Dont check for custom_name because it is optional
-        if not sg_class['name'] or not sg_class['color']:
-            return "error+Fehler+Bitte fülle alle Felder aus."
-        class_name = sg_class['name']
-        custom_name = sg_class['custom_name']
-        class_color = sg_class['color']
-        c.execute("INSERT INTO timetable_classes (user_id, class_name, custom_name, class_color) VALUES (%s, %s, %s, %s)", (user_id, class_name, custom_name, class_color))
-    conn.commit()
-    conn.close()
+    save_classes_data(user_id, classes)
     return "success+Klassen gespeichert+Die Klassen wurden erfolgreich gespeichert"
 
 @app.route('/settings/savebreaks', methods=['POST'])
@@ -536,19 +594,8 @@ def savebreaks():
     form_data = request.form
     if not form_data['breaks']:
         return "error+Fehler+Bitte gib die Pausen ein."
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
     breaks = json.loads(form_data['breaks'])
-    c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
-    for sg_break in breaks:
-        if not sg_break['name'] or not sg_break['start'] or not sg_break['end']:
-            return "error+Fehler+Bitte fülle alle Felder aus."
-        break_name = sg_break['name']
-        break_start = sg_break['start']
-        break_end = sg_break['end']
-        c.execute("INSERT INTO timetable_breaks (user_id, break_name, break_start, break_end) VALUES (%s, %s, %s, %s)", (user_id, break_name, break_start, break_end))
-    conn.commit()
-    conn.close()
+    save_breaks_data(user_id, breaks)
     return "success+Pausen gespeichert+Die Pausen wurden erfolgreich gespeichert"
 
 @app.route('/settings/savetimes', methods=['POST'])
@@ -561,19 +608,8 @@ def savetimes():
     if not form_data['times']:
         return "error+Fehler+Bitte gib die Zeiten ein."
     
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
     times = json.loads(form_data['times'])
-    c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
-    for sg_time in times:
-        if not sg_time['hour'] or not sg_time['start'] or not sg_time['end']:
-            return "error+Fehler+Bitte fülle alle Felder aus."
-        lesson_hour = sg_time['hour']
-        lesson_start = sg_time['start']
-        lesson_end = sg_time['end']
-        c.execute("INSERT INTO timetable_times (user_id, lesson_hour, lesson_start, lesson_end) VALUES (%s, %s, %s, %s)", (user_id, lesson_hour, lesson_start, lesson_end))
-    conn.commit()
-    conn.close()
+    save_lesson_hours(user_id, times)
     return "success+Zeiten gespeichert+Die Zeiten wurden erfolgreich gespeichert"
 
 @app.route('/settings/savetimetable', methods=['POST'])
@@ -586,21 +622,8 @@ def savetimetable():
     if not form_data['timetable']:
         return "error+Fehler+Bitte gib den Stundenplan ein."
     
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
     timetable = json.loads(form_data['timetable'])
-    c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
-    for sg_timetable in timetable:
-        if not sg_timetable['day'] or not sg_timetable['hour'] or not sg_timetable['subject'] or not sg_timetable['room'] or not sg_timetable['teacher']:
-            return "error+Fehler+Bitte fülle alle Felder aus."
-        class_day = sg_timetable['day']
-        class_num = sg_timetable['hour']
-        class_name = sg_timetable['subject']
-        class_room = sg_timetable['room']
-        class_teacher = sg_timetable['teacher']
-        c.execute("INSERT INTO timetable (user_id, class_day, class_num, class_name, class_loc, class_tea) VALUES (%s, %s, %s, %s, %s, %s)", (user_id, class_day, class_num, class_name, class_room, class_teacher))
-    conn.commit()
-    conn.close()
+    save_timetable_data(user_id, timetable)
     return "success+Stundenplan gespeichert+Der Stundenplan wurde erfolgreich gespeichert"
 
 @app.route('/sendscrapedata', methods=['POST'])
@@ -699,27 +722,12 @@ def gettt():
 def getrp():
     user_id = get_user_id()
     repplan_data = get_repplan_data(user_id)
-    repplan_data = [entry[1:] for entry in repplan_data]
-    repplan_data.sort(key=lambda x: x[0], reverse=True)
     return jsonify(repplan_data)
 
 @app.route('/getoldrp', methods=['GET'])
 def getoldrp():
     user_id = get_user_id()
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
-    c.execute("CREATE OR REPLACE FUNCTION convert_date(date_str text) RETURNS date AS $$ \
-                BEGIN \
-                    RETURN TO_DATE(date_str, 'DD.MM.YYYY'); \
-                END; \
-                $$ LANGUAGE plpgsql;")
-    today = datetime.date.today().isoformat()
-    c.execute("SELECT * FROM repplan WHERE convert_date(date) < %s AND user_id = %s", (today, user_id))
-    repplan_data = c.fetchall()
-    conn.close()
-    repplan_data = [entry[1:] for entry in repplan_data]
-    # Sort them by id in descending order to get the newest data first -> also sorts them by date
-    repplan_data.sort(key=lambda x: x[0], reverse=True)
+    repplan_data = get_old_repplan_data(user_id)
     return jsonify(repplan_data)
 
 @app.route('/gethw', methods=['GET'])
@@ -732,12 +740,7 @@ def gethw():
 @app.route('/getoldhw', methods=['GET'])
 def getoldhw():
     user_id = get_user_id()
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    c = conn.cursor()
-    today = datetime.date.today().isoformat()
-    c.execute("SELECT * FROM homework WHERE due_date < %s AND user_id = %s", (today, user_id))
-    homework_data = c.fetchall()
-    conn.close()
+    homework_data = get_old_homework_data(user_id)
     homework_data = change_homework_data(homework_data)
     return homework_data
 
@@ -745,7 +748,6 @@ def getoldhw():
 def getclasses():
     user_id = get_user_id()
     classes_data = get_classes_data(user_id)
-    classes_data = [entry[1:] for entry in classes_data]
     return jsonify(classes_data)
 
 @app.route('/newhw', methods=['POST'])
@@ -755,8 +757,7 @@ def newhw():
         if not form_data['class'] or not form_data['homework_task'] or not form_data['work_amount'] or not form_data['due_date']:
             return abort(403)
         user_id = get_user_id()
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        c = conn.cursor()
+        conn, c = conntect_to_db()
         c.execute("INSERT INTO homework (user_id, class, homework_task, work_amount, due_date) VALUES (%s, %s, %s, %s, %s)", (user_id, form_data['class'], form_data['homework_task'], form_data['work_amount'], form_data['due_date']))
         conn.commit()
         conn.close()
@@ -769,8 +770,7 @@ def donehw():
         if not form_data['id']:
             return abort(403)
         user_id = get_user_id()
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        c = conn.cursor()
+        conn, c = conntect_to_db()
         c.execute("UPDATE homework SET done = 1 WHERE id = %s AND user_id = %s", (form_data['id'], user_id))
         conn.commit()
         conn.close()
@@ -783,8 +783,7 @@ def undonehw():
         if not form_data['id']:
             return abort(403)
         user_id = get_user_id()
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        c = conn.cursor()
+        conn, c = conntect_to_db()
         c.execute("UPDATE homework SET done = 0 WHERE id = %s AND user_id = %s", (form_data['id'], user_id))
         conn.commit()
         conn.close()
@@ -797,8 +796,7 @@ def edithw():
         if not form_data['class'] or not form_data['homework_task'] or not form_data['work_amount'] or not form_data['due_date']:
             return abort(403)
         user_id = get_user_id()
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        c = conn.cursor()
+        conn, c = conntect_to_db()
         c.execute("UPDATE homework SET user_id = %s, class = %s, homework_task = %s, work_amount = %s, due_date = %s WHERE id = %s", (user_id, form_data['class'], form_data['homework_task'], form_data['work_amount'], form_data['due_date'], form_data['id']))
         conn.commit()
         conn.close()
@@ -811,8 +809,7 @@ def deletehw():
         if not form_data['id']:
             return abort(403)
         user_id = get_user_id()
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        c = conn.cursor()
+        conn, c = conntect_to_db()
         c.execute("DELETE FROM homework WHERE id = %s AND user_id = %s", (form_data['id'], user_id))
         conn.commit()
         conn.close()
