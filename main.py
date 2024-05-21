@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from hashlib import sha256
 import base64
 from itertools import groupby
 from operator import itemgetter
@@ -279,12 +280,12 @@ def check_password(user_id, user_password) -> bool:
     return False
 
 # Function to encrypt the password for the school website
-def encrypt_password(user_password, target_password) -> bytes:
+def encrypt_password(user_id, user_password, target_password) -> bytes:
     # Derive a key from the user's password
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
-        salt=b'salt',  # Change this to a unique salt per user
+        salt= str(user_id).encode(),
         iterations=100000,
         backend=default_backend()
     )
@@ -295,7 +296,7 @@ def encrypt_password(user_password, target_password) -> bytes:
     padded_data = padder.update(target_password.encode()) + padder.finalize()
 
     # Encrypt the padded target password
-    iv = b'InitializationVe'  # Change this to a unique IV per encrypted password
+    iv = sha256(str(user_id).encode()).digest()[:16]
     cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
     encryptor = cipher.encryptor()
     encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
@@ -654,7 +655,7 @@ def sendscrapedata():
     schoolid = login_url.split('=')[-1]
 
     # Encrypt the password for the school website using the user's password
-    password_hash = encrypt_password(user_password, password)
+    password_hash = encrypt_password(user_id, user_password, password)
     
     # Run the scrapettplan.py script
     message1 = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password, login_url, schoolid, username, password_hash], capture_output=True, text=True)
