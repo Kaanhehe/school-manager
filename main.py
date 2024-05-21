@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, abort
+from flask_cors import CORS
 import os
 import sys
 import psycopg2
@@ -17,6 +18,7 @@ import uuid
 import json
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = os.environ.get('Flask_secret_key')
 DATABASE_URL = os.environ.get('DATABASE_URL')
 DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
@@ -713,7 +715,13 @@ def scraperep():
 
 @app.route('/gettt', methods=['GET'])
 def gettt():
-    user_id = get_user_id()
+    if request.args.get('user_id'):
+        user_id = request.args.get('user_id')
+        password = request.args.get('password')
+        if not check_password(user_id, password):
+            return abort(403)
+    else:
+        user_id = get_user_id()
     timetable_data = get_timetable_data(user_id)
     grouped_data = sort_timetable_data(timetable_data)
     return jsonify(grouped_data)
