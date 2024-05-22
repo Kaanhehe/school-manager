@@ -250,7 +250,6 @@ function deleteAccount() {
                 message = data.split('+')[2];
                 sendNotification(type, header, message);
                 if (type == "success") {
-                    window.location.href = "/logout";
                     location.reload();
                 }
             },
