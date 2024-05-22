@@ -88,7 +88,7 @@
     width: 65%;
 }
 
-.passwort_input_bg {
+.password_input_bg {
     display: none;
     opacity: 0;
     transition: opacity 0.1s ease-in-out;
@@ -105,7 +105,7 @@
     overflow: hidden;
 }
 
-.passwort_input_win {
+.password_input_win {
     display: flex;
     width: 22%;
     transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
@@ -117,7 +117,7 @@
     box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px -5px 15px rgba(255, 255, 255, 0.11);
 }
 
-.closePasswortInputbtn {
+.closePasswordInputbtn {
     align-self: flex-end;
     margin: 10px;
     margin-right: 20px;
@@ -126,13 +126,13 @@
     font-weight: bold;
 }
 
-.closePasswortInputbtn:hover, .closePasswortInputbtn:focus {
+.closePasswordInputbtn:hover, .closePasswordInputbtn:focus {
     color: var(--light-grey);
     text-decoration: none;
     cursor: pointer;
 }
 
-.passwort_input-content {
+.password_input-content {
     display: flex;
     width: 100%;
     height: 100%;
@@ -142,21 +142,21 @@
     padding: 20px;
 }
 
-.passwortinputform {
+.passwordinputform {
     display: flex;
     width: 100%;
     flex-direction: column;
     align-items: center;
 }
 
-.passwortinputformitem {
+.passwordinputformitem {
     display: flex;
     width: 100%;
     flex-direction: column;
     margin: 10px;
 }
 
-.passwortinputformbuttons {
+.passwordinputformbuttons {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
@@ -602,7 +602,7 @@
 }
 
 @media screen and (max-width: 1400px) {
-    .newhwwin, .scrape_form_win, .passwort_input_win {
+    .newhwwin, .scrape_form_win, .password_input_win {
         width: 40%;
     }
     .newhwwin.expanded {
@@ -616,7 +616,7 @@
 }
 
 @media screen and (max-width: 800px) {
-    .newhwwin, .scrape_form_win, .passwort_input_win{
+    .newhwwin, .scrape_form_win, .password_input_win{
         width: 50%;
     }
     .newhwwin.expanded {
@@ -637,7 +637,7 @@
         padding: 3px;
         color: var(--main-white);
     }
-    .newhwwin, .scrape_form_win, .passwort_input_win{
+    .newhwwin, .scrape_form_win, .password_input_win{
         width: 60%;
     }
     .newhwwin {
@@ -653,7 +653,7 @@
 }
 
 @media screen and (max-width: 500px) {
-    .newhwwin, .scrape_form_win, .passwort_input_win{
+    .newhwwin, .scrape_form_win, .password_input_win{
         width: 70%;
     }
     .clear {
@@ -678,7 +678,7 @@
         font-size: 0.4em;
         padding: 2px;
     }
-    .newhwwin, .scrape_form_win, .passwort_input_win{
+    .newhwwin, .scrape_form_win, .password_input_win{
         width: 100%;
     }
     .newhwwin-cancel {

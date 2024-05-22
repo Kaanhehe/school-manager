@@ -120,8 +120,8 @@ $(document).ready(function(){
 });
 
  // Password input stuff
- function ClosePasswortForm() {
-    var formbg = document.querySelector('.passwort_input_bg');
+ function ClosePasswordForm() {
+    var formbg = document.querySelector('.password_input_bg');
     formbg.style.opacity = "0";
     setTimeout(function() {
         formbg.style.display = "none";
@@ -140,8 +140,8 @@ function CloseScrapeForm() {
 // Scrape Buttons stuff
 function ScrapeTimetable() {
     var div = document.querySelector('.password_input');
-    var formbg = document.querySelector('.passwort_input_bg');
-    var form = document.querySelector('.passwortinputform');
+    var formbg = document.querySelector('.password_input_bg');
+    var form = document.querySelector('.passwordinputform');
     div.classList.add("visible");
     formbg.style.display = "flex";
     setTimeout(function() {
@@ -176,8 +176,8 @@ function ScrapeTimetable() {
 
 async function ScrapeRepplan() {
     var div = document.querySelector('.password_input');
-    var formbg = document.querySelector('.passwort_input_bg');
-    var form = document.querySelector('.passwortinputform');
+    var formbg = document.querySelector('.password_input_bg');
+    var form = document.querySelector('.passwordinputform');
     formbg.style.display = "flex";
     div.classList.add("visible");
     setTimeout(function() {
