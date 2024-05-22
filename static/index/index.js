@@ -44,6 +44,7 @@ $(document).ready(function(){
                 error: function(jqXHR, textStatus, errorThrown) {
                     // Handle the error
                     sendNotification("error", "Fehler", "Deine Daten konnten nicht gesendet werden. Versuche es später erneut.");
+                    stopLoading();
                     console.error(textStatus, errorThrown);
                 }
             });
@@ -125,7 +126,8 @@ $(document).ready(function(){
 function startLoading() {
     var bg = document.querySelector(".loading-bg");
     var elem = document.querySelector(".loading-bar");
-    var width = 1;
+    var width = 0;
+    elem.style.width = width + '%';
     bg.classList.add("visible");
     var id = setInterval(frame, getRandomInterval());
     function frame() {
@@ -140,7 +142,7 @@ function startLoading() {
 
 function getRandomInterval() {
     // Returns a random number between 20 and 100
-    return Math.floor(Math.random() * (100 - 20 + 1)) + 20;
+    return Math.floor(Math.random() * (70 - 20 + 1)) + 20;
 }
 
 function stopLoading() {
@@ -197,6 +199,7 @@ function ScrapeTimetable() {
             error: function(jqXHR, textStatus, errorThrown) {
                 // Handle the error
                 sendNotification("error", "Fehler", "Der Stundenplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
+                stopLoading();
                 console.error(textStatus, errorThrown);
             }
         });
@@ -235,6 +238,7 @@ async function ScrapeRepplan() {
             error: function(jqXHR, textStatus, errorThrown) {
                 // Handle the error
                 sendNotification("error", "Fehler", "Der Vertretungsplan konnte nicht aktualisiert werden. Versuche die Seite neu zu laden.");
+                stopLoading();
                 console.error(textStatus, errorThrown);
             }
         });
