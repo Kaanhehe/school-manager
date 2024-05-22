@@ -127,7 +127,7 @@ function startLoading() {
     var elem = document.querySelector(".loading-bar");
     var width = 1;
     bg.classList.add("visible");
-    var id = setInterval(frame, 25);
+    var id = setInterval(frame, getRandomInterval());
     function frame() {
       if (width >= 100) {
         clearInterval(id);
@@ -136,6 +136,11 @@ function startLoading() {
         elem.style.width = width + '%';
       }
     }
+}
+
+function getRandomInterval() {
+    // Returns a random number between 20 and 100
+    return Math.floor(Math.random() * (100 - 20 + 1)) + 20;
 }
 
 function stopLoading() {
