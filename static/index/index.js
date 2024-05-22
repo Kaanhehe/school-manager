@@ -127,7 +127,7 @@ function startLoading() {
     var elem = document.querySelector(".loading-bar");
     var width = 1;
     bg.classList.add("visible");
-    var id = setInterval(frame, 10);
+    var id = setInterval(frame, 25);
     function frame() {
       if (width >= 100) {
         clearInterval(id);
