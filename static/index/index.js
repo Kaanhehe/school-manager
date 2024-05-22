@@ -31,8 +31,8 @@ $(document).ready(function(){
                     header = data.split('+')[1];
                     message = data.split('+')[2];
                     sendNotification(type, header, message);
+                    stopLoading();
                     if (type === "success") {
-                        stopLoading();
                         formbg.style.opacity = "0";
                         setTimeout(function() {
                             formbg.style.display = "none";
@@ -125,19 +125,8 @@ $(document).ready(function(){
 // Loading bar stuff
 function startLoading() {
     var bg = document.querySelector(".loading-bg");
-    var elem = document.querySelector(".loading-bar");
-    var width = 0;
-    elem.style.width = width + '%';
+    var elem = document.querySelector(".loading-circle");
     bg.classList.add("visible");
-    var id = setInterval(frame, getRandomInterval());
-    function frame() {
-      if (width >= 100) {
-        clearInterval(id);
-      } else {
-        width++;
-        elem.style.width = width + '%';
-      }
-    }
 }
 
 function getRandomInterval() {
@@ -147,10 +136,8 @@ function getRandomInterval() {
 
 function stopLoading() {
     var bg = document.querySelector(".loading-bg");
-    var elem = document.querySelector(".loading-bar");
-    var width = 0;
+    var elem = document.querySelector(".loading-circle");
     bg.classList.remove("visible");
-    elem.style.width = width + '%';
 }
 
  // Password input stuff
