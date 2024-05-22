@@ -681,7 +681,7 @@ def sendscrapedata():
 @app.route('/scrapett', methods=['POST'])
 def scrapett():
     user_id = get_user_id()
-    user_password = request.form['passwort_input']
+    user_password = request.form['password_input']
     if not user_password:
         return abort(403)
     
@@ -699,7 +699,7 @@ def scrapett():
 @app.route('/scraperep', methods=['POST'])
 def scraperep():
     user_id = get_user_id()
-    user_password = request.form['passwort_input']
+    user_password = request.form['password_input']
     if not user_password:
         return abort(403)
     

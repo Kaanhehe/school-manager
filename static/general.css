@@ -264,7 +264,7 @@ tr:nth-child(odd) {
 .notification {
     position: fixed;
     top: 50px;
-    z-index: 2;
+    z-index: 9999;
     display: flex;
     flex-direction: column;
     opacity: 0;
