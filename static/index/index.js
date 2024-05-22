@@ -21,6 +21,7 @@ $(document).ready(function(){
         }, 10);
         $(form).submit(function(event){
             event.preventDefault();
+            startLoading();
             $.ajax({
                 type: "POST",
                 url: "/sendscrapedata",
@@ -31,6 +32,7 @@ $(document).ready(function(){
                     message = data.split('+')[2];
                     sendNotification(type, header, message);
                     if (type === "success") {
+                        stopLoading();
                         formbg.style.opacity = "0";
                         setTimeout(function() {
                             formbg.style.display = "none";
@@ -119,9 +121,34 @@ $(document).ready(function(){
     });
 });
 
+// Loading bar stuff
+function startLoading() {
+    var bg = document.querySelector(".loading-bg");
+    var elem = document.querySelector(".loading-bar");
+    var width = 1;
+    bg.classList.add("visible");
+    var id = setInterval(frame, 100);
+    function frame() {
+      if (width >= 100) {
+        clearInterval(id);
+      } else {
+        width++;
+        elem.style.width = width + '%';
+      }
+    }
+}
+
+function stopLoading() {
+    var bg = document.querySelector(".loading-bg");
+    var elem = document.querySelector(".loading-bar");
+    var width = 0;
+    bg.classList.remove("visible");
+    elem.style.width = width + '%';
+}
+
  // Password input stuff
- function ClosePasswortForm() {
-    var formbg = document.querySelector('.passwort_input_bg');
+ function ClosePasswordForm() {
+    var formbg = document.querySelector('.password_input_bg');
     formbg.style.opacity = "0";
     setTimeout(function() {
         formbg.style.display = "none";
@@ -140,8 +167,8 @@ function CloseScrapeForm() {
 // Scrape Buttons stuff
 function ScrapeTimetable() {
     var div = document.querySelector('.password_input');
-    var formbg = document.querySelector('.passwort_input_bg');
-    var form = document.querySelector('.passwortinputform');
+    var formbg = document.querySelector('.password_input_bg');
+    var form = document.querySelector('.passwordinputform');
     div.classList.add("visible");
     formbg.style.display = "flex";
     setTimeout(function() {
@@ -149,6 +176,7 @@ function ScrapeTimetable() {
     }, 10);
     $(form).off('submit').on('submit', function(event){
         event.preventDefault();
+        startLoading();
         $.ajax({
             type: "POST",
             url: "/scrapett",
@@ -158,6 +186,7 @@ function ScrapeTimetable() {
                 var header = data.split('+')[1];
                 var message = data.split('+')[2];
                 sendNotification(type, header, message);
+                stopLoading();
                 RefreshTimetable();
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -176,8 +205,8 @@ function ScrapeTimetable() {
 
 async function ScrapeRepplan() {
     var div = document.querySelector('.password_input');
-    var formbg = document.querySelector('.passwort_input_bg');
-    var form = document.querySelector('.passwortinputform');
+    var formbg = document.querySelector('.password_input_bg');
+    var form = document.querySelector('.passwordinputform');
     formbg.style.display = "flex";
     div.classList.add("visible");
     setTimeout(function() {
@@ -185,6 +214,7 @@ async function ScrapeRepplan() {
     }, 10);
     $(form).off('submit').on('submit', function(event){
         event.preventDefault();
+        startLoading();
         $.ajax({
             type: "POST",
             url: "/scraperep",
@@ -194,6 +224,7 @@ async function ScrapeRepplan() {
                 var header = data.split('+')[1];
                 var message = data.split('+')[2];
                 sendNotification(type, header, message);
+                stopLoading();
                 RefreshTimetable();
             },
             error: function(jqXHR, textStatus, errorThrown) {
