@@ -393,11 +393,11 @@
     padding: 20px;
     border-radius: 20px;
     box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px -5px 15px rgba(255, 255, 255, 0.11);
+    overflow-x: auto;
 }
 
 .newhwwin.expanded {
     width: 80%;
-    height: 75%;
 }
 
 .cancel_popup {
@@ -644,20 +644,12 @@
     background-color: var(--third-purple);
 }
 
-@media screen and (max-height: 1400px) {
-    .newhwwin.expanded {
-        height: 80%;
-    }
-
-}
-
 @media screen and (max-width: 1400px) {
-    .newhwwin, .scrape_form_win, .password_input_win {
+    .newhwwin, .scrape_form_win, .password_input_win, .loading-window {
         width: 40%;
     }
     .newhwwin.expanded {
         width: 100%;
-        height: 90%;
     }
     .newhwwin-cancel {
         width: 30%;
@@ -666,7 +658,7 @@
 }
 
 @media screen and (max-width: 800px) {
-    .newhwwin, .scrape_form_win, .password_input_win{
+    .newhwwin, .scrape_form_win, .password_input_win, .loading-window {
         width: 50%;
     }
     .newhwwin.expanded {
@@ -687,15 +679,11 @@
         padding: 3px;
         color: var(--main-white);
     }
-    .newhwwin, .scrape_form_win, .password_input_win{
+    .newhwwin, .scrape_form_win, .password_input_win, .loading-window {
         width: 60%;
-    }
-    .newhwwin {
-        height: 55%;
     }
     .newhwwin.expanded {
         width: 100%;
-        height: 55%;
     }
     .newhwwin-cancel {
         width: 60%;
@@ -703,7 +691,7 @@
 }
 
 @media screen and (max-width: 500px) {
-    .newhwwin, .scrape_form_win, .password_input_win{
+    .newhwwin, .scrape_form_win, .password_input_win, .loading-window {
         width: 70%;
     }
     .clear {
@@ -728,7 +716,7 @@
         font-size: 0.4em;
         padding: 2px;
     }
-    .newhwwin, .scrape_form_win, .password_input_win{
+    .newhwwin, .scrape_form_win, .password_input_win, .loading-window {
         width: 100%;
     }
     .newhwwin-cancel {
