@@ -72,6 +72,15 @@ function changeUsername() {
     form.addEventListener("submit", function(e) {
         e.preventDefault();
         var username = document.getElementsByTagName("new_username").value;
+        if (username.length < 3) {
+            sendNotification("error", "Fehler", "Dein Benutzername muss mindestens 3 Zeichen lang sein!");
+            return;
+        }
+        if (username.length > 32) {
+            sendNotification("error", "Fehler", "Dein Benutzername darf maximal 32 Zeichen lang sein!");
+            return;
+        }
+        startLoading();
         $.ajax({
             type: "POST",
             url: "/settings/changeusername",
@@ -81,6 +90,7 @@ function changeUsername() {
                 header = data.split('+')[1];
                 message = data.split('+')[2];
                 sendNotification(type, header, message);
+                stopLoading();
                 if (type == "success") {
                     location.reload();
                 }
@@ -103,6 +113,7 @@ function changeEmail() {
     var form = document.getElementById("change-email-form");
     form.addEventListener("submit", function(e) {
         e.preventDefault();
+        startLoading();
         $.ajax({
             type: "POST",
             url: "/settings/changeemail",
@@ -112,6 +123,7 @@ function changeEmail() {
                 header = data.split('+')[1];
                 message = data.split('+')[2];
                 sendNotification(type, header, message);
+                stopLoading();
                 if (type == "success") {
                     location.reload();
                 }
@@ -174,6 +186,7 @@ function changePassword() {
         if (!validateForm()) {
             return;
         }
+        startLoading();
         $.ajax({
             type: "POST",
             url: "/settings/changepassword",
@@ -183,6 +196,7 @@ function changePassword() {
                 header = data.split('+')[1];
                 message = data.split('+')[2];
                 sendNotification(type, header, message);
+                stopLoading();
                 if (type == "success") {
                     location.reload();
                 }
@@ -209,6 +223,14 @@ function deleteUserData() {
     var form = document.getElementById("delete-userdata-form");
     form.addEventListener("submit", function(e) {
         e.preventDefault();
+        var deleteoptions = document.getElementsByClassName("delete-options");
+        var checkboxes = deleteoptions[0].getElementsByTagName("input");
+        var checkedOne = Array.prototype.slice.call(checkboxes).some(x => x.checked);
+        if (!checkedOne) {
+            sendNotification("error", "Fehler", "Du musst mindestens eine Option auswählen!");
+            return;
+        }
+        startLoading();
         $.ajax({
             type: "POST",
             url: "/settings/deleteuserdata",
@@ -218,6 +240,7 @@ function deleteUserData() {
                 header = data.split('+')[1];
                 message = data.split('+')[2];
                 sendNotification(type, header, message);
+                stopLoading();
                 if (type == "success") {
                     location.reload();
                 }
@@ -240,6 +263,7 @@ function deleteAccount() {
     var form = document.getElementById("delete-account-form");
     form.addEventListener("submit", function(e) {
         e.preventDefault();
+        startLoading();
         $.ajax({
             type: "POST",
             url: "/settings/deleteaccount",
@@ -249,6 +273,7 @@ function deleteAccount() {
                 header = data.split('+')[1];
                 message = data.split('+')[2];
                 sendNotification(type, header, message);
+                stopLoading();
                 if (type == "success") {
                     location.reload();
                 }
@@ -293,6 +318,7 @@ function saveClasses() {
             "color": class_color
         });
     }
+    startLoading();
     $.ajax({
         type: "POST",
         url: "/settings/saveclasses",
@@ -304,6 +330,7 @@ function saveClasses() {
             header = data.split('+')[1];
             message = data.split('+')[2];
             sendNotification(type, header, message);
+            stopLoading();
         },
         error: function(error) {
             sendNotification("error", "Fehler", "Ein Fehler ist aufgetreten! Bitte versuche es später erneut.");
@@ -339,6 +366,7 @@ function saveBreaks() {
             "end": break_end
         });
     }
+    startLoading();
     $.ajax({
         type: "POST",
         url: "/settings/savebreaks",
@@ -350,6 +378,7 @@ function saveBreaks() {
             header = data.split('+')[1];
             message = data.split('+')[2];
             sendNotification(type, header, message);
+            stopLoading();
         },
         error: function(error) {
             sendNotification("error", "Fehler", "Ein Fehler ist aufgetreten! Bitte versuche es später erneut.");
@@ -385,6 +414,7 @@ function saveTimes() {
             "end": lesson_end
         });
     }
+    startLoading();
     $.ajax({
         type: "POST",
         url: "/settings/savetimes",
@@ -396,6 +426,7 @@ function saveTimes() {
             header = data.split('+')[1];
             message = data.split('+')[2];
             sendNotification(type, header, message);
+            stopLoading();
         },
         error: function(error) {
             sendNotification("error", "Fehler", "Ein Fehler ist aufgetreten! Bitte versuche es später erneut.");
@@ -437,6 +468,7 @@ function saveTimetable() {
             "teacher": teacher
         });
     }
+    startLoading();
     $.ajax({
         type: "POST",
         url: "/settings/savetimetable",
@@ -448,6 +480,7 @@ function saveTimetable() {
             header = data.split('+')[1];
             message = data.split('+')[2];
             sendNotification(type, header, message);
+            stopLoading();
         },
         error: function(error) {
             sendNotification("error", "Fehler", "Ein Fehler ist aufgetreten! Bitte versuche es später erneut.");

@@ -122,24 +122,6 @@ $(document).ready(function(){
     });
 });
 
-// Loading bar stuff
-function startLoading() {
-    var bg = document.querySelector(".loading-bg");
-    var elem = document.querySelector(".loading-circle");
-    bg.classList.add("visible");
-}
-
-function getRandomInterval() {
-    // Returns a random number between 20 and 100
-    return Math.floor(Math.random() * (70 - 20 + 1)) + 20;
-}
-
-function stopLoading() {
-    var bg = document.querySelector(".loading-bg");
-    var elem = document.querySelector(".loading-circle");
-    bg.classList.remove("visible");
-}
-
  // Password input stuff
  function ClosePasswordForm() {
     var formbg = document.querySelector('.password_input_bg');

@@ -134,3 +134,16 @@ function hideNotification() {
     notificationclass.classList.remove("visible");
     notificationclass.classList.remove(notificationtype);
 }
+
+// Loading bar stuff
+function startLoading() {
+    var bg = document.querySelector(".loading-bg");
+    var elem = document.querySelector(".loading-circle");
+    bg.classList.add("visible");
+}
+
+function stopLoading() {
+    var bg = document.querySelector(".loading-bg");
+    var elem = document.querySelector(".loading-circle");
+    bg.classList.remove("visible");
+}

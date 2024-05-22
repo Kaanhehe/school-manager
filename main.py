@@ -551,9 +551,27 @@ def deleteuserdata():
     if not check_password(user_id, form_data['password']):
         return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
     
-    delete_user_data(user_id)
+    conn, c = connect_to_db()
+    if 'login-data' in form_data:
+        c.execute("DELETE FROM scrape_data WHERE user_id = %s", (user_id,))
+        c.execute("UPDATE users SET entered_scrape_data = 0 WHERE user_id = %s", (user_id,))
+    if 'timetable' in form_data:
+        c.execute("DELETE FROM timetable WHERE user_id = %s", (user_id,))
+    if 'classes' in form_data:
+        c.execute("DELETE FROM timetable_classes WHERE user_id = %s", (user_id,))
+    if 'breaks' in form_data:
+        c.execute("DELETE FROM timetable_breaks WHERE user_id = %s", (user_id,))
+    if 'times' in form_data:
+        c.execute("DELETE FROM timetable_times WHERE user_id = %s", (user_id,))
+    if 'homework' in form_data:
+        c.execute("DELETE FROM homework WHERE user_id = %s", (user_id,))
+    if 'repplan' in form_data:
+        c.execute("DELETE FROM repplan WHERE user_id = %s", (user_id,))
 
-    return "success+Daten gelöscht+Deine Daten wurden erfolgreich gelöscht"
+    conn.commit()
+    conn.close()
+
+    return "success+Daten gelöscht+Deine ausgewählten Daten wurden erfolgreich gelöscht"
 
 @app.route('/settings/deleteaccount', methods=['POST'])
 def deleteaccount():

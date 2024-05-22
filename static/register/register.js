@@ -40,6 +40,15 @@ function SubmitRegister(e) {
     if (!validateForm()) {
         return;
     }
+    var username = document.getElementById("username").value;
+    if (username.length < 3) {
+        sendNotification("error", "Fehler", "Dein Benutzername muss mindestens 3 Zeichen lang sein!");
+        return;
+    }
+    if (username.length > 32) {
+        sendNotification("error", "Fehler", "Dein Benutzername darf maximal 32 Zeichen lang sein!");
+        return;
+    }
     $.ajax({
         type: "POST",
         url: "/register",

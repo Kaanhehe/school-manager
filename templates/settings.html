@@ -48,6 +48,14 @@
         <p id="notification-text">Bla bla bla</p>
     </div>
     <div class="content">
+        <div id="loadingCircle" class="loading-bg">
+            <div class="loading-window">
+                <div class="loading-circle-container">
+                    <div class="loading-circle"></div>
+                    <h3 class="loading-text">Bitte warten</h3>
+                </div>
+            </div>
+        </div>
         <div class="account visible">
             <h1>Account</h1>
             <div class="account-info">
@@ -96,8 +104,46 @@
                         <div class="change-content">
                             <form class="change-form" id="delete-userdata-form">
                                 <h2>Daten löschen</h2>
+                                <h3>Welche Daten möchtest du löschen?</h3>
+                                <div class="delete-options">
+                                    <div class="delete-option">
+                                        <label for="login-data">Schulportal-Zugangsdaten</label>
+                                        <input type="checkbox" name="login-data" id="login-data">
+                                    </div>
+                                    <div class="timetable-options">
+                                        <h3>Stundenplan Optionen</h3>
+                                        <div class="delete-option">
+                                            <label for="timetable">Stundenplan</label>
+                                            <input type="checkbox" name="timetable" id="timetable">
+                                        </div>
+                                        
+                                        <div class="delete-option">
+                                            <label for="classes">Fächer</label>
+                                            <input type="checkbox" name="classes" id="classes">
+                                        </div>
+                                        
+                                        <div class="delete-option">
+                                            <label for="breaks">Pausen</label>
+                                            <input type="checkbox" name="breaks" id="breaks">
+                                        </div>
+                                        
+                                        <div class="delete-option">
+                                            <label for="times">Zeiten</label>
+                                            <input type="checkbox" name="times" id="times">
+                                        </div>
+                                    </div>
+                                    <div class="delete-option">
+                                        <label for="homework">Hausaufgaben</label>
+                                        <input type="checkbox" name="homework" id="homework">
+                                    </div>
+                                    <div class="delete-option">
+                                        <label for="repplan">Vertretungsplan</label>
+                                        <input type="checkbox" name="repplan" id="repplan">
+                                    </div>
+                                </div>
+                                <h3>Deine Passwort</h3>
                                 <input type="password" name="password" placeholder="Dein Passwort" required>
-                                <p>Willst du wirklich alle deine Daten löschen?</p>
+                                <p>Willst du wirklich alle ausgewählten Daten löschen?</p>
                                 <button class="submit" type="submit">Ja</button>
                             </form>
                         </div>
@@ -139,7 +185,7 @@
         <div class="general">
             <h1>Allgemein</h1>
             <div class="classes">
-                <h2>Klassen</h2>
+                <h2>Fächer</h2>
                 <div class="classes-container">
                         <!-- <div class="class">
                             <input type="text" name="class_name" placeholder="Name" required disabled>

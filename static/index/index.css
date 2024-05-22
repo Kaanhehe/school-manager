@@ -163,72 +163,6 @@
     width: 65%;
 }
 
-.loading-bg {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.1s ease-in-out;
-    position: fixed;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: var(--darkout-bg-popup);
-    overflow: hidden;
-}
-
-.loading-bg.visible {
-    display: flex;
-    opacity: 1;
-}
-  
-.loading-window {
-    display: flex;
-    width: 25%;
-    transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
-    flex-direction: column;
-    justify-content: center;
-    background-color: var(--dark-grey);
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0px 5px 15px rgba(0,0,0,0.4), 0px -5px 15px rgba(255, 255, 255, 0.11);
-}
-
-.loading-circle-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 20px;
-}
-
-.loading-circle {
-    display: inline-block;
-    width: 3.125em;
-    height: 3.125em;
-    border: 5px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: var(--main-purple);
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.loading-text {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.9em;
-    color: var(--main-white);
-}
-
 .scrape_btns {
     display: flex;
     flex-direction: row;
@@ -661,7 +595,7 @@
 }
 
 @media screen and (max-width: 1400px) {
-    .newhwwin, .scrape_form_win, .password_input_win, .loading-window {
+    .newhwwin, .scrape_form_win, .password_input_win {
         width: 40%;
     }
     .newhwwin.expanded {
@@ -674,7 +608,7 @@
 }
 
 @media screen and (max-width: 800px) {
-    .newhwwin, .scrape_form_win, .password_input_win, .loading-window {
+    .newhwwin, .scrape_form_win, .password_input_win {
         width: 50%;
     }
     .newhwwin.expanded {
@@ -695,7 +629,7 @@
         padding: 3px;
         color: var(--main-white);
     }
-    .newhwwin, .scrape_form_win, .password_input_win, .loading-window {
+    .newhwwin, .scrape_form_win, .password_input_win {
         width: 60%;
     }
     .newhwwin.expanded {
@@ -707,7 +641,7 @@
 }
 
 @media screen and (max-width: 500px) {
-    .newhwwin, .scrape_form_win, .password_input_win, .loading-window {
+    .newhwwin, .scrape_form_win, .password_input_win {
         width: 70%;
     }
     .clear {
@@ -732,7 +666,7 @@
         font-size: 0.4em;
         padding: 2px;
     }
-    .newhwwin, .scrape_form_win, .password_input_win, .loading-window {
+    .newhwwin, .scrape_form_win, .password_input_win {
         width: 100%;
     }
     .newhwwin-cancel {
