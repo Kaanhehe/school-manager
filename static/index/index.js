@@ -387,163 +387,134 @@ function applyhomework(homework_data, tableId) {
 
 // Used to apply the replacement plan to the timetable
 // looks complicated but is not that complicated, but still complicated
-function applyrepplan(repplanData, tableId) { 
-    modifiedData = [];
-    // Deep copy the data -> need to do this because the data is a reference and gets modified
-    // I hate javascript
-    modifiedData = JSON.parse(JSON.stringify(repplanData))
-    var table = document.getElementById(tableId);
-    for (var i = 0; i < modifiedData.length; i++) {
-        id = modifiedData[i][0];
-        date = modifiedData[i][1];
+function applyrepplan(repplanData, tableId) {
+    let modifiedData = JSON.parse(JSON.stringify(repplanData));
+    let table = document.getElementById(tableId);
+    let changes = [];
+
+    modifiedData.forEach((data, i) => {
+        let [id, date, hour, classes, substitute, teacher, subject, room, info] = data;
         date = new Date(getdateinISO(date));
-        day = date.getDay();
-        hour = modifiedData[i][2];
-        classes = modifiedData[i][3];
-        substitute = modifiedData[i][4];
-        teacher = modifiedData[i][5];
-        subject = modifiedData[i][6];
-        room = modifiedData[i][7];
-        info = modifiedData[i][8];
-        cell = day + 1;
-        row = hour;
-        // Add 1 to the row if there is a break row before the current row and redo if there are multiple breaks
-        break_rows.forEach(function(break_row) {
+        let day = date.getDay();
+        let cell = day + 1;
+        let row = hour;
+
+        break_rows.forEach(break_row => {
             if (break_row <= row) {
                 row++;
             }
         });
-        // check if the cell exists
+
         if (!table.rows[row] || !table.rows[row].cells[cell]) {
-            continue;
+            return;
         }
-        // check if the subject and teacher match
-        if ((table.rows[row].cells[cell].innerText.split(' ')[0] === subject && table.rows[row].cells[cell].innerText.split(' ')[2] === teacher) || (info === "SV-Std" || info === "SV-Std.")) {
-            // check if substitute is not empty and not the same as the teacher
-            if (substitute != "" && substitute != teacher) {
-                modifiedData[i].push("sub");
+
+        let cellText = table.rows[row].cells[cell].innerText;
+        let [cellSubject, cellRoom, cellTeacher] = cellText.split(' ');
+
+        if ((cellSubject === subject && cellTeacher === teacher) || (info === "SV-Std" || info === "SV-Std.")) {
+            if (substitute && substitute !== teacher) {
+                data.push("sub");
             }
-            // check if room is not empty and not the same as the default room
-            if (room != "" && room != table.rows[row].cells[cell].innerText.split(' ')[1]) {
-                modifiedData[i].push("room");
+
+            if (room && room !== cellRoom) {
+                data.push("room");
             }
-            // Add the cancelled attribute if the lesson is cancelled
+
             if (info === "fällt aus") {
-                 // Doing this because often the original class is listed as cancelled and a new class is listed as sv_std
-                // check if there is already a entry with the same row and cell that is a sv_std lesson
-                // if there is one, dont add the cancelled attribute
-                var sv_std = false;
-                for (var j = 0; j < modifiedData.length; j++) {
-                    if (i != j && modifiedData[j][1] === modifiedData[i][1] && modifiedData[j][2] === modifiedData[i][2] && modifiedData[j].includes("sv_std")) {
-                        sv_std = true;
-                        break;
-                    }
-                }
-                if (!sv_std) {
-                    modifiedData[i].push("cancelled");
-                }
-            // Add the sv_std attribute if its a sv_std lesson
-            } else if (info === "SV-Std" || info === "SV-Std.") {
-                // Doing this because often the original class is listed as cancelled and a new class is listed as sv_std
-                // check if the modifiedData has any entry with the same row and cell
-                // if it has one, remove the sub, room and cancelled attribute
-                for (var j = 0; j < modifiedData.length; j++) {
-                    // check if the row and cell are the same and if the entry is not the same as the current entry
-                    if (i != j && modifiedData[j][1] === modifiedData[i][1] && modifiedData[j][2] === modifiedData[i][2]) {
-                        if (modifiedData[j].includes("sub")) {
-                            modifiedData[j].splice(modifiedData[j].indexOf("sub"), 1);
-                        }
-                        if (modifiedData[j].includes("room")) {
-                            modifiedData[j].splice(modifiedData[j].indexOf("room"), 1);
-                        }
-                        if (modifiedData[j].includes("cancelled")) {
-                            modifiedData[j].splice(modifiedData[j].indexOf("cancelled"), 1);
-                        }
-                    }
-                }
-                modifiedData[i].push("sv_std");
-            } else if (info != "") {
-                modifiedData[i].push("info");
-            }      
-        }
-    }
+                let sv_std = modifiedData.some((data, j) => {
+                    return i !== j && data[1] === date && data[2] === hour && data.includes("sv_std");
+                });
 
-    for (var i = 0; i < modifiedData.length; i++) {
-        is_sub = modifiedData[i].includes("sub");
-        is_room = modifiedData[i].includes("room");
-        is_cancelled = modifiedData[i].includes("cancelled");
-        sv_std = modifiedData[i].includes("sv_std");
-        is_info = modifiedData[i].includes("info");
-        id = modifiedData[i][0];
-        date = modifiedData[i][1];
-        date = new Date(getdateinISO(date));
-        day = date.getDay();
-        hour = modifiedData[i][2];
-        classes = modifiedData[i][3];
-        substitute = modifiedData[i][4];
-        teacher = modifiedData[i][5];
-        subject = modifiedData[i][6];
-        room = modifiedData[i][7];
-        info = modifiedData[i][8];
-        cell = day + 1;
-        row = hour;
-        // Add 1 to the row if there is a break row before the current row and redo if there are multiple breaks
-        break_rows.forEach(function(break_row) {
-            if (break_row <= row) {
-                row++;
+                if (!sv_std) {
+                    data.push("cancelled");
+                }
+            } else if (info === "SV-Std" || info === "SV-Std.") {
+                modifiedData.forEach((data, j) => {
+                    if (i !== j && data[1] === date && data[2] === hour) {
+                        ["sub", "room", "cancelled"].forEach(attr => {
+                            let index = data.indexOf(attr);
+                            if (index !== -1) {
+                                data.splice(index, 1);
+                            }
+                        });
+                    }
+                });
+
+                data.push("sv_std");
+            } else if (info) {
+                data.push("info");
+            }
+        }
+
+        changes.push({ row, cell, data });
+    });
+
+    changes.forEach(({ row, cell, data }) => {
+        let [id, date, hour, classes, substitute, teacher, subject, room, info, ...attributes] = data;
+        let cellElement = table.rows[row].cells[cell];
+
+        attributes.forEach(attr => {
+            switch (attr) {
+                case "sub":
+                    applySubstitute(cellElement, id, substitute);
+                    break;
+                case "room":
+                    applyRoomChange(cellElement, id, room);
+                    break;
+                case "cancelled":
+                    applyCancellation(cellElement, id);
+                    break;
+                case "sv_std":
+                    applySVStd(cellElement, id);
+                    break;
+                case "info":
+                    applyInfo(cellElement, id, info);
+                    break;
+            }
+
+            if (attr === "sub" && attributes.includes("cancelled")) {
+                applySubAndCancelled(cellElement, id);
             }
         });
-        // check if the cell exists
-        if (!table.rows[row] || !table.rows[row].cells[cell]) {
-            continue;
-        }
+    });
+}
 
-        if (is_sub) {
-            cellsplit = table.rows[row].cells[cell].innerHTML.split(' ');
-            // Make the og teacher strike through
-            cellsplit[2] = "<strike>" + cellsplit[2] + "</strike>";
-            // Add the substitute
-            cellsplit[3] = substitute;
-            table.rows[row].cells[cell].innerHTML = cellsplit.join(' ');
-            table.rows[row].cells[cell].innerHTML += ` <i class="teacher-icon${id} fas fa-chalkboard-teacher" style="font-size: smaller;"></i>`;
-            tippy(`.teacher-icon${id}`, { content: "Vertreter: " + substitute });
-        }
+function applySubstitute(cell, id, substitute) {
+    let cellsplit = cell.innerHTML.split(' ');
+    cellsplit[2] = `<strike>${cellsplit[2]}</strike>`;
+    cellsplit[3] = substitute;
+    cell.innerHTML = `${cellsplit.join(' ')} <i class="teacher-icon${id} fas fa-chalkboard-teacher" style="font-size: smaller;"></i>`;
+    tippy(`.teacher-icon${id}`, { content: "Vertreter: " + substitute });
+}
 
-        if (is_room) {
-            cellsplit = table.rows[row].cells[cell].innerHTML.split(' ');
-            // Make the default room strike through
-            cellsplit[1] = "<strike>" + cellsplit[1] + "</strike>";
-            // Add the room
-            cellsplit.splice(2, 0, room);
-            table.rows[row].cells[cell].innerHTML = cellsplit.join(' ');
-            table.rows[row].cells[cell].innerHTML += ` <i class="room-icon${id} fas fa-door-open" style="font-size: smaller;"></i>`;
-            tippy(`.room-icon${id}`, { content: "Neuer Raum: " + room });
-        }
+function applyRoomChange(cell, id, room) {
+    let cellsplit = cell.innerHTML.split(' ');
+    cellsplit[1] = `<strike>${cellsplit[1]}</strike>`;
+    cellsplit.splice(2, 0, room);
+    cell.innerHTML = `${cellsplit.join(' ')} <i class="room-icon${id} fas fa-door-open" style="font-size: smaller;"></i>`;
+    tippy(`.room-icon${id}`, { content: "Neuer Raum: " + room });
+}
 
-        if (is_cancelled) {
-            // Strike through the whole cell
-            table.rows[row].cells[cell].innerHTML = `<strike>${table.rows[row].cells[cell].innerHTML}</strike>`;
-            table.rows[row].cells[cell].innerHTML += ` <i class="cancelled-icon${id} fas fa-times-circle" style="font-size: smaller;"></i>`;
-            tippy(`.cancelled-icon${id}`, { content: "Diese Stunde fällt aus" });
-        }
+function applyCancellation(cell, id) {
+    cell.innerHTML = `<strike>${cell.innerHTML}</strike> <i class="cancelled-icon${id} fas fa-times-circle" style="font-size: smaller;"></i>`;
+    tippy(`.cancelled-icon${id}`, { content: "Diese Stunde fällt aus" });
+}
 
-        if (sv_std) {
-            // Make the cells background yellow
-            table.rows[row].cells[cell].style.backgroundColor = "rgba(255, 255, 0, 0.2)";
-            table.rows[row].cells[cell].innerHTML += ` <i class="sv-std-icon${id} fas fa-user-friends" style="font-size: smaller;"></i>`;
-            tippy(`.sv-std-icon${id}`, { content: "SV-Stunde" });
-        }
+function applySVStd(cell, id) {
+    cell.style.backgroundColor = "rgba(255, 255, 0, 0.2)";
+    cell.innerHTML += ` <i class="sv-std-icon${id} fas fa-user-friends" style="font-size: smaller;"></i>`;
+    tippy(`.sv-std-icon${id}`, { content: "SV-Stunde" });
+}
 
-        if (is_info) {
-            table.rows[row].cells[cell].innerHTML += ` <i class="info-icon${id} fas fa-info-circle" style="font-size: smaller;"></i>`;
-            tippy(`.info-icon${id}`, { content: info });
-        }
+function applyInfo(cell, id, info) {
+    cell.innerHTML += ` <i class="info-icon${id} fas fa-info-circle" style="font-size: smaller;"></i>`;
+    tippy(`.info-icon${id}`, { content: info });
+}
 
-        if (is_sub && is_cancelled) {
-            table.rows[row].cells[cell].innerHTML += ` <i class="info-icon${id} fas fa-info-circle" style="font-size: smaller;"></i>`;
-            tippy(`.info-icon${id}`, { content: "Entfall und Vertretung???" });
-        }
-    }
+function applySubAndCancelled(cell, id) {
+    cell.innerHTML += ` <i class="info-icon${id} fas fa-info-circle" style="font-size: smaller;"></i>`;
+    tippy(`.info-icon${id}`, { content: "Entfall und Vertretung???" });
 }
 
 // Homework stuff
@@ -637,10 +608,9 @@ function refreshOldHomeworks() {
 
 function change_done_homeworks() {
     var buttons = document.querySelectorAll(".hwaction#hwdone");
-    for (var i = 0; i < buttons.length; i++) {
-        var dataid = buttons[i].getAttribute("data-id");
-        var row = buttons[i].closest("tr");
-        var button = row.querySelector(".hwaction#hwdone");
+    buttons.forEach(button => {
+        var dataid = button.getAttribute("data-id");
+        var row = button.closest("tr");
         if (dataid === "0") {
             button.addEventListener("click", doneHomework);
             button.classList.remove("undone");
@@ -650,36 +620,28 @@ function change_done_homeworks() {
             button.classList.add("undone");
             button.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
             // Strike through the text and make it grey
-            var cells = row.cells;
-            for (var j = 0; j < cells.length; j++) {
-                if (j !== 5) { // Skip the button column
-                    // Adding line-through and grey color to the text
-                    cells[j].style.textDecoration = "line-through";
-                    cells[j].style.color = "rgba(255, 255, 255, 0.5)";
-                    // Remove the line-through and grey color when hovering over the row
-                    cells[j].onmouseover = function() {
-                        for (var j = 0; j < cells.length; j++) {
-                            if (j !== 5) {
-                                cells[j].style.textDecoration = "none";
-                                cells[j].style.color = "rgba(255, 255, 255, 1)";
-                            }
-                        }
-                    }
-                    // Add the line-through and grey color back when leaving the row
-                    cells[j].onmouseout = function() {
-                        for (var j = 0; j < cells.length; j++) {
-                            if (j !== 5) {
-                                cells[j].style.textDecoration = "line-through";
-                                cells[j].style.color = "rgba(255, 255, 255, 0.5)";
-                            }
-                        }
-                    }
+            var cells = Array.from(row.cells).filter((_, index) => index !== 5);
+            cells.forEach(cell => {
+                cell.style.textDecoration = "line-through";
+                cell.style.color = "rgba(255, 255, 255, 0.5)";
+                // Remove the line-through and grey color when hovering over the row
+                cell.onmouseover = function() {
+                    cells.forEach(cell => {
+                        cell.style.textDecoration = "none";
+                        cell.style.color = "rgba(255, 255, 255, 1)";
+                    });
                 }
-            }
+                // Add the line-through and grey color back when leaving the row
+                cell.onmouseout = function() {
+                    cells.forEach(cell => {
+                        cell.style.textDecoration = "line-through";
+                        cell.style.color = "rgba(255, 255, 255, 0.5)";
+                    });
+                }
+            });
         }
-    }
+    });
 }
-
 // Replaces the subject with the class label
 // checks in the classes_data array for the subject and returns the class label if it is given
 function replaceSubject() {

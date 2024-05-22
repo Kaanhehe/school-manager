@@ -46,7 +46,7 @@ function SubmitRegister(e) {
         data: $("#register-form").serialize(),
         success: function(response) {
             if (response["success"]) {
-                return window.location.href = "/";
+                return window.location.href = "/login";
             } else {
                 errorelement = document.getElementsByClassName("form-error")[0];
                 errorelement.innerHTML = response["error"];

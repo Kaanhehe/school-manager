@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from hashlib import sha256
 import base64
 from datetime import date
 import psycopg2
@@ -41,7 +42,7 @@ def decrypt_password(user_id, user_password, encrypted_password):
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
-        salt=b'salt',  # Same salt used for encryption
+        salt= str(user_id).encode(),
         iterations=100000,
         backend=default_backend()
     )
@@ -51,7 +52,7 @@ def decrypt_password(user_id, user_password, encrypted_password):
     encrypted_data = base64.b64decode(encrypted_password)
 
     # Decrypt the data
-    iv = b'InitializationVe'  # Same IV used for encryption
+    iv = sha256(str(user_id).encode()).digest()[:16]
     cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
     decryptor = cipher.decryptor()
     decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
