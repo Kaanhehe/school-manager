@@ -181,8 +181,9 @@ def save_classes_data(user_id, classes_data) -> None:
         if not sg_class['name'] or not sg_class['color']:
             return "error+Fehler+Bitte fülle alle Felder aus."
         class_name = sg_class['name']
+        custom_name = sg_class['custom_name']
         class_color = sg_class['color']
-        c.execute("INSERT INTO timetable_classes (user_id, class_name, class_color) VALUES (%s, %s, %s)", (user_id, class_name, class_color))
+        c.execute("INSERT INTO timetable_classes (user_id, class_name, custom_name, class_color) VALUES (%s, %s, %s, %s)", (user_id, class_name, custom_name, class_color))
     conn.commit()
     conn.close()
 
