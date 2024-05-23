@@ -401,9 +401,15 @@ function applyrepplan(repplanData, tableId) {
     let table = document.getElementById(tableId);
     let changes = [];
 
+    function formatDate(date) {
+        const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        return date.toLocaleDateString('en-GB', options).replace(/\//g, '.');
+    }
+
     modifiedData.forEach((data, i) => {
         let [id, date, hour, classes, substitute, teacher, subject, room, info] = data;
         date = new Date(getdateinISO(date));
+        let date2 = formatDate(date);
         let day = date.getDay();
         let cell = day + 1;
         let row = hour;
@@ -432,16 +438,16 @@ function applyrepplan(repplanData, tableId) {
 
             if (info === "fällt aus") {
                 let sv_std = modifiedData.some((data, j) => {
-                    return i !== j && data[1] === date && data[2] === hour && data.includes("sv_std");
+                    return i !== j && data[1] === date2 && data[2] === hour && data.includes("sv_std");
                 });
 
                 if (!sv_std) {
                     data.push("cancelled");
                 }
             } else if (info === "SV-Std" || info === "SV-Std.") {
-                modifiedData.forEach((data, j) => {
-                    if (i !== j && data[1] === date && data[2] === hour) {
-                        ["sub", "room", "cancelled"].forEach(attr => {
+                changes.forEach(({ data }, j) => {
+                    if (i !== j && data[1] === date2 && data[2] === hour) {
+                        ["sub", "cancelled", "sv_std"].forEach(attr => {
                             let index = data.indexOf(attr);
                             if (index !== -1) {
                                 data.splice(index, 1);
@@ -449,8 +455,8 @@ function applyrepplan(repplanData, tableId) {
                         });
                     }
                 });
-
                 data.push("sv_std");
+            
             } else if (info) {
                 data.push("info");
             }
