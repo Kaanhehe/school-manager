@@ -691,6 +691,9 @@ function setupclasses(classes_data) {
         }
         option.classList.add("class-option");
         option.style.backgroundColor = class_data[2];
+        if (class_data[2] != "#333333") {
+            option.style.color = "#333";
+        }
         select.appendChild(option);
     });
 }
