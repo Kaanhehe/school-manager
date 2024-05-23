@@ -437,7 +437,7 @@ function applyrepplan(repplanData, tableId) {
             }
 
             if (info === "fällt aus") {
-                let sv_std = modifiedData.some((data, j) => {
+                let sv_std = changes.some(({ data }, j) => {
                     return i !== j && data[1] === date2 && data[2] === hour && data.includes("sv_std");
                 });
 
