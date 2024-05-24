@@ -711,8 +711,11 @@ def scrapett():
         return "error+Fehler+Bitte gib zuerst deine Anmeldeinformationen für den Schulportal-Login an. -> Einstellungen"
 
     # Run the scrapettplan.py script
-    message = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password], capture_output=True, text=True)
-    fullmessage = message.stderr
+    try:
+        message = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password], capture_output=True, text=True, check=True)
+        fullmessage = message.stderr
+    except subprocess.CalledProcessError:
+        fullmessage = "error+Fehler+Ein Fehler ist aufgetreten beim Abrufen des Stundenplans."
     return fullmessage
 
 @app.route('/scraperep', methods=['POST'])
@@ -729,9 +732,12 @@ def scraperep():
         return "error+Fehler+Bitte gib zuerst deine Anmeldeinformationen für den Schulportal-Login an. -> Einstellungen"
 
     # Run the scraperepplan.py script
-    message = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password], capture_output=True, text=True)
-    fullmessage = message.stderr
-    return  fullmessage
+    try:
+        message = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password], capture_output=True, text=True, check=True)
+        fullmessage = message.stderr
+    except subprocess.CalledProcessError:
+        fullmessage = "error+Fehler+Ein Fehler ist aufgetreten beim Abrufen des Vertretungsplans."
+    return fullmessage
 
 @app.route('/gettt', methods=['GET'])
 def gettt():
@@ -745,6 +751,30 @@ def gettt():
     timetable_data = get_timetable_data(user_id)
     grouped_data = sort_timetable_data(timetable_data)
     return jsonify(grouped_data)
+
+@app.route('/gettimes', methods=['GET'])
+def gettimes():
+    if request.args.get('user_id'):
+        user_id = request.args.get('user_id')
+        password = request.args.get('password')
+        if not check_password(user_id, password):
+            return abort(403)
+    else:
+        user_id = get_user_id()
+    times = get_lesson_hours(user_id)
+    return jsonify(times)
+
+@app.route('/getbreaks', methods=['GET'])
+def getbreaks():
+    if request.args.get('user_id'):
+        user_id = request.args.get('user_id')
+        password = request.args.get('password')
+        if not check_password(user_id, password):
+            return abort(403)
+    else:
+        user_id = get_user_id()
+    breaks = get_breaks_data(user_id)
+    return jsonify(breaks)
 
 @app.route('/getrp', methods=['GET'])
 def getrp():

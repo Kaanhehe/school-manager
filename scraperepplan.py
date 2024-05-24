@@ -94,26 +94,22 @@ def scrape_repplan(session, url):
     if "Fehler" in soup.title.text:
         return sys.exit("error+Fehler+Schulportal-Login abgelehnt. Bitte überprüfen Sie Ihre Anmeldeinformationen.")
 
-    # Check for alerts
-    alert1 = soup.find('div', {'class': 'alert alert-danger'})
-    alert2 = soup.find('div', {'class': 'alert alert-warning'})
-    
-    # Only if there is no repplan data available it will error on repplan getting updated right now
-    if alert2 is not None: # alert 2 is typically telling that there is no repplan data available
-        if alert1 is not None: # alert 1 is typically telling that the repplan is getting updated right now
-            # Remove the button text from the alert
-            button = alert1.find('a')
-            if button is not None:
-                button.extract()
-            return sys.exit("error+Fehler+" + alert1.text.strip())
-        return sys.exit("error+Fehler+" + alert2.text.strip())
-
+    alert1 = {}
+    alert2 = {}
     # Find the repplan table
     panel_primary = soup.find('div', {'class': 'panel panel-primary'})
     if panel_primary is not None:
         panel_primary['class'] = ['panel', 'panel-info']
     panels = soup.find_all('div', {'class': 'panel panel-info'})
     for panel in panels[1:]:
+        # Check for alerts
+        alert1[panel] = panel.find('div', {'class': 'alert alert-danger'})
+        alert2[panel] = panel.find('div', {'class': 'alert alert-warning'})
+        
+        # Remove the button text from the alert
+        if alert1[panel] is not None:
+            alert1[panel].find('a').extract()
+        
         date = panel.find('div', {'class': 'panel-heading'}).find('span', {'class': 'hidden-xs'}).text.split(' ')[2]
         table = panel.find('table', {'class': 'table table-hover table-condensed table-striped'})
         table_rows = table.find_all('tr')
@@ -131,6 +127,13 @@ def scrape_repplan(session, url):
                 'room': cells[6].text.strip(),
                 'info': cells[7].text.strip()
             })
+    # only if both panels gave back an alert
+    # only if there is no repplan data available it will error on repplan getting updated right now
+    if all(alert2.values()): # alert 2 is typically telling that there is no repplan data available
+        if any(alert1.values()): # alert 1 is typically telling that the repplan is getting updated right now
+            return sys.exit("error+Fehler+" + alert1.text.strip())
+        return sys.exit("error+Fehler+" + alert2.text.strip())
+    
     return repplan_data
 
 def save_repplan_to_db(repplan_data, user_id):
