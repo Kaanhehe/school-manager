@@ -712,7 +712,7 @@ def scrapett():
 
     # Run the scrapettplan.py script
     try:
-        message = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password], capture_output=True, text=True, check=True)
+        message = subprocess.run([sys.executable, 'scrapetimetable.py', session['username'], user_id, user_password], capture_output=True, text=True)
         fullmessage = message.stderr
     except subprocess.CalledProcessError:
         fullmessage = "error+Fehler+Ein Fehler ist aufgetreten beim Abrufen des Stundenplans."
@@ -733,7 +733,7 @@ def scraperep():
 
     # Run the scraperepplan.py script
     try:
-        message = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password], capture_output=True, text=True, check=True)
+        message = subprocess.run([sys.executable, 'scraperepplan.py', session['username'], user_id, user_password], capture_output=True, text=True)
         fullmessage = message.stderr
     except subprocess.CalledProcessError:
         fullmessage = "error+Fehler+Ein Fehler ist aufgetreten beim Abrufen des Vertretungsplans."
