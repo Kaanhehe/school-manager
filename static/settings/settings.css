@@ -181,13 +181,22 @@ input {
     padding: 10px;
 }
 
+summary {
+    color: var(--main-white);
+    font-size: 1.5em;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .classes {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     margin: 10px;
-    border: 2px solid var(--main-purple);
+    background-color: var(--dark-grey);
+    border-radius: 15px;
+    padding: 10px;
 }
 
 .classes-container {
@@ -195,7 +204,6 @@ input {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    margin: 10px;
 }
 
 .class {
@@ -239,7 +247,9 @@ input {
     align-items: center;
     justify-content: center;
     margin: 10px;
-    border: 2px solid var(--main-purple);
+    background-color: var(--dark-grey);
+    border-radius: 15px;
+    padding: 10px;
 }
 
 .breaks-container {
@@ -247,7 +257,6 @@ input {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    margin: 10px;
 }
 
 .break {
@@ -292,7 +301,9 @@ input {
     align-items: center;
     justify-content: center;
     margin: 10px;
-    border: 2px solid var(--main-purple);
+    background-color: var(--dark-grey);
+    border-radius: 15px;
+    padding: 10px;
 }
 
 .times-container {
@@ -300,7 +311,6 @@ input {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 10px;
 }
 
 .time {

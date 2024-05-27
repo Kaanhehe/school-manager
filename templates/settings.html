@@ -184,8 +184,8 @@
         </div>
         <div class="general">
             <h1>Allgemein</h1>
-            <div class="classes">
-                <h2>Fächer</h2>
+            <details class="classes">
+                <summary>Fächer</summary>
                 <div class="classes-container">
                         <!-- <div class="class">
                             <input type="text" name="class_name" placeholder="Name" required disabled>
@@ -198,9 +198,9 @@
                     <button class="add-class" onclick="addClass()">Klasse Hinzufügen</button>
                     <button class="save-classes" onclick="saveClasses()">Speichern</button>
                 </div>
-            </div>
-            <div class="timetable-breaks">
-                <h2>Stundenplan Pause</h2>
+            </details>
+            <details class="timetable-breaks">
+                <summary>Stundenplan Pausen</summary>
                 <div class="breaks-container">
                     <!-- <div class="break">
                         <input type="text" name="break-name" placeholder="Pausen Name" required>
@@ -213,9 +213,9 @@
                     <button class="add-break" onclick="addBreak()">Pause Hinzufügen</button>
                     <button class="save-breaks" onclick="saveBreaks()">Speichern</button>
                 </div>
-            </div>
-            <div class="timetable-times">
-                <h2>Stunden Zeiten</h2>
+            </details>
+            <details class="timetable-times">
+                <summary>Stunden Zeiten</summary>
                 <div class="times-container">
                     <!-- <div class="time">
                         <input type="text" name="lesson-hour" placeholder="Stunde" required>
@@ -228,7 +228,7 @@
                     <button class="add-time" onclick="addTime()">Zeit Hinzufügen</button>
                     <button class="save-times" onclick="saveTimes()">Speichern</button>
                 </div>
-            </div>
+            </details>
         </div>
         <div class="timetable">
             <h1>Stundenplan</h1>

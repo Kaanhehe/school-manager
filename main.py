@@ -42,7 +42,7 @@ def get_timetable_data(user_id) -> list[tuple]:
     conn.close()
     return timetable_data
 
-def get_lesson_hours(user_id, connect_times) -> list:
+def get_lesson_hours(user_id, connect_times=True) -> list:
     conn, c = connect_to_db()
     c.execute("SELECT * FROM timetable_times WHERE user_id = %s", (user_id,))
     hours_data = c.fetchall()
@@ -57,7 +57,7 @@ def get_lesson_hours(user_id, connect_times) -> list:
     hours_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in hours_data]
     return hours_data
 
-def get_breaks_data(user_id, connect_times) -> list:
+def get_breaks_data(user_id, connect_times=True) -> list:
     conn, c = connect_to_db()
     c.execute("SELECT * FROM timetable_breaks WHERE user_id = %s", (user_id,))
     breaks_data = c.fetchall()
