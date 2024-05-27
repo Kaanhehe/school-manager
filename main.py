@@ -42,7 +42,7 @@ def get_timetable_data(user_id) -> list[tuple]:
     conn.close()
     return timetable_data
 
-def get_lesson_hours(user_id) -> list:
+def get_lesson_hours(user_id, connect_times) -> list:
     conn, c = connect_to_db()
     c.execute("SELECT * FROM timetable_times WHERE user_id = %s", (user_id,))
     hours_data = c.fetchall()
@@ -50,17 +50,24 @@ def get_lesson_hours(user_id) -> list:
     # Remove user_id from the data
     hours_data = [entry[1:] for entry in hours_data]
     hours_data = sorted(hours_data, key=lambda x: x[0])
+    # Only connect the times if connect_times is True
+    if not connect_times:
+        return hours_data
     # Merge the entry 2 and 3 of the hours_data list to a string "class_start - class_end" and add the class_num infront of it
     hours_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in hours_data]
     return hours_data
 
-def get_breaks_data(user_id) -> list:
+def get_breaks_data(user_id, connect_times) -> list:
     conn, c = connect_to_db()
     c.execute("SELECT * FROM timetable_breaks WHERE user_id = %s", (user_id,))
     breaks_data = c.fetchall()
     conn.close()
     breaks_data = [entry[1:] for entry in breaks_data]
     breaks_data = sorted(breaks_data, key=lambda x: x[0])
+    # Only connect the times if connect_times is True
+    if not connect_times:
+        return breaks_data
+    # Merge the entry 2 and 3 of the breaks_data list to a string "break_start - break_end" and add the break_name infront of it
     breaks_data = [(entry[0], entry[1] + " - " + entry[2]) for entry in breaks_data]
     return breaks_data
 
@@ -458,9 +465,9 @@ def settings():
     c.execute("SELECT email FROM users WHERE user_id = %s", (user_id,))
     email = c.fetchone()[0]
     conn.close()
-    breaks = get_breaks_data(user_id)
+    breaks = get_breaks_data(user_id, False)
     
-    times = get_lesson_hours(user_id)
+    times = get_lesson_hours(user_id, False)
     
     classes = get_classes_data(user_id)
 
