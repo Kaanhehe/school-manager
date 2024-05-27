@@ -217,7 +217,7 @@ summary {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin: 10px;
 }
 
@@ -270,7 +270,7 @@ summary {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin: 10px;
 
 }
@@ -324,7 +324,7 @@ summary {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin: 10px;
 }
 
@@ -357,10 +357,8 @@ summary {
 .timetable-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
     margin: 10px;
-    border: 2px solid var(--main-purple);
 }
 
 .timetable-headers {
@@ -373,12 +371,16 @@ summary {
     margin: 10px;
 }
 
-.timetable-classes {
+.timetable-day {
     display: flex;
-    flex-direction: column;
+    width: 100%;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin: 10px;
+    margin-bottom: 10px;
+    background-color: var(--dark-grey);
+    border-radius: 15px;
+    padding: 10px;
 }
 
 .timetable-class {
@@ -392,7 +394,7 @@ summary {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin: 10px;
 }
 

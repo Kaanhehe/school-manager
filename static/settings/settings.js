@@ -41,6 +41,28 @@ $(document).ready(function() {
         class_container.appendChild(class_element);
     });
 
+    // Create a details element for each day of the week
+    var days = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"];
+    var detailsElements = {};
+
+    days.forEach(day => {
+        var timetable_container = document.getElementsByClassName("timetable-container")[0];
+        var details = document.createElement("details");
+        var summary = document.createElement("summary");
+        summary.textContent = day;
+        details.appendChild(summary);
+        details.classList.add("timetable-day");
+        timetable_container.appendChild(details);
+        detailsElements[day] = details;
+
+        // Add headers
+        var header = document.createElement("div");
+        header.classList.add("timetable-headers");
+        header.innerHTML = "<h3>Tag</h3><h3>Stunde</h3><h3>Fach</h3><h3>Raum</h3><h3>Lehrer</h3>";
+        detailsElements[day].appendChild(header);
+    });
+
+    // Append classes to the corresponding day
     timetable_data.forEach(group => {
         group.forEach(data => {
             var day = data[0];
@@ -51,17 +73,30 @@ $(document).ready(function() {
             if (subject == "" || room == "" || teacher == "") {
                 return;
             }
-            var timetable_classes = document.getElementsByClassName("timetable-classes")[0];
             var timetable_class = document.createElement("div");
             timetable_class.classList.add("timetable-class");
-            timetable_class.innerHTML = `<input type="text" name="class_day" placeholder="Tag" required value="${day}">`;
+            timetable_class.innerHTML = `<select name="class_day" required>
+                                            <option value="Montag" ${day === "Montag" ? "selected" : ""}>Montag</option>
+                                            <option value="Dienstag" ${day === "Dienstag" ? "selected" : ""}>Dienstag</option>
+                                            <option value="Mittwoch" ${day === "Mittwoch" ? "selected" : ""}>Mittwoch</option>
+                                            <option value="Donnerstag" ${day === "Donnerstag" ? "selected" : ""}>Donnerstag</option>
+                                            <option value="Freitag" ${day === "Freitag" ? "selected" : ""}>Freitag</option>
+                                        </select>`;
             timetable_class.innerHTML += `<input type="text" name="class_hour" placeholder="Stunde" required value="${hour}">`;
             timetable_class.innerHTML += `<input type="text" name="class_subject" placeholder="Fach" required value="${subject}">`;
             timetable_class.innerHTML += `<input type="text" name="class_room" placeholder="Raum" required value="${room}">`;
             timetable_class.innerHTML += `<input type="text" name="class_teacher" placeholder="Lehrer" required value="${teacher}">`;
             timetable_class.innerHTML += `<button class="remove-timetable-class" onclick="removeTimetableClass(this)">Entfernen</button>`;
-            timetable_classes.appendChild(timetable_class);
+            detailsElements[day].appendChild(timetable_class);
         });
+    });
+    // Append buttons to each details element
+    days.forEach(day => {
+        var timetable_buttons = document.createElement("div");
+        timetable_buttons.classList.add("timetable-buttons");
+        timetable_buttons.innerHTML = `<button class="add-timetable-class" onclick="addTimetableClass(this)">Stunde Hinzufügen</button>`;
+        timetable_buttons.innerHTML += `<button class="save-timetable" onclick="saveTimetable()">Speichern</button>`;
+        detailsElements[day].appendChild(timetable_buttons);
     });
 });
 
@@ -438,28 +473,35 @@ function removeTimetableClass(element) {
     element.parentNode.remove();
 }
 
-function addTimetableClass() {
-    var timetable_classes = document.getElementsByClassName("timetable-classes")[0];
+function addTimetableClass(element) {
+    var timetable_day = element.parentNode.parentNode;
     var timetable_class = document.createElement("div");
+    var day = timetable_day.getElementsByTagName("summary")[0].textContent;
     timetable_class.classList.add("timetable-class");
-    timetable_class.innerHTML = `<input type="text" name="class_day" placeholder="Tag" required>`;
+    timetable_class.innerHTML = `<select name="class_day" required>
+                                            <option value="Montag" ${day === "Montag" ? "selected" : ""}>Montag</option>
+                                            <option value="Dienstag" ${day === "Dienstag" ? "selected" : ""}>Dienstag</option>
+                                            <option value="Mittwoch" ${day === "Mittwoch" ? "selected" : ""}>Mittwoch</option>
+                                            <option value="Donnerstag" ${day === "Donnerstag" ? "selected" : ""}>Donnerstag</option>
+                                            <option value="Freitag" ${day === "Freitag" ? "selected" : ""}>Freitag</option>
+                                        </select>`;
     timetable_class.innerHTML += `<input type="text" name="class_hour" placeholder="Stunde" required>`;
     timetable_class.innerHTML += `<input type="text" name="class_subject" placeholder="Fach" required>`;
     timetable_class.innerHTML += `<input type="text" name="class_room" placeholder="Raum" required>`;
     timetable_class.innerHTML += `<input type="text" name="class_teacher" placeholder="Lehrer" required>`;
     timetable_class.innerHTML += `<button class="remove-timetable-class" onclick="removeTimetableClass(this)">Entfernen</button>`;
-    timetable_classes.appendChild(timetable_class);
+    timetable_day.insertBefore(timetable_class, timetable_day.lastChild);
 }
 
 function saveTimetable() {
     var timetable_classes = document.getElementsByClassName("timetable-class");
     var data = [];
     for (var i = 0; i < timetable_classes.length; i++) {
-        var day = timetable_classes[i].getElementsByTagName("input")[0].value;
-        var hour = timetable_classes[i].getElementsByTagName("input")[1].value;
-        var subject = timetable_classes[i].getElementsByTagName("input")[2].value;
-        var room = timetable_classes[i].getElementsByTagName("input")[3].value;
-        var teacher = timetable_classes[i].getElementsByTagName("input")[4].value;
+        var day = timetable_classes[i].getElementsByTagName("select")[0].value;
+        var hour = timetable_classes[i].getElementsByTagName("input")[0].value;
+        var subject = timetable_classes[i].getElementsByTagName("input")[1].value;
+        var room = timetable_classes[i].getElementsByTagName("input")[2].value;
+        var teacher = timetable_classes[i].getElementsByTagName("input")[3].value;
         data.push({
             "day": day,
             "hour": hour,
