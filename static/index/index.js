@@ -664,8 +664,6 @@ function highlightCurrentLesson(tableId) {
     // Variables to store the current row and cell
     var currentRow = 0;
     var currentCell = 0;
-    currentDay = 1; // For testing purposes
-    currentTime = "08:00"; // For testing purposes
 
     // Remove all the highlights
     RemoveHighlight(tableId);
