@@ -204,6 +204,17 @@
     margin: 15px 0;
 }
 
+.timetablecell {
+}
+
+.highlight {
+    background-color: var(--secondary-purple);
+}
+
+.currentLesson {
+    background-color: var(--main-purple);
+}
+
 .timetablebreak {
     text-align: center;
     font-size: 1.25em;

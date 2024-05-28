@@ -310,6 +310,7 @@ function applyTimetable(data, tableId) {
         var class_loc = group[0][3];
         var class_tea = group[0][4];
         
+        // Check if a break comes before the class and add it to the table
         breaks_data.forEach(function(sg_break) {
             if (sg_break[1].split(' - ')[1] == class_time.split(' - ')[0]) {
                 var breakRow = document.createElement('tr');
@@ -327,6 +328,7 @@ function applyTimetable(data, tableId) {
                 }
             }
         });
+        // Creates a new row and adds the class number and time to the first two cells
         var row = document.createElement('tr');
         row.innerHTML = `
             <td>${class_num}</td>
@@ -346,12 +348,14 @@ function applyTimetable(data, tableId) {
             if (class_day in day_columns) {
                 var cell = document.createElement('td');
                 cell.textContent = class_name + ' ' + class_loc + ' ' + class_tea;
+                cell.classList.add('timetablecell');
                 row.appendChild(cell);
             }
         });
     
         tableBody.appendChild(row);
     });
+    highlightCurrentLesson(tableId);
 }
 // Used to apply the homework to the timetable
 // Adds a little icon to the cell if there is a homework with the amount of homeworks that are due
@@ -620,6 +624,118 @@ function refreshOldHomeworks() {
         }
     });
 }
+
+function highlightCurrentLesson(tableId) {
+    // Get the times of the current day
+    var currentDate = new Date();
+    var currentDay = currentDate.getDay();
+    var currentHour = currentDate.getHours();
+    var currentMinute = currentDate.getMinutes();
+    var currentHourString = currentHour.toString();
+    var currentMinuteString = currentMinute.toString();
+
+    // get the table
+    var table = document.getElementById(tableId);
+    
+    // Add a leading zero if the hour or minute is less than 10
+    if (currentHour < 10) {
+        currentHourString = "0" + currentHourString;
+    }
+    if (currentMinute < 10) {
+        currentMinuteString = "0" + currentMinuteString;
+    }
+    // Get the current time in the format HH:MM
+    var currentTime = currentHourString + ":" + currentMinuteString;
+
+    // Variables to store the current row and cell
+    var currentRow = 0;
+    var currentCell = 0;
+
+    // Remove all the highlights
+    RemoveHighlight(tableId);
+
+    // Check all columns if the current day is the column and highlight the column
+    for (var i = 2; i < table.rows[0].cells.length; i++) {
+        if (currentDay === i - 1) {
+            // Highlight all the cells of the column
+            for (var j = 1; j < table.rows.length; j++) {
+                // Check if the cell exists
+                if (!table.rows[j] || !table.rows[j].cells[i]) {
+                    continue;
+                }
+                // check if the cell is a break cell
+                if (table.rows[j].cells[i].classList.contains("timetablebreak")) {
+                    continue;
+                }
+                // check if the cell is empty
+                if (table.rows[j].cells[i].innerText === "") {
+                    continue;
+                }
+                table.rows[j].cells[i].classList.add("highlight");
+                currentCell = i;
+            }
+        }
+    }
+
+    // If the current day is not in the timetable, return -> like on weekends
+    if (currentCell === 0) {
+        return;
+    }
+
+    // Gets the current row based on the current time
+    // Check all rows if the current time is between the start and end time of the class
+    for (var i = 1; i < table.rows.length; i++) {
+        var timecell = table.rows[i].cells[1].innerText;
+        var time_start = timecell.split(" - ")[0];
+        var time_end = timecell.split(" - ")[1];
+        // Check if the current time is between the start and end time of the class
+        if (currentTime >= time_start && currentTime <= time_end) {
+            // Highlight all the cells of the row
+            for (var j = 0; j < table.rows[i].cells.length; j++) {
+                // check if the currentCell in the row is empty
+                if (table.rows[i].cells[currentCell].innerText === "") {
+                    RemoveHighlight(tableId);
+                    continue;
+                }
+                currentRow = i;
+            }
+        }
+    }
+
+    // If the current time is not in the timetable, return -> like after school
+    if (currentRow === 0) {
+        return;
+    }
+
+    // Check if the cell is a break cell and highlight it -> checks the third cell of the row cuz we use colspan for breaks
+    if (table.rows[currentRow].cells[2].classList.contains("timetablebreak")) {
+        table.rows[currentRow].cells[2].classList.add("currentLesson");
+        return;
+    }
+
+    // Check if the cell is empty
+    if (table.rows[currentRow].cells[currentCell].innerText === "") {
+        return;
+    }
+
+    // Set class CurrentLesson to the current lesson that is at currentRow and currentCell
+    table.rows[currentRow].cells[currentCell].classList.add("currentLesson");  
+}
+
+function RemoveHighlight(tableId) {
+    var table = document.getElementById(tableId);
+    for (var i = 0; i < table.rows.length; i++) {
+        for (var j = 0; j < table.rows[i].cells.length; j++) {
+            // Check if the cell exists
+            if (!table.rows[i] || !table.rows[i].cells[j]) {
+                continue;
+            }
+            table.rows[i].cells[j].classList.remove("highlight");
+            table.rows[i].cells[j].classList.remove("currentLesson");
+        }
+    }
+}
+    
 
 function change_done_homeworks() {
     var buttons = document.querySelectorAll(".hwaction#hwdone");
