@@ -1198,6 +1198,44 @@ function RefreshOldRepPlan() {
     });
 }
 
+function applySubstitute_table(cell) {
+    cell.style.textDecoration = "line-through";
+    cell.style.color = "rgba(255, 255, 255, 0.5)";
+    // Remove the line-through and grey color when hovering over the row
+    cell.onmouseover = function() {
+        cell.style.textDecoration = "none";
+        cell.style.color = "rgba(255, 255, 255, 1)";
+    }
+    // Add the line-through and grey color back when leaving the row
+    cell.onmouseout = function() {
+        cell.style.textDecoration = "line-through";
+        cell.style.color = "rgba(255, 255, 255, 0.5)";
+    }
+    return cell;
+}
+
+function applyCancellation_table(row) {
+    var cells = Array.from(row.cells)
+    cells.forEach(cell => {
+        cell.style.textDecoration = "line-through";
+        cell.style.color = "rgba(255, 255, 255, 0.5)";
+        // Remove the line-through and grey color when hovering over the row
+        cell.onmouseover = function() {
+            cells.forEach(cell => {
+                cell.style.textDecoration = "none";
+                cell.style.color = "rgba(255, 255, 255, 1)";
+            });
+        }
+        // Add the line-through and grey color back when leaving the row
+        cell.onmouseout = function() {
+            cells.forEach(cell => {
+                cell.style.textDecoration = "line-through";
+                cell.style.color = "rgba(255, 255, 255, 0.5)";
+            });
+        }
+    });
+}
+
 function applyrepplan_to_table(data, tableId) {
     var table = document.getElementById(tableId);
     var tableBody = table.getElementsByTagName("tbody")[0];
@@ -1206,8 +1244,34 @@ function applyrepplan_to_table(data, tableId) {
         var row = document.createElement("tr");
         for (var j = 0; j < data[i].length; j++) {
             var cell = document.createElement("td");
-            cell.textContent = data[i][j];
+    
+            // Check if Vertreter is not empty and different from Lehrer -> Cross out the Lehrer
+            if (j === 5 && data[i][4] !== "" && data[i][4] !== data[i][5]) {
+                cell = applySubstitute_table(cell);
+            }
+
+            // Switching Fach and Vertreter -> else just add the data
+            if (j === 4) {
+                cell.textContent = data[i][6];
+                row.appendChild(cell);
+                continue;
+            } else if (j === 6) {
+                cell.textContent = data[i][4];
+                row.appendChild(cell);
+                continue;
+            } else {
+                cell.textContent = data[i][j];
+            }
+
+            // Add the cell to the row
             row.appendChild(cell);
+
+            // Check if the row is a cancellation and strike out the whole row
+            if (j === 8 && data[i][8] === "fällt aus") {
+                applyCancellation_table(row);
+            } else if (j === 8 && (data[i][8] === "SV-Std" || data[i][8] === "SV-Std.")) {
+                row.style.backgroundColor = "rgba(255, 255, 0, 0.2)";
+            }
         }
         tableBody.appendChild(row);
     }
