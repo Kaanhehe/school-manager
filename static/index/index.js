@@ -349,6 +349,20 @@ function applyTimetable(data, tableId) {
                 var cell = document.createElement('td');
                 cell.textContent = class_name + ' ' + class_loc + ' ' + class_tea;
                 cell.classList.add('timetablecell');
+                cell.classList.add('class-' + class_num + '-' + class_day);
+                cell.addEventListener('mouseover', function() { 
+                    // check if the cell is empty
+                    if (cell.innerText === "") {
+                        return;
+                    }
+                    // check classes_data for the class label and add it to the tooltip
+                    classes_data.forEach(function(class_data) {
+                        if (class_data[0] === class_name && class_data[1] !== "") {
+                            class_name = class_data[1];
+                        }
+                    });
+                    tippy('.class-' + class_num + '-' + class_day, { content: 'Fach: ' + class_name + '<br>Raum: ' + class_loc + '<br>Lehrer: ' + class_tea, allowHTML: true });
+                });
                 row.appendChild(cell);
             }
         });
@@ -650,6 +664,8 @@ function highlightCurrentLesson(tableId) {
     // Variables to store the current row and cell
     var currentRow = 0;
     var currentCell = 0;
+    currentDay = 1; // For testing purposes
+    currentTime = "08:00"; // For testing purposes
 
     // Remove all the highlights
     RemoveHighlight(tableId);
