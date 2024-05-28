@@ -716,8 +716,9 @@ function highlightCurrentLesson(tableId) {
         }
     }
 
-    // If the current time is not in the timetable, return -> like after school
+    // If the current time is not in the timetable, return -> like after school; Also checks if the cell exists
     if (currentRow === 0) {
+        RemoveHighlight(tableId);
         return;
     }
 
