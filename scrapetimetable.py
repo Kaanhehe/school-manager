@@ -12,7 +12,7 @@ from datetime import date
 import psycopg2
 from bs4 import BeautifulSoup
 
-TIMETABLE_URL = 'https://start.schulportal.hessen.de/stundenplan.php?a=detail_klasse&e=1&k=09A'
+TIMETABLE_URL = 'https://start.schulportal.hessen.de/stundenplan.php'
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def get_data_from_db(user_id):
