@@ -13,7 +13,7 @@ CREATE TABLE "users" (
 	"username"	TEXT,
 	"email"	TEXT,
 	"password"	TEXT,
-	"entered_scrape_data"	INTEGER,
+	"entered_scrape_data"	INTEGER DEFAULT 0,
 	PRIMARY KEY("user_id")
 )
 """)
@@ -58,9 +58,45 @@ CREATE TABLE "repplan" (
 )
 """)
     
-    c.execute("CREATE TABLE timetable (user_id TEXT, class_day TEXT, class_num INTEGER, class_time TEXT, class_name TEXT, class_loc TEXT, class_tea TEXT, date TEXT)")
+    c.execute("""
+CREATE TABLE timetable (
+	"user_id" TEXT, 
+    "class_day" TEXT, 
+    "class_num" INTEGER, 
+    "class_time" TEXT, 
+    "class_name" TEXT, 
+    "class_loc" TEXT, 
+    "class_tea" TEXT, 
+    "date" TEXT
+)
+""")
     
-    c.execute("CREATE TABLE IF NOT EXISTS timetable_breaks (user_id TEXT, break_name TEXT, break_start TEXT, break_end TEXT)")
+    c.execute("""
+CREATE TABLE IF NOT EXISTS timetable_breaks (
+    user_id TEXT, 
+    break_name TEXT, 
+    break_start TEXT, 
+    break_end TEXT
+)
+""")
+
+    c.execute("""
+CREATE TABLE IF NOT EXISTS timetable_times (
+    user_id TEXT, 
+    class_name TEXT, 
+    custom_name TEXT, 
+    class_color TEXT
+)
+""")
+    
+    c.execute("""
+CREATE TABLE IF NOT EXISTS timetable_classes (
+    user_id TEXT, 
+    lesson_hour INTEGER, 
+    lesson_start TEXT, 
+    lesson_end TEXT
+)
+""")
     
     conn.commit()
     conn.close()
