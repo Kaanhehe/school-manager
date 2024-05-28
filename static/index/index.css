@@ -402,7 +402,7 @@
 .newhwwin-cancel .buttons {
     display: flex;
     flex-direction: row;
-    padding-top: 20px;
+    padding-top: 15px;
 }
 
 .newhwwin-cancel button {
