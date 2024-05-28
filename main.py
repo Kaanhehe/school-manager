@@ -709,7 +709,7 @@ def scrapett():
     user_id = get_user_id()
     user_password = request.form['password_input']
     if not user_password:
-        return abort(403)
+        return "error+Fehler+Bitte gib dein Passwort ein."
     
     if not check_password(user_id, user_password):
         return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."
@@ -730,7 +730,7 @@ def scraperep():
     user_id = get_user_id()
     user_password = request.form['password_input']
     if not user_password:
-        return abort(403)
+        return "error+Fehler+Bitte gib dein Passwort ein."
     
     if not check_password(user_id, user_password):
         return "error+Fehler+Dein Passwort ist falsch. Bitte versuche es erneut."

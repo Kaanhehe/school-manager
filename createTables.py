@@ -83,18 +83,18 @@ CREATE TABLE IF NOT EXISTS timetable_breaks (
     c.execute("""
 CREATE TABLE IF NOT EXISTS timetable_times (
     user_id TEXT, 
-    class_name TEXT, 
-    custom_name TEXT, 
-    class_color TEXT
+    lesson_hour INTEGER, 
+    lesson_start TEXT, 
+    lesson_end TEXT
 )
 """)
     
     c.execute("""
 CREATE TABLE IF NOT EXISTS timetable_classes (
     user_id TEXT, 
-    lesson_hour INTEGER, 
-    lesson_start TEXT, 
-    lesson_end TEXT
+    class_name TEXT, 
+    custom_name TEXT, 
+    class_color TEXT
 )
 """)
     
