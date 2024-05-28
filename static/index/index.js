@@ -930,6 +930,14 @@ function displayEdithwForm(homework) {
     submit.value = "Ändern";
     formHeader.innerText = "Hausaufgabe bearbeiten";
     selects[0].value = homework.cells[1].innerText;
+    // If a class label is set, you cant set the select to it cuz it uses the values of the classes so you have to reverse the label to the value
+    if (selects[0].value === "") {
+        classes_data.forEach(function(class_data) {
+            if (class_data[1] === homework.cells[1].innerText) {
+                selects[0].value = class_data[0];
+            }
+        });
+    }
     values[0].value = homework.cells[2].innerText;
     selects[1].value = getworkamountINT(homework.cells[3].innerText);
     values[1].value = getdateinISO(homework.cells[4].innerText);
