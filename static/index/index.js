@@ -967,6 +967,7 @@ function resetForm() {
     var submit = window.querySelector('input[type="submit"]');
     submit.value = "Hinzufügen";
     formHeader.innerText = "Neue Hausaufgabe";
+    cleanMarkedCells();
     for (var i = 0; i < values.length; i++) {
         if (values[i].type != "submit" && values[i].type != "checkbox") {
             values[i].value = "";
