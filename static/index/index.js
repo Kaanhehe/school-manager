@@ -640,115 +640,69 @@ function refreshOldHomeworks() {
 }
 
 function highlightCurrentLesson(tableId) {
-    // Get the times of the current day
-    var currentDate = new Date();
-    var currentDay = currentDate.getDay();
-    var currentHour = currentDate.getHours();
-    var currentMinute = currentDate.getMinutes();
-    var currentHourString = currentHour.toString();
-    var currentMinuteString = currentMinute.toString();
+    const currentDate = new Date();
+    let currentDay = currentDate.getDay();
+    let currentHour = currentDate.getHours();
+    let currentMinute = currentDate.getMinutes();
+    let currentHourString = currentHour < 10 ? `0${currentHour}` : `${currentHour}`;
+    let currentMinuteString = currentMinute < 10 ? `0${currentMinute}` : `${currentMinute}`;
+    let currentTime = `${currentHourString}:${currentMinuteString}`;
 
-    // get the table
-    var table = document.getElementById(tableId);
-    
-    // Add a leading zero if the hour or minute is less than 10
-    if (currentHour < 10) {
-        currentHourString = "0" + currentHourString;
-    }
-    if (currentMinute < 10) {
-        currentMinuteString = "0" + currentMinuteString;
-    }
-    // Get the current time in the format HH:MM
-    var currentTime = currentHourString + ":" + currentMinuteString;
+    const table = document.getElementById(tableId);
 
-    // Variables to store the current row and cell
-    var currentRow = 0;
-    var currentCell = 0;
 
-    // Remove all the highlights
-    RemoveHighlight(tableId);
+    removeHighlight(tableId);
 
-    // Check all columns if the current day is the column and highlight the column
-    for (var i = 2; i < table.rows[0].cells.length; i++) {
-        if (currentDay === i - 1) {
-            // Highlight all the cells of the column
-            for (var j = 1; j < table.rows.length; j++) {
-                // Check if the cell exists
-                if (!table.rows[j] || !table.rows[j].cells[i]) {
-                    continue;
-                }
-                // check if the cell is a break cell
-                if (table.rows[j].cells[i].classList.contains("timetablebreak")) {
-                    continue;
-                }
-                // check if the cell is empty
-                if (table.rows[j].cells[i].innerText === "") {
-                    continue;
-                }
-                table.rows[j].cells[i].classList.add("highlight");
-                currentCell = i;
-            }
-        }
-    }
+    let currentCell = highlightColumn(currentDay, table);
+    if (currentCell === 0) return;
 
-    // If the current day is not in the timetable, return -> like on weekends
-    if (currentCell === 0) {
-        return;
-    }
-
-    // Gets the current row based on the current time
-    // Check all rows if the current time is between the start and end time of the class
-    for (var i = 1; i < table.rows.length; i++) {
-        var timecell = table.rows[i].cells[1].innerText;
-        var time_start = timecell.split(" - ")[0];
-        var time_end = timecell.split(" - ")[1];
-        // Check if the current time is between the start and end time of the class
-        if (currentTime >= time_start && currentTime <= time_end) {
-            // Highlight all the cells of the row
-            for (var j = 0; j < table.rows[i].cells.length; j++) {
-                // check if the currentCell in the row is empty
-                if (table.rows[i].cells[currentCell].innerText === "") {
-                    RemoveHighlight(tableId);
-                    continue;
-                }
-                currentRow = i;
-            }
-        }
-    }
-
-    // If the current time is not in the timetable, return -> like after school; Also checks if the cell exists
+    let currentRow = highlightRow(currentTime, currentCell, table);
     if (currentRow === 0) {
-        RemoveHighlight(tableId);
+        removeHighlight(tableId);
         return;
     }
 
-    // Check if the cell is a break cell and highlight it -> checks the third cell of the row cuz we use colspan for breaks
     if (table.rows[currentRow].cells[2].classList.contains("timetablebreak")) {
         table.rows[currentRow].cells[2].classList.add("currentLesson");
         return;
     }
 
-    // Check if the cell is empty
-    if (table.rows[currentRow].cells[currentCell].innerText === "") {
-        return;
-    }
+    if (table.rows[currentRow].cells[currentCell].innerText === "") return;
 
-    // Set class CurrentLesson to the current lesson that is at currentRow and currentCell
-    table.rows[currentRow].cells[currentCell].classList.add("currentLesson");  
+    table.rows[currentRow].cells[currentCell].classList.add("currentLesson");
 }
 
-function RemoveHighlight(tableId) {
-    var table = document.getElementById(tableId);
-    for (var i = 0; i < table.rows.length; i++) {
-        for (var j = 0; j < table.rows[i].cells.length; j++) {
-            // Check if the cell exists
-            if (!table.rows[i] || !table.rows[i].cells[j]) {
-                continue;
-            }
+function removeHighlight(tableId) {
+    const table = document.getElementById(tableId);
+    for (let i = 0; i < table.rows.length; i++) {
+        for (let j = 0; j < table.rows[i].cells.length; j++) {
             table.rows[i].cells[j].classList.remove("highlight");
             table.rows[i].cells[j].classList.remove("currentLesson");
         }
     }
+}
+
+function highlightColumn(currentDay, table) {
+    for (let i = 2; i < table.rows[0].cells.length; i++) {
+        if (currentDay !== i - 1) continue;
+        for (let j = 1; j < table.rows.length; j++) {
+            const cell = table.rows[j]?.cells[i];
+            if (!cell || cell.classList.contains("timetablebreak") || cell.innerText === "") continue;
+            cell.classList.add("highlight");
+        }
+        return i;
+    }
+    return 0;
+}
+
+function highlightRow(currentTime, currentCell, table) {
+    for (let i = 1; i < table.rows.length; i++) {
+        const timecell = table.rows[i].cells[1].innerText;
+        const [time_start, time_end] = timecell.split(" - ");
+        if (currentTime < time_start || currentTime > time_end || table.rows[i].cells[currentCell].innerText === "") continue;
+        return i;
+    }
+    return 0;
 }
     
 
