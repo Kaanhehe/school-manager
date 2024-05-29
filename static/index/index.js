@@ -666,9 +666,16 @@ function highlightCurrentLesson(tableId) {
         return;
     }
 
-    if (table.rows[currentRow].cells[currentCell].innerText === "  ") return;
+    if (checkCellEmpty(table.rows[currentRow].cells[currentCell], false)) return;
 
     table.rows[currentRow].cells[currentCell].classList.add("currentLesson");
+}
+
+function checkCellEmpty(cell, checkbreak) {
+    if (checkbreak) {
+        return cell.classList.contains("timetablebreak") || cell.innerText === "  " || cell.innerText === "";
+    }
+    return cell.innerText === "  " || cell.innerText === "";
 }
 
 function removeHighlight(tableId) {
@@ -686,7 +693,7 @@ function highlightColumn(currentDay, table) {
         if (currentDay !== i - 1) continue;
         for (let j = 1; j < table.rows.length; j++) {
             const cell = table.rows[j]?.cells[i];
-            if (!cell || cell.classList.contains("timetablebreak") || cell.innerText === "  ") continue;
+            if (!cell || checkCellEmpty(cell, true)) continue;
             cell.classList.add("highlight");
         }
         return i;
@@ -698,7 +705,7 @@ function highlightRow(currentTime, currentCell, table) {
     for (let i = 1; i < table.rows.length; i++) {
         const timecell = table.rows[i].cells[1].innerText;
         const [time_start, time_end] = timecell.split(" - ");
-        if (currentTime < time_start || currentTime > time_end || table.rows[i].cells[currentCell].innerText === "  ") continue;
+        if (currentTime < time_start || currentTime > time_end || checkCellEmpty(table.rows[i].cells[currentCell], false)) continue;
         return i;
     }
     return 0;
