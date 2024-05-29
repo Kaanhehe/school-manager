@@ -61,6 +61,9 @@
     .content {
         width: 78vw;
     }
+    .login-form {
+        font-size: 1.25em;
+    }
 }
 
 @media screen and (max-width: 400px){
