@@ -350,11 +350,8 @@ function applyTimetable(data, tableId) {
                 cell.textContent = class_name + ' ' + class_loc + ' ' + class_tea;
                 cell.classList.add('timetablecell');
                 cell.classList.add('class-' + class_num + '-' + class_day);
-                cell.addEventListener('mouseover', function() { 
-                    // check if the cell is empty
-                    if (cell.innerText === "") {
-                        return;
-                    }
+                // check if the cell is empty
+                if (cell.innerText.trim()) {
                     // check classes_data for the class label and add it to the tooltip
                     classes_data.forEach(function(class_data) {
                         if (class_data[0] === class_name && class_data[1] !== "") {
@@ -362,7 +359,7 @@ function applyTimetable(data, tableId) {
                         }
                     });
                     tippy('.class-' + class_num + '-' + class_day, { content: 'Fach: ' + class_name + '<br>Raum: ' + class_loc + '<br>Lehrer: ' + class_tea, allowHTML: true });
-                });
+                }
                 row.appendChild(cell);
             }
         });
