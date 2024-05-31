@@ -400,7 +400,7 @@ def login():
         # check if the password is correct
         if user and check_password_hash(user[3], form_data['password']):
             # set the session username
-            session['username'] = form_data['username']
+            session['username'] = user[1]
             # checks if the user has given the data for the school website login
             if user[4] == 0:
                 return jsonify({'warning': '<i class="fa-solid fa-exclamation"></i> Login erfolgreich. Bitte gib deine Daten für den Vertretungsplan und den Stundenplan an'})
