@@ -130,9 +130,13 @@ def scrape_repplan(session, url):
     # only if both panels gave back an alert
     # only if there is no repplan data available it will error on repplan getting updated right now
     if all(alert2.values()): # alert 2 is typically telling that there is no repplan data available
-        if any(alert1.values()): # alert 1 is typically telling that the repplan is getting updated right now
-            return sys.exit("error+Fehler+" + alert1.text.strip())
-        return sys.exit("error+Fehler+" + alert2.text.strip())
+        # alert 1 is typically telling that the repplan is getting updated right now
+        alert1_text = next((alert.text.strip() for alert in alert1.values() if alert), None)
+        if alert1_text:
+            return sys.exit("error+Fehler+" + alert1_text)
+        alert2_text = next((alert.text.strip() for alert in alert2.values() if alert), None)
+        if alert2_text:
+            return sys.exit("error+Fehler+" + alert2_text)
     
     return repplan_data
 
