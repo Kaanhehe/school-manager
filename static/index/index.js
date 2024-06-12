@@ -442,7 +442,7 @@ function applyrepplan(repplanData, tableId) {
         let cellText = table.rows[row].cells[cell].innerText;
         let [cellSubject, cellRoom, cellTeacher] = cellText.split(' ');
 
-        if ((cellSubject === subject && cellTeacher === teacher) || (info === "SV-Std" || info === "SV-Std.")) {
+        if ((cellSubject === subject && cellTeacher === teacher) || (info === "SV-Std" || info === "SV-Std.") || (info.includes("statt") || info.includes("Verlegung"))) {
             if (substitute && substitute !== teacher) {
                 data.push("sub");
             }
@@ -472,6 +472,8 @@ function applyrepplan(repplanData, tableId) {
                 });
                 data.push("sv_std");
             
+            } else if (info.includes("statt") || info.includes("Verlegung")) {
+                data.push("subject");
             } else if (info) {
                 data.push("info");
             }
@@ -528,6 +530,14 @@ function applyRoomChange(cell, id, room) {
     cellsplit.splice(2, 0, room);
     cell.innerHTML = `${cellsplit.join(' ')} <i class="room-icon${id} fas fa-door-open" style="font-size: smaller;"></i>`;
     tippy(`.room-icon${id}`, { content: "Neuer Raum: " + room });
+}
+
+function applySubjectChange(cell, id, subject) {
+    let cellsplit = cell.innerHTML.split(' ');
+    cellsplit[0] = `<strike>${cellsplit[0]}</strike>`;
+    cellsplit.splice(1, 0, subject);
+    cell.innerHTML = `${cellsplit.join(' ')} <i class="subject-icon${id} fas fa-exchange-alt" style="font-size: smaller;"></i>`;
+    tippy(`.subject-icon${id}`, { content: "Neues Fach: " + subject });
 }
 
 function applyCancellation(cell, id) {
