@@ -442,7 +442,7 @@ function applyrepplan(repplanData, tableId) {
         let cellText = table.rows[row].cells[cell].innerText;
         let [cellSubject, cellRoom, cellTeacher] = cellText.split(' ');
 
-        if ((cellSubject === subject && cellTeacher === teacher) || (info === "SV-Std" || info === "SV-Std.")) {
+        if ((cellSubject === subject && cellTeacher === teacher) || (info === "SV-Std" || info === "SV-Std.") || (info.includes("statt") || info.includes("Verlegung"))) {
             if (substitute && substitute !== teacher) {
                 data.push("sub");
             }
@@ -472,6 +472,8 @@ function applyrepplan(repplanData, tableId) {
                 });
                 data.push("sv_std");
             
+            } else if (info.includes("statt") || info.includes("Verlegung")) {
+                data.push("subject");
             } else if (info) {
                 data.push("info");
             }
@@ -497,6 +499,10 @@ function applyrepplan(repplanData, tableId) {
                     break;
                 case "sv_std":
                     applySVStd(cellElement, id);
+                    break;
+                case "subject":
+                    console.log("subject")
+                    applySubjectChange(cellElement, id, subject);
                     break;
                 case "info":
                     applyInfo(cellElement, id, info);
@@ -526,6 +532,14 @@ function applyRoomChange(cell, id, room) {
     tippy(`.room-icon${id}`, { content: "Neuer Raum: " + room });
 }
 
+function applySubjectChange(cell, id, subject) {
+    let cellsplit = cell.innerHTML.split(' ');
+    cellsplit[0] = `<strike>${cellsplit[0]}</strike>`;
+    cellsplit.splice(1, 0, subject);
+    cell.innerHTML = `${cellsplit.join(' ')} <i class="subject-icon${id} fas fa-exchange-alt" style="font-size: smaller;"></i>`;
+    tippy(`.subject-icon${id}`, { content: "Neues Fach: " + subject });
+}
+
 function applyCancellation(cell, id) {
     cell.innerHTML = `<strike>${cell.innerHTML}</strike> <i class="cancelled-icon${id} fas fa-times-circle" style="font-size: smaller;"></i>`;
     tippy(`.cancelled-icon${id}`, { content: "Diese Stunde fällt aus" });
@@ -550,10 +564,12 @@ function applySubAndCancelled(cell, id) {
 // Homework stuff
 async function RequestHomeworkRefresh() {
     if (oldhw) {
-        await done == refreshOldHomeworks();
+        done = refreshOldHomeworks();
+        await done
         setupclasses(classes_data);
     } else {
-        await done == refreshHomeworks();
+        done = refreshHomeworks();
+        await done
         setupclasses(classes_data);
     }
 }
