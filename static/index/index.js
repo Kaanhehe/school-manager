@@ -498,6 +498,10 @@ function applyrepplan(repplanData, tableId) {
                 case "sv_std":
                     applySVStd(cellElement, id);
                     break;
+                case "subject":
+                    console.log("subject")
+                    applySubjectChange(cellElement, id, subject);
+                    break;
                 case "info":
                     applyInfo(cellElement, id, info);
                     break;
@@ -550,10 +554,12 @@ function applySubAndCancelled(cell, id) {
 // Homework stuff
 async function RequestHomeworkRefresh() {
     if (oldhw) {
-        await done == refreshOldHomeworks();
+        done = refreshOldHomeworks();
+        await done
         setupclasses(classes_data);
     } else {
-        await done == refreshHomeworks();
+        done = refreshHomeworks();
+        await done
         setupclasses(classes_data);
     }
 }
