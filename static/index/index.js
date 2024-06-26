@@ -434,7 +434,6 @@ function applyrepplan(repplanData, tableId) {
         if (row > 6) {
             row--;
         }
-        console.log(data[6])
         break_rows.forEach(break_row => {
             console.log(break_row, row)
             if (break_row <= row) {
