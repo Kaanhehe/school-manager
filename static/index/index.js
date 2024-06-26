@@ -428,8 +428,14 @@ function applyrepplan(repplanData, tableId) {
         let day = date.getDay();
         let cell = day + 1;
         let row = hour;
-
+        // account for the missing 7th period in the timetable
+        // Basically you never have something in the 7th period so the row is always one less, even if you add a break there it will be one less
+        // Because the repplan doesnt just gives you the period number
+        if (row > 6) {
+            row--;
+        }
         break_rows.forEach(break_row => {
+            console.log(break_row, row)
             if (break_row <= row) {
                 row++;
             }
@@ -438,11 +444,9 @@ function applyrepplan(repplanData, tableId) {
         if (!table.rows[row] || !table.rows[row].cells[cell]) {
             return;
         }
-
         let cellText = table.rows[row].cells[cell].innerText;
         let [cellSubject, cellRoom, cellTeacher] = cellText.split(' ');
-
-        if ((cellSubject === subject && cellTeacher === teacher) || (info === "SV-Std" || info === "SV-Std.") || (info.includes("statt") || info.includes("Verlegung"))) {
+        if ((cellSubject === subject || cellTeacher === teacher) || (info === "SV-Std" || info === "SV-Std.")) {
             if (substitute && substitute !== teacher) {
                 data.push("sub");
             }
@@ -451,6 +455,9 @@ function applyrepplan(repplanData, tableId) {
                 data.push("room");
             }
 
+            if (subject && subject !== cellSubject) {
+                data.push("subject");
+            }
             if (info === "fällt aus") {
                 let sv_std = changes.some(({ data }, j) => {
                     return i !== j && data[1] === date2 && data[2] === hour && data.includes("sv_std");
@@ -471,9 +478,6 @@ function applyrepplan(repplanData, tableId) {
                     }
                 });
                 data.push("sv_std");
-            
-            } else if (info.includes("statt") || info.includes("Verlegung")) {
-                data.push("subject");
             } else if (info) {
                 data.push("info");
             }
@@ -501,7 +505,6 @@ function applyrepplan(repplanData, tableId) {
                     applySVStd(cellElement, id);
                     break;
                 case "subject":
-                    console.log("subject")
                     applySubjectChange(cellElement, id, subject);
                     break;
                 case "info":
