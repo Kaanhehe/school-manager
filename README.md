@@ -55,7 +55,7 @@ This project was build using Heroku and may needs to be modified to be used with
 
 ## Features
 
-- **Automatically Webscraping**: Takes all data from your school website automatically.
+- **Automatic Webscraping**: Takes all data from your school website automatically.
 - **Timetable Management**: View and manage your school timetable.
 - **Homework Management**: Add, edit, and delete homework assignments.
 - **Replacement Plan**: View your replacement plan.
