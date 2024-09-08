@@ -2,6 +2,8 @@
 
 School Manager is a web application designed to help manage school-related tasks such as timetables, homework, and replacement plans. The application is built using Python and Flask for the backend, and HTML, CSS, and JavaScript for the frontend.
 
+I created this application because I didnt like that way the school website was designed and though it could need some upgrades in design so its easy and intuitive to use.
+
 ![Schulhub Demo](static/images/schulhub_demo.png)
 ![Landingpage](static/images/landingpage_1.png)
 ![Landingpage_2](static/images/landingpage_2.png)
@@ -59,6 +61,17 @@ This project was build using Heroku and may needs to be modified to be used with
 - **Replacement Plan**: View your replacement plan.
 - **Combined into Timetable**: Homework and Replacement plan is integrated into the Timetable.
 - **Security**: All passwords are encrypted to ensure your school website login is secured.
+
+### Visual Design Elements
+
+The School Manager application is designed to be intuitive and easy to use. Many elements are visually distinct, allowing users to quickly understand the status of different items without needing to read detailed descriptions. Here are some of the key visual design elements:
+
+- **Cancelled Classes**: If a class is cancelled, it will be crossed out. This makes it immediately clear which classes are not taking place.
+- **Highlighted Current Lesson**: The current lesson is highlighted, so you can easily see which class is happening right now.
+- **Replacement Plan Integration**: Replacement classes are marked with a special icon or color, making it easy to distinguish them from regular classes.
+- **Homework Management**: Homework assignments are color-coded based on their subject, helping you prioritize your tasks at a glance.
+
+These visual cues are designed to enhance the user experience by providing important information quickly and efficiently.
 
 ## Contributing
 Contributions are welcome! Please fork the repository and submit a pull request for any improvements or bug fixes.
