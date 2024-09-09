@@ -60,6 +60,7 @@ This project was build using Heroku and may needs to be modified to be used with
 - **Homework Management**: Add, edit, and delete homework assignments.
 - **Replacement Plan**: View your replacement plan.
 - **Combined into Timetable**: Homework and Replacement plan is integrated into the Timetable.
+- **Support for other deviced**: This application supports using it on mobile and tablet.
 - **Security**: All passwords are encrypted to ensure your school website login is secured.
 
 ### Visual Design Elements
